@@ -44,7 +44,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (p *Proxy) serveConnect(w http.ResponseWriter, r *http.Request) {
 	var err error
-	var server *tls.Conn
+	var sconn *tls.Conn
 	a := dnsName(r.Host)
 	//if len(a) == 0 {
 	//	a = feelCertNames(r.Host)
@@ -73,7 +73,7 @@ func (p *Proxy) serveConnect(w http.ResponseWriter, r *http.Request) {
 			*cConfig = *p.TLSClientConfig
 		}
 		cConfig.ServerName = hello.ServerName
-		server, err = tls.Dial("tcp", r.Host, cConfig)
+		sconn, err = tls.Dial("tcp", r.Host, cConfig)
 		if err != nil {
 			log.Println("dial", r.Host, err)
 			return nil, err
@@ -81,19 +81,19 @@ func (p *Proxy) serveConnect(w http.ResponseWriter, r *http.Request) {
 		return p.cert([]string{hello.ServerName})
 	}
 
-	client, err := handshake(w, sConfig)
+	cconn, err := handshake(w, sConfig)
 	if err != nil {
 		log.Println("handshake", r.Host, err)
 		return
 	}
-	defer client.Close()
-	if server == nil {
+	defer cconn.Close()
+	if sconn == nil {
 		log.Println("could not determine cert name for " + r.Host)
 		return
 	}
-	defer server.Close()
+	defer sconn.Close()
 
-	od := &oneShotDialer{c: server}
+	od := &oneShotDialer{c: sconn}
 	rp := &httputil.ReverseProxy{
 		Director:      httpsDirector,
 		Transport:     &http.Transport{DialTLS: od.dial},
@@ -101,7 +101,7 @@ func (p *Proxy) serveConnect(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ch := make(chan int)
-	wc := &onCloseConn{client, func() { ch <- 0 }}
+	wc := &onCloseConn{cconn, func() { ch <- 0 }}
 	http.Serve(&oneShotListener{wc}, rp)
 	<-ch
 }
