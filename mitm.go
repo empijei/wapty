@@ -15,6 +15,11 @@ import (
 // for incoming TLS connections in place of the upstream server's
 // certificate.
 type Proxy struct {
+	// F must be a function that modifies the request into a new request to
+	// be sent to using http.Transport. The response will be written to the
+	// returned ResponseWriter, and F must use w to convey the response to
+	// the client. If F does not need to modify the response, it can simply
+	// return w.
 	F func(w http.ResponseWriter, r *http.Request) http.ResponseWriter
 
 	DialTLS func(network, addr string, c *tls.Config) (*tls.Conn, error)
@@ -25,6 +30,10 @@ type Proxy struct {
 
 	TLSClientConfig *tls.Config
 
+	// FlushInterval specifies the flush interval
+	// to flush to the client while copying the
+	// response body.
+	// If zero, no periodic flushing is done.
 	FlushInterval time.Duration
 }
 
