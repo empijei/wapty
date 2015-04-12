@@ -52,12 +52,12 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Proxy) serveConnect(w http.ResponseWriter, r *http.Request) {
-	var err error
-	var sconn *tls.Conn
-	a := dnsName(r.Host)
-	//if len(a) == 0 {
-	//	a = feelCertNames(r.Host)
-	//}
+	var (
+		err   error
+		sconn *tls.Conn
+		a     = dnsName(r.Host)
+	)
+
 	if len(a) == 0 {
 		log.Println("cannot determine cert name for " + r.Host)
 		http.Error(w, "no upstream", 503)
