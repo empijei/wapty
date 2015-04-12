@@ -15,12 +15,9 @@ import (
 // for incoming TLS connections in place of the upstream server's
 // certificate.
 type Proxy struct {
-	// F must be a function that modifies the request into a new request to
-	// be sent to using http.Transport. The response will be written to the
-	// returned ResponseWriter, and F must use w to convey the response to
-	// the client. If F does not need to modify the response, it can simply
-	// return w.
-	F func(w http.ResponseWriter, r *http.Request) http.ResponseWriter
+	// Wrap must be a function that wraps the upstream handler however it
+	// wants.
+	Wrap func(upstream http.Handler) http.Handler
 
 	DialTLS func(network, addr string, c *tls.Config) (*tls.Conn, error)
 
@@ -43,12 +40,11 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		p.serveConnect(w, r)
 		return
 	}
-	rp := httputil.ReverseProxy{
+	rp := &httputil.ReverseProxy{
 		Director:      httpDirector,
 		FlushInterval: p.FlushInterval,
 	}
-	rp.ServeHTTP(w, r)
-
+	p.Wrap(rp).ServeHTTP(w, r)
 }
 
 func (p *Proxy) serveConnect(w http.ResponseWriter, r *http.Request) {
@@ -111,7 +107,7 @@ func (p *Proxy) serveConnect(w http.ResponseWriter, r *http.Request) {
 
 	ch := make(chan int)
 	wc := &onCloseConn{cconn, func() { ch <- 0 }}
-	http.Serve(&oneShotListener{wc}, rp)
+	http.Serve(&oneShotListener{wc}, p.Wrap(rp))
 	<-ch
 }
 
