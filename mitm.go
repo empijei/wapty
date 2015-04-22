@@ -51,16 +51,16 @@ func (p *Proxy) serveConnect(w http.ResponseWriter, r *http.Request) {
 	var (
 		err   error
 		sconn *tls.Conn
-		a     = dnsName(r.Host)
+		name  = dnsName(r.Host)
 	)
 
-	if len(a) == 0 {
+	if name == "" {
 		log.Println("cannot determine cert name for " + r.Host)
 		http.Error(w, "no upstream", 503)
 		return
 	}
 
-	provisionalCert, err := p.cert(a)
+	provisionalCert, err := p.cert(name)
 	if err != nil {
 		log.Println("cert", err)
 		http.Error(w, "no upstream", 503)
@@ -83,7 +83,7 @@ func (p *Proxy) serveConnect(w http.ResponseWriter, r *http.Request) {
 			log.Println("dial", r.Host, err)
 			return nil, err
 		}
-		return p.cert([]string{hello.ServerName})
+		return p.cert(hello.ServerName)
 	}
 
 	cconn, err := handshake(w, sConfig)
@@ -111,7 +111,7 @@ func (p *Proxy) serveConnect(w http.ResponseWriter, r *http.Request) {
 	<-ch
 }
 
-func (p *Proxy) cert(names []string) (*tls.Certificate, error) {
+func (p *Proxy) cert(names ...string) (*tls.Certificate, error) {
 	return genCert(p.CA, names)
 }
 
@@ -148,16 +148,12 @@ func httpsDirector(r *http.Request) {
 }
 
 // dnsName returns the DNS name in addr, if any.
-func dnsName(addr string) []string {
+func dnsName(addr string) string {
 	host, _, err := net.SplitHostPort(addr)
 	if err != nil {
-		return nil
+		return ""
 	}
-	ip := net.ParseIP(host)
-	if ip == nil {
-		return nil
-	}
-	return []string{host}
+	return host
 }
 
 // namesOnCert returns the dns names
