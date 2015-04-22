@@ -154,7 +154,7 @@ func dnsName(addr string) []string {
 		return nil
 	}
 	ip := net.ParseIP(host)
-	if ip != nil {
+	if ip == nil {
 		return nil
 	}
 	return []string{host}
