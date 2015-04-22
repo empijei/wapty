@@ -3,6 +3,8 @@ package mitm
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"flag"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -13,6 +15,14 @@ import (
 )
 
 var hostname, _ = os.Hostname()
+
+var (
+	nettest = flag.Bool("nettest", false, "run tests over network")
+)
+
+func init() {
+	flag.Parse()
+}
 
 func genCA() (cert tls.Certificate, err error) {
 	certPEM, keyPEM, err := GenCA(hostname)
@@ -108,6 +118,44 @@ func Test(t *testing.T) {
 		const w = "abc"
 		if g := resp.Header.Get(xHops); g != w {
 			t.Errorf("want %s to be %s, got %s", xHops, w, g)
+		}
+	})
+}
+
+func TestNet(t *testing.T) {
+	if !*nettest {
+		t.Skip()
+	}
+
+	ca, err := genCA()
+	if err != nil {
+		t.Fatal("loadCA:", err)
+	}
+
+	var wrapped bool
+	testProxy(t, &ca, func(req *http.Request) {
+		nreq, _ := http.NewRequest("GET", "https://mitmtest.herokuapp.com/", nil)
+		*req = *nreq
+	}, func(upstream http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			wrapped = true
+			upstream.ServeHTTP(w, r)
+		})
+	}, func(w http.ResponseWriter, r *http.Request) {
+		t.Fatal("this shouldn't be hit")
+	}, func(resp *http.Response) {
+		if !wrapped {
+			t.Errorf("expected wrap")
+		}
+		got, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			t.Fatal("ReadAll:", err)
+		}
+		if code := resp.StatusCode; code != 200 {
+			t.Errorf("want code 200, got %d", code)
+		}
+		if g := string(got); g != "ok\n" {
+			t.Errorf("want ok, got %q", g)
 		}
 	})
 }
