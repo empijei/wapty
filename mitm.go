@@ -35,7 +35,6 @@ type Proxy struct {
 }
 
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Println("handle", r.URL)
 	if r.Method == "CONNECT" {
 		p.serveConnect(w, r)
 		return

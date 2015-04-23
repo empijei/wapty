@@ -106,7 +106,6 @@ func Test(t *testing.T) {
 		req.Header.Set(xHops, "a")
 	}, func(upstream http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			println("WRAP")
 			hops := r.Header.Get("X-Hops") + "b"
 			r.Header.Set("X-Hops", hops)
 			upstream.ServeHTTP(w, r)
