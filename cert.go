@@ -9,6 +9,7 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"math/big"
 	"time"
 )
@@ -31,8 +32,13 @@ func genCert(ca *tls.Certificate, names []string) (*tls.Certificate, error) {
 	if !ca.Leaf.IsCA {
 		return nil, errors.New("CA cert is not a CA")
 	}
+	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
+	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate serial number: %s", err)
+	}
 	tmpl := &x509.Certificate{
-		SerialNumber:          big.NewInt(1),
+		SerialNumber:          serialNumber,
 		Subject:               pkix.Name{CommonName: names[0]},
 		NotBefore:             now,
 		NotAfter:              now.Add(leafMaxAge),
