@@ -27,7 +27,7 @@ const (
 )
 
 func genCert(ca *tls.Certificate, names []string) (*tls.Certificate, error) {
-	now := time.Now().UTC()
+	now := time.Now().Add(-1 * time.Hour).UTC()
 	if !ca.Leaf.IsCA {
 		return nil, errors.New("CA cert is not a CA")
 	}
