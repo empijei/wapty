@@ -15,16 +15,20 @@ import (
 // for incoming TLS connections in place of the upstream server's
 // certificate.
 type Proxy struct {
-	// Wrap must be a function that wraps the upstream handler however it
-	// wants.
+	// Wrap specifies a function for optionally wrapping upstream for
+	// inspecting the decrypted HTTP request and response.
 	Wrap func(upstream http.Handler) http.Handler
 
-	DialTLS func(network, addr string, c *tls.Config) (*tls.Conn, error)
-
+	// CA specifies the root CA for generating leaf certs for each incoming
+	// TLS request.
 	CA *tls.Certificate
 
+	// TLSServerConfig specifies the tls.Config to use when generating leaf
+	// cert using CA.
 	TLSServerConfig *tls.Config
 
+	// TLSServerConfig specifies the tls.Config to use when establishing a
+	// downstream connection for proxying.
 	TLSClientConfig *tls.Config
 
 	// FlushInterval specifies the flush interval
@@ -100,7 +104,7 @@ func (p *Proxy) serveConnect(w http.ResponseWriter, r *http.Request) {
 	od := &oneShotDialer{c: sconn}
 	rp := &httputil.ReverseProxy{
 		Director:      httpsDirector,
-		Transport:     &http.Transport{DialTLS: od.dial},
+		Transport:     &http.Transport{DialTLS: od.Dial},
 		FlushInterval: p.FlushInterval,
 	}
 
@@ -116,6 +120,9 @@ func (p *Proxy) cert(names ...string) (*tls.Certificate, error) {
 
 var okHeader = []byte("HTTP/1.1 200 OK\r\n\r\n")
 
+// handshake hijacks w's underlying net.Conn, responds to the CONNECT request
+// and manually performs the TLS handshake. It returns the net.Conn or and
+// error if any.
 func handshake(w http.ResponseWriter, config *tls.Config) (net.Conn, error) {
 	raw, _, err := w.(http.Hijacker).Hijack()
 	if err != nil {
@@ -169,12 +176,14 @@ func namesOnCert(conn *tls.Conn) []string {
 	return []string{c.Subject.CommonName}
 }
 
+// A oneShotDialer implements net.Dialer whos Accept only returns a
+// net.Conn as specified by c followed by an error for each subsequent Dial.
 type oneShotDialer struct {
 	c  net.Conn
 	mu sync.Mutex
 }
 
-func (d *oneShotDialer) dial(network, addr string) (net.Conn, error) {
+func (d *oneShotDialer) Dial(network, addr string) (net.Conn, error) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 	if d.c == nil {
@@ -185,6 +194,8 @@ func (d *oneShotDialer) dial(network, addr string) (net.Conn, error) {
 	return c, nil
 }
 
+// A oneShotListener implements net.Listener whos Accept only returns a
+// net.Conn as specified by c followed by an error for each subsequent Accept.
 type oneShotListener struct {
 	c net.Conn
 }
@@ -206,6 +217,7 @@ func (l *oneShotListener) Addr() net.Addr {
 	return l.c.LocalAddr()
 }
 
+// A onCloseConn implements net.Conn and calls its f on Close.
 type onCloseConn struct {
 	net.Conn
 	f func()
