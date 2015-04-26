@@ -176,7 +176,7 @@ func namesOnCert(conn *tls.Conn) []string {
 	return []string{c.Subject.CommonName}
 }
 
-// A oneShotDialer implements net.Dialer whos Accept only returns a
+// A oneShotDialer implements net.Dialer whos Dial only returns a
 // net.Conn as specified by c followed by an error for each subsequent Dial.
 type oneShotDialer struct {
 	c  net.Conn
