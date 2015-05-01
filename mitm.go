@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/httputil"
+	"strings"
 	"sync"
 	"time"
 )
@@ -115,7 +116,27 @@ func (p *Proxy) serveConnect(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Proxy) cert(names ...string) (*tls.Certificate, error) {
-	return genCert(p.CA, names)
+	var (
+		cache = map[string]tls.Certificate{} // names (joined with ,) -> cert
+		m     sync.Mutex
+	)
+
+	m.Lock()
+	defer m.Unlock()
+
+	key := strings.Join(names, ",")
+
+	if cert, ok := cache[key]; ok {
+		return &cert, nil
+	} else {
+		cert, err := genCert(p.CA, names)
+
+		if err == nil {
+			cache[key] = *cert
+		}
+
+		return cert, err
+	}
 }
 
 var okHeader = []byte("HTTP/1.1 200 OK\r\n\r\n")
