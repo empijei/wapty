@@ -27,8 +27,8 @@ type Proxy struct {
 	// cert using CA.
 	TLSServerConfig *tls.Config
 
-	// TLSServerConfig specifies the tls.Config to use when establishing a
-	// downstream connection for proxying.
+	// TLSClientConfig specifies the tls.Config to use when establishing
+	// an upstream connection for proxying.
 	TLSClientConfig *tls.Config
 
 	// FlushInterval specifies the flush interval
