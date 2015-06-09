@@ -10,7 +10,9 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"log"
 	"math/big"
+	"net"
 	"time"
 )
 
@@ -65,7 +67,7 @@ func GenerateCA(name string) (certPEM, keyPEM []byte, err error) {
 }
 
 // GenerateCert generates a leaf cert from ca.
-func GenerateCert(ca *tls.Certificate, names ...string) (*tls.Certificate, error) {
+func GenerateCert(ca *tls.Certificate, hosts ...string) (*tls.Certificate, error) {
 	now := time.Now().Add(-1 * time.Hour).UTC()
 	if !ca.Leaf.IsCA {
 		return nil, errors.New("CA cert is not a CA")
@@ -75,21 +77,31 @@ func GenerateCert(ca *tls.Certificate, names ...string) (*tls.Certificate, error
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate serial number: %s", err)
 	}
-	tmpl := &x509.Certificate{
+	template := &x509.Certificate{
 		SerialNumber:          serialNumber,
-		Subject:               pkix.Name{CommonName: names[0]},
+		Subject:               pkix.Name{CommonName: hosts[0]},
 		NotBefore:             now,
 		NotAfter:              now.Add(leafMaxAge),
 		KeyUsage:              leafUsage,
 		BasicConstraintsValid: true,
-		DNSNames:              names,
 		SignatureAlgorithm:    x509.ECDSAWithSHA512,
 	}
+
+	for _, h := range hosts {
+		if ip := net.ParseIP(h); ip != nil {
+			log.Println("IP:", h)
+			template.IPAddresses = append(template.IPAddresses, ip)
+		} else {
+			log.Println("DNSNames:", h)
+			template.DNSNames = append(template.DNSNames, h)
+		}
+	}
+
 	key, err := genKeyPair()
 	if err != nil {
 		return nil, err
 	}
-	x, err := x509.CreateCertificate(rand.Reader, tmpl, ca.Leaf, key.Public(), ca.PrivateKey)
+	x, err := x509.CreateCertificate(rand.Reader, template, ca.Leaf, key.Public(), ca.PrivateKey)
 	if err != nil {
 		return nil, err
 	}

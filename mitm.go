@@ -98,11 +98,6 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 	defer cn.Close()
 
-	writeErr := func(prefix string, err error) {
-		log.Println(prefix, err)
-		io.WriteString(cn, errHeader)
-	}
-
 	_, err = io.WriteString(cn, okHeader)
 	if err != nil {
 		log.Println("Write:", err)
@@ -118,9 +113,10 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		provcert, err := GenerateCert(p.CA, req.Host)
+		provcert, err := GenerateCert(p.CA, name)
 		if err != nil {
-			writeErr("GenerateCert:", err)
+			log.Println("GenerateCert:", err)
+			io.WriteString(cn, errHeader)
 			return
 		}
 		sc = Server(cn, ServerParam{
@@ -129,7 +125,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			TLSConfig:       p.TLSServerConfig,
 		})
 		if err := sc.Handshake(); err != nil {
-			writeErr("Handshake:", err)
+			log.Println("Handshake:", err)
 			return
 		}
 	}

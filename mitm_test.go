@@ -1,3 +1,5 @@
+//go:generate go run $GOROOT/src/crypto/tls/generate_cert.go -host "example.com,127.0.0.1" -ca -ecdsa-curve P256
+//go:generate sh -c "go-bindata -o cert_test.go -pkg mitm *.pem"
 package mitm
 
 import (
@@ -5,6 +7,7 @@ import (
 	"crypto/x509"
 	"flag"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -13,6 +16,10 @@ import (
 	"strings"
 	"testing"
 )
+
+func init() {
+	log.SetFlags(log.Lshortfile)
+}
 
 var hostname, _ = os.Hostname()
 
@@ -24,25 +31,32 @@ func init() {
 	flag.Parse()
 }
 
-func genCA() (cert tls.Certificate, err error) {
-	certPEM, keyPEM, err := GenerateCA(hostname)
-	if err != nil {
-		return tls.Certificate{}, err
-	}
-	cert, err = tls.X509KeyPair(certPEM, keyPEM)
-	if err != nil {
-		return tls.Certificate{}, err
-	}
-	cert.Leaf, err = x509.ParseCertificate(cert.Certificate[0])
-	return cert, err
-}
+var (
+	caCert = MustAsset("cert.pem")
+	caKey  = MustAsset("key.pem")
+)
 
-func testProxy(t *testing.T, ca *tls.Certificate, setupReq func(req *http.Request), wrap func(http.Handler) http.Handler, downstream http.HandlerFunc, checkResp func(*http.Response)) {
+func testProxy(t *testing.T, setupReq func(req *http.Request), wrap func(http.Handler) http.Handler, downstream http.HandlerFunc, checkResp func(*http.Response)) {
 	ds := httptest.NewTLSServer(downstream)
 	defer ds.Close()
 
+	rootCAs := x509.NewCertPool()
+	if !rootCAs.AppendCertsFromPEM(caCert) {
+		panic("can't add cert")
+	}
+
+	ca, err := tls.X509KeyPair(caCert, caKey)
+	if err != nil {
+		panic(err)
+	}
+	ca.Leaf, err = x509.ParseCertificate(ca.Certificate[0])
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("ca.Leaf.IPAddresses: %v", ca.Leaf.IPAddresses)
+
 	p := &Proxy{
-		CA: ca,
+		CA: &ca,
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: true,
 		},
@@ -82,7 +96,7 @@ func testProxy(t *testing.T, ca *tls.Certificate, setupReq func(req *http.Reques
 				return &u, nil
 			},
 			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: true,
+				RootCAs: rootCAs,
 			},
 		},
 	}
@@ -97,12 +111,8 @@ func testProxy(t *testing.T, ca *tls.Certificate, setupReq func(req *http.Reques
 func Test(t *testing.T) {
 	const xHops = "X-Hops"
 
-	ca, err := genCA()
-	if err != nil {
-		t.Fatal("loadCA:", err)
-	}
-
-	testProxy(t, &ca, func(req *http.Request) {
+	testProxy(t, func(req *http.Request) {
+		// req.Host = "example.com"
 		req.Header.Set(xHops, "a")
 	}, func(upstream http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -126,13 +136,8 @@ func TestNet(t *testing.T) {
 		t.Skip()
 	}
 
-	ca, err := genCA()
-	if err != nil {
-		t.Fatal("loadCA:", err)
-	}
-
 	var wrapped bool
-	testProxy(t, &ca, func(req *http.Request) {
+	testProxy(t, func(req *http.Request) {
 		nreq, _ := http.NewRequest("GET", "https://mitmtest.herokuapp.com/", nil)
 		*req = *nreq
 	}, func(upstream http.Handler) http.Handler {
