@@ -25,7 +25,7 @@ func init() {
 }
 
 func genCA() (cert tls.Certificate, err error) {
-	certPEM, keyPEM, err := GenCA(hostname)
+	certPEM, keyPEM, err := GenerateCA(hostname)
 	if err != nil {
 		return tls.Certificate{}, err
 	}

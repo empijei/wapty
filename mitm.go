@@ -3,6 +3,7 @@ package mitm
 import (
 	"crypto/tls"
 	"errors"
+	"io"
 	"log"
 	"net"
 	"net/http"
@@ -10,6 +11,40 @@ import (
 	"sync"
 	"time"
 )
+
+type ServerParam struct {
+	CA              *tls.Certificate
+	ProvisionalCert *tls.Certificate
+	TLSConfig       *tls.Config
+}
+
+func (p ServerParam) cert(names ...string) (*tls.Certificate, error) {
+	return GenerateCert(p.CA, names...)
+}
+
+type ServerConn struct {
+	*tls.Conn
+
+	// ServerName is set during Conn's handshake to the client's requested
+	// server name set in the SNI header. It is not safe to access across
+	// multiple goroutines while Conn is performing the handshake.
+	ServerName string
+}
+
+func Server(cn net.Conn, p ServerParam) *ServerConn {
+	conf := new(tls.Config)
+	if p.TLSConfig != nil {
+		*conf = *p.TLSConfig
+	}
+	conf.Certificates = []tls.Certificate{*p.ProvisionalCert}
+	sc := new(ServerConn)
+	conf.GetCertificate = func(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
+		sc.ServerName = hello.ServerName
+		return GenerateCert(p.CA, hello.ServerName)
+	}
+	sc.Conn = tls.Server(cn, conf)
+	return sc
+}
 
 // Proxy is a forward proxy that substitutes its own certificate
 // for incoming TLS connections in place of the upstream server's
@@ -38,109 +73,106 @@ type Proxy struct {
 	FlushInterval time.Duration
 }
 
-func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "CONNECT" {
-		p.serveConnect(w, r)
+var (
+	okHeader           = "HTTP/1.1 200 OK\r\n\r\n"
+	noUpstreamHeader   = "HTTP/1.1 503 No Upstream\r\n\r\n"
+	noDownstreamHeader = "HTTP/1.1 503 No Downstream\r\n\r\n"
+	errHeader          = "HTTP/1.1 500 Internal Server Error\r\n\r\n"
+)
+
+func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	if req.Method != "CONNECT" {
+		rp := &httputil.ReverseProxy{
+			Director:      httpDirector,
+			FlushInterval: p.FlushInterval,
+		}
+		p.Wrap(rp).ServeHTTP(w, req)
 		return
 	}
-	rp := &httputil.ReverseProxy{
-		Director:      httpDirector,
-		FlushInterval: p.FlushInterval,
+
+	cn, _, err := w.(http.Hijacker).Hijack()
+	if err != nil {
+		log.Println("Hijack:", err)
+		http.Error(w, "No Upstream", 503)
+		return
 	}
-	p.Wrap(rp).ServeHTTP(w, r)
+	defer cn.Close()
+
+	writeErr := func(prefix string, err error) {
+		log.Println(prefix, err)
+		io.WriteString(cn, errHeader)
+	}
+
+	_, err = io.WriteString(cn, okHeader)
+	if err != nil {
+		log.Println("Write:", err)
+		return
+	}
+
+	sc, ok := cn.(*ServerConn)
+	if !ok {
+		name := dnsName(req.Host)
+		if name == "" {
+			log.Println("cannot determine cert name for " + req.Host)
+			io.WriteString(cn, noDownstreamHeader)
+			return
+		}
+
+		provcert, err := GenerateCert(p.CA, req.Host)
+		if err != nil {
+			writeErr("GenerateCert:", err)
+			return
+		}
+		sc = Server(cn, ServerParam{
+			CA:              p.CA,
+			ProvisionalCert: provcert,
+			TLSConfig:       p.TLSServerConfig,
+		})
+		if err := sc.Handshake(); err != nil {
+			writeErr("Handshake:", err)
+			return
+		}
+	}
+
+	cc, err := p.tlsDial(req.Host, sc.ServerName)
+	if err != nil {
+		log.Println("tlsDial:", err)
+		io.WriteString(cn, noUpstreamHeader)
+		return
+	}
+	p.proxyMITM(sc, cc)
 }
 
-func (p *Proxy) serveConnect(w http.ResponseWriter, r *http.Request) {
-	var (
-		err   error
-		sconn *tls.Conn
-		name  = dnsName(r.Host)
-	)
-
-	if name == "" {
-		log.Println("cannot determine cert name for " + r.Host)
-		http.Error(w, "no upstream", 503)
-		return
+func (p *Proxy) tlsDial(addr, serverName string) (net.Conn, error) {
+	conf := new(tls.Config)
+	if p.TLSClientConfig != nil {
+		*conf = *p.TLSClientConfig
 	}
+	conf.ServerName = serverName
+	return tls.Dial("tcp", addr, conf)
+}
 
-	provisionalCert, err := p.cert(name)
-	if err != nil {
-		log.Println("cert", err)
-		http.Error(w, "no upstream", 503)
-		return
-	}
-
-	sConfig := new(tls.Config)
-	if p.TLSServerConfig != nil {
-		*sConfig = *p.TLSServerConfig
-	}
-	sConfig.Certificates = []tls.Certificate{*provisionalCert}
-	sConfig.GetCertificate = func(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
-		cConfig := new(tls.Config)
-		if p.TLSClientConfig != nil {
-			*cConfig = *p.TLSClientConfig
+func (p *Proxy) proxyMITM(upstream, downstream net.Conn) {
+	var mu sync.Mutex
+	dial := func(network, addr string) (net.Conn, error) {
+		mu.Lock()
+		defer mu.Unlock()
+		if downstream == nil {
+			return nil, io.EOF
 		}
-		cConfig.ServerName = hello.ServerName
-		sconn, err = tls.Dial("tcp", r.Host, cConfig)
-		if err != nil {
-			log.Println("dial", r.Host, err)
-			return nil, err
-		}
-		return p.cert(hello.ServerName)
+		cn := downstream
+		downstream = nil
+		return cn, nil
 	}
-
-	cconn, err := handshake(w, sConfig)
-	if err != nil {
-		log.Println("handshake", r.Host, err)
-		return
-	}
-	defer cconn.Close()
-	if sconn == nil {
-		log.Println("could not determine cert name for " + r.Host)
-		return
-	}
-	defer sconn.Close()
-
-	od := &oneShotDialer{c: sconn}
 	rp := &httputil.ReverseProxy{
 		Director:      httpsDirector,
-		Transport:     &http.Transport{DialTLS: od.Dial},
+		Transport:     &http.Transport{DialTLS: dial},
 		FlushInterval: p.FlushInterval,
 	}
-
-	ch := make(chan int)
-	wc := &onCloseConn{cconn, func() { ch <- 0 }}
+	ch := make(chan struct{})
+	wc := &onCloseConn{upstream, func() { ch <- struct{}{} }}
 	http.Serve(&oneShotListener{wc}, p.Wrap(rp))
 	<-ch
-}
-
-func (p *Proxy) cert(names ...string) (*tls.Certificate, error) {
-	return genCert(p.CA, names)
-}
-
-var okHeader = []byte("HTTP/1.1 200 OK\r\n\r\n")
-
-// handshake hijacks w's underlying net.Conn, responds to the CONNECT request
-// and manually performs the TLS handshake. It returns the net.Conn or and
-// error if any.
-func handshake(w http.ResponseWriter, config *tls.Config) (net.Conn, error) {
-	raw, _, err := w.(http.Hijacker).Hijack()
-	if err != nil {
-		http.Error(w, "no upstream", 503)
-		return nil, err
-	}
-	if _, err = raw.Write(okHeader); err != nil {
-		raw.Close()
-		return nil, err
-	}
-	conn := tls.Server(raw, config)
-	err = conn.Handshake()
-	if err != nil {
-		conn.Close()
-		raw.Close()
-		return nil, err
-	}
-	return conn, nil
 }
 
 func httpDirector(r *http.Request) {
@@ -148,50 +180,9 @@ func httpDirector(r *http.Request) {
 	r.URL.Scheme = "http"
 }
 
-func httpsDirector(r *http.Request) {
-	r.URL.Host = r.Host
-	r.URL.Scheme = "https"
-}
-
-// dnsName returns the DNS name in addr, if any.
-func dnsName(addr string) string {
-	host, _, err := net.SplitHostPort(addr)
-	if err != nil {
-		return ""
-	}
-	return host
-}
-
-// namesOnCert returns the dns names
-// in the peer's presented cert.
-func namesOnCert(conn *tls.Conn) []string {
-	// TODO(kr): handle IP addr SANs.
-	c := conn.ConnectionState().PeerCertificates[0]
-	if len(c.DNSNames) > 0 {
-		// If Subject Alt Name is given,
-		// we ignore the common name.
-		// This matches behavior of crypto/x509.
-		return c.DNSNames
-	}
-	return []string{c.Subject.CommonName}
-}
-
-// A oneShotDialer implements net.Dialer whos Dial only returns a
-// net.Conn as specified by c followed by an error for each subsequent Dial.
-type oneShotDialer struct {
-	c  net.Conn
-	mu sync.Mutex
-}
-
-func (d *oneShotDialer) Dial(network, addr string) (net.Conn, error) {
-	d.mu.Lock()
-	defer d.mu.Unlock()
-	if d.c == nil {
-		return nil, errors.New("closed")
-	}
-	c := d.c
-	d.c = nil
-	return c, nil
+func httpsDirector(req *http.Request) {
+	req.URL.Host = req.Host
+	req.URL.Scheme = "https"
 }
 
 // A oneShotListener implements net.Listener whos Accept only returns a
@@ -229,4 +220,13 @@ func (c *onCloseConn) Close() error {
 		c.f = nil
 	}
 	return c.Conn.Close()
+}
+
+// dnsName returns the DNS name in addr, if any.
+func dnsName(addr string) string {
+	host, _, err := net.SplitHostPort(addr)
+	if err != nil {
+		return ""
+	}
+	return host
 }
