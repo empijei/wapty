@@ -13,14 +13,16 @@ import (
 )
 
 type ServerParam struct {
-	CA              *tls.Certificate
-	TLSConfig       *tls.Config
+	CA        *tls.Certificate // the Root CA for generatng on the fly MITM certificates
+	TLSConfig *tls.Config      // a template TLS config for the server.
 }
 
 func (p ServerParam) cert(names ...string) (*tls.Certificate, error) {
 	return GenerateCert(p.CA, names...)
 }
 
+// A ServerConn is a net.Conn that holds its clients SNI header in ServerName
+// after the handshake.
 type ServerConn struct {
 	*tls.Conn
 
@@ -30,6 +32,10 @@ type ServerConn struct {
 	ServerName string
 }
 
+// Server wraps cn with a ServerConn configured with p so that during its
+// Handshake, it will generate a new certificate using p.CA. After a successful
+// Handshake, its ServerName field will be set to the clients requested
+// ServerName in the SNI header.
 func Server(cn net.Conn, p ServerParam) *ServerConn {
 	conf := new(tls.Config)
 	if p.TLSConfig != nil {
@@ -50,6 +56,11 @@ type listener struct {
 	conf *tls.Config
 }
 
+// NewListener returns a net.Listener that generates a new cert from ca for
+// each new Accept. It uses SNI to generate the cert, and herefore only
+// works with clients that send SNI headers.
+//
+// This is useful for building transparent MITM proxies.
 func NewListener(inner net.Listener, ca *tls.Certificate, conf *tls.Config) net.Listener {
 	return &listener{inner, ca, conf}
 }
@@ -60,8 +71,8 @@ func (l *listener) Accept() (net.Conn, error) {
 		return nil, err
 	}
 	sc := Server(cn, ServerParam{
-		CA:              l.ca,
-		TLSConfig:       l.conf,
+		CA:        l.ca,
+		TLSConfig: l.conf,
 	})
 	return sc, nil
 }
@@ -133,8 +144,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 		sc = Server(cn, ServerParam{
-			CA:              p.CA,
-			TLSConfig:       p.TLSServerConfig,
+			CA:        p.CA,
+			TLSConfig: p.TLSServerConfig,
 		})
 		if err := sc.Handshake(); err != nil {
 			log.Println("Server Handshake:", err)
