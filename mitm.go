@@ -14,7 +14,6 @@ import (
 
 type ServerParam struct {
 	CA              *tls.Certificate
-	ProvisionalCert *tls.Certificate
 	TLSConfig       *tls.Config
 }
 
@@ -36,7 +35,6 @@ func Server(cn net.Conn, p ServerParam) *ServerConn {
 	if p.TLSConfig != nil {
 		*conf = *p.TLSConfig
 	}
-	conf.Certificates = []tls.Certificate{*p.ProvisionalCert}
 	sc := new(ServerConn)
 	conf.GetCertificate = func(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
 		sc.ServerName = hello.ServerName
@@ -44,6 +42,28 @@ func Server(cn net.Conn, p ServerParam) *ServerConn {
 	}
 	sc.Conn = tls.Server(cn, conf)
 	return sc
+}
+
+type listener struct {
+	net.Listener
+	ca   *tls.Certificate
+	conf *tls.Config
+}
+
+func NewListener(inner net.Listener, ca *tls.Certificate, conf *tls.Config) net.Listener {
+	return &listener{inner, ca, conf}
+}
+
+func (l *listener) Accept() (net.Conn, error) {
+	cn, err := l.Listener.Accept()
+	if err != nil {
+		return nil, err
+	}
+	sc := Server(cn, ServerParam{
+		CA:              l.ca,
+		TLSConfig:       l.conf,
+	})
+	return sc, nil
 }
 
 // Proxy is a forward proxy that substitutes its own certificate
@@ -112,20 +132,12 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			io.WriteString(cn, noDownstreamHeader)
 			return
 		}
-
-		provcert, err := GenerateCert(p.CA, name)
-		if err != nil {
-			log.Println("GenerateCert:", err)
-			io.WriteString(cn, errHeader)
-			return
-		}
 		sc = Server(cn, ServerParam{
 			CA:              p.CA,
-			ProvisionalCert: provcert,
 			TLSConfig:       p.TLSServerConfig,
 		})
 		if err := sc.Handshake(); err != nil {
-			log.Println("Handshake:", err)
+			log.Println("Server Handshake:", err)
 			return
 		}
 	}

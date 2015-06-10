@@ -10,7 +10,6 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"log"
 	"math/big"
 	"net"
 	"time"
@@ -89,10 +88,8 @@ func GenerateCert(ca *tls.Certificate, hosts ...string) (*tls.Certificate, error
 
 	for _, h := range hosts {
 		if ip := net.ParseIP(h); ip != nil {
-			log.Println("IP:", h)
 			template.IPAddresses = append(template.IPAddresses, ip)
 		} else {
-			log.Println("DNSNames:", h)
 			template.DNSNames = append(template.DNSNames, h)
 		}
 	}

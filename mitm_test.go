@@ -3,9 +3,11 @@
 package mitm
 
 import (
+	"bufio"
 	"crypto/tls"
 	"crypto/x509"
 	"flag"
+	"io"
 	"io/ioutil"
 	"log"
 	"net"
@@ -53,8 +55,6 @@ func testProxy(t *testing.T, setupReq func(req *http.Request), wrap func(http.Ha
 	if err != nil {
 		panic(err)
 	}
-	log.Printf("ca.Leaf.IPAddresses: %v", ca.Leaf.IPAddresses)
-
 	p := &Proxy{
 		CA: &ca,
 		TLSClientConfig: &tls.Config{
@@ -162,4 +162,84 @@ func TestNet(t *testing.T) {
 			t.Errorf("want ok, got %q", g)
 		}
 	})
+}
+
+func TestNewListener(t *testing.T) {
+	ca, err := tls.X509KeyPair(caCert, caKey)
+	if err != nil {
+		t.Fatal("X509KeyPair:", err)
+	}
+	ca.Leaf, err = x509.ParseCertificate(ca.Certificate[0])
+	if err != nil {
+		t.Fatal("ParseCertificate:", err)
+	}
+
+	l, err := net.Listen("tcp", "localhost:0")
+	if err != nil {
+		t.Fatal("Listen:", err)
+	}
+	defer l.Close()
+
+	l = NewListener(l, &ca, &tls.Config{
+		MinVersion: tls.VersionSSL30,
+	})
+	paddr := l.Addr().String()
+
+	called := false
+	go http.Serve(l, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if req.Host != "www.google.com" {
+			t.Errorf("want Host www.google.com, got %s", req.Host)
+		}
+		called = true
+	}))
+
+	rootCAs := x509.NewCertPool()
+	if !rootCAs.AppendCertsFromPEM(caCert) {
+		t.Fatal("can't add cert")
+	}
+	cc, err := tls.Dial("tcp", paddr, &tls.Config{
+		MinVersion: tls.VersionSSL30,
+		ServerName: "foo.com",
+		RootCAs:    rootCAs,
+	})
+	if err != nil {
+		t.Fatal("Dial:", err)
+	}
+	if err := cc.Handshake(); err != nil {
+		t.Fatal("Handshake:", err)
+	}
+
+	bw := bufio.NewWriter(cc)
+	var w io.Writer = &stickyErrWriter{bw, &err}
+	io.WriteString(w, "GET / HTTP/1.1\r\n")
+	io.WriteString(w, "Host: www.google.com\r\n")
+	io.WriteString(w, "\r\n\r\n")
+	bw.Flush()
+	if err != nil {
+		t.Error("Write:", err)
+	}
+
+	resp, err := http.ReadResponse(bufio.NewReader(cc), nil)
+	if err != nil {
+		t.Fatal("ReadResponse:", err)
+	}
+	if !called {
+		t.Error("want downstream called")
+	}
+	if resp.StatusCode != 200 {
+		t.Error("want StatusCode 200, got %d", resp.StatusCode)
+	}
+}
+
+type stickyErrWriter struct {
+	io.Writer
+	err *error
+}
+
+func (w *stickyErrWriter) Write(b []byte) (int, error) {
+	n, err := w.Writer.Write(b)
+	if *w.err == nil {
+		*w.err = err
+	}
+	return n, *w.err
 }
