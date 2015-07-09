@@ -55,13 +55,18 @@ func testProxy(t *testing.T, setupReq func(req *http.Request), wrap func(http.Ha
 	if err != nil {
 		panic(err)
 	}
+	cert, err := GenerateCert(&ca, "www.google.com")
+	if err != nil {
+		t.Fatal("GenerateCert:", err)
+	}
 	p := &Proxy{
 		CA: &ca,
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: true,
 		},
 		TLSServerConfig: &tls.Config{
-			MinVersion: tls.VersionTLS12,
+			MinVersion:   tls.VersionTLS12,
+			Certificates: []tls.Certificate{*cert},
 		},
 		Wrap: wrap,
 	}
@@ -180,8 +185,13 @@ func TestNewListener(t *testing.T) {
 	}
 	defer l.Close()
 
+	cert, err := GenerateCert(&ca, "www.google.com")
+	if err != nil {
+		t.Fatal("GenerateCert:", err)
+	}
 	l = NewListener(l, &ca, &tls.Config{
-		MinVersion: tls.VersionSSL30,
+		MinVersion:   tls.VersionSSL30,
+		Certificates: []tls.Certificate{*cert},
 	})
 	paddr := l.Addr().String()
 
