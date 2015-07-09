@@ -237,7 +237,7 @@ func TestNewListener(t *testing.T) {
 		t.Error("want downstream called")
 	}
 	if resp.StatusCode != 200 {
-		t.Error("want StatusCode 200, got %d", resp.StatusCode)
+		t.Errorf("want StatusCode 200, got %d", resp.StatusCode)
 	}
 }
 
