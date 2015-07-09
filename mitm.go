@@ -17,10 +17,6 @@ type ServerParam struct {
 	TLSConfig *tls.Config      // a template TLS config for the server.
 }
 
-func (p ServerParam) cert(names ...string) (*tls.Certificate, error) {
-	return GenerateCert(p.CA, names...)
-}
-
 // A ServerConn is a net.Conn that holds its clients SNI header in ServerName
 // after the handshake.
 type ServerConn struct {
