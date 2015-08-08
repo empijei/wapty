@@ -98,6 +98,13 @@ type Proxy struct {
 	// response body.
 	// If zero, no periodic flushing is done.
 	FlushInterval time.Duration
+
+	// Director is function which modifies the request into a new
+	// request to be sent using Transport. See the documentation for
+	// httputil.ReverseProxy for more details. For mitm proxies, the
+	// director defaults to HTTPDirector, but for transparent TLS
+	// proxies it should be set to HTTPSDirector.
+	Director func(*http.Request)
 }
 
 var (
@@ -110,8 +117,11 @@ var (
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if req.Method != "CONNECT" {
 		rp := &httputil.ReverseProxy{
-			Director:      httpDirector,
+			Director:      p.Director,
 			FlushInterval: p.FlushInterval,
+		}
+		if rp.Director == nil {
+			rp.Director = HTTPDirector
 		}
 		p.Wrap(rp).ServeHTTP(w, req)
 		return
@@ -180,7 +190,7 @@ func (p *Proxy) proxyMITM(upstream, downstream net.Conn) {
 		return cn, nil
 	}
 	rp := &httputil.ReverseProxy{
-		Director:      httpsDirector,
+		Director:      HTTPSDirector,
 		Transport:     &http.Transport{DialTLS: dial},
 		FlushInterval: p.FlushInterval,
 	}
@@ -190,12 +200,16 @@ func (p *Proxy) proxyMITM(upstream, downstream net.Conn) {
 	<-ch
 }
 
-func httpDirector(r *http.Request) {
+// HTTPDirector is director designed for use in Proxy for http
+// proxies.
+func HTTPDirector(r *http.Request) {
 	r.URL.Host = r.Host
 	r.URL.Scheme = "http"
 }
 
-func httpsDirector(req *http.Request) {
+// HTTPSDirector is a director designed for use in Proxy for
+// transparent TLS proxies.
+func HTTPSDirector(req *http.Request) {
 	req.URL.Host = req.Host
 	req.URL.Scheme = "https"
 }
