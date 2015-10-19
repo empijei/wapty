@@ -105,6 +105,10 @@ type Proxy struct {
 	// director defaults to HTTPDirector, but for transparent TLS
 	// proxies it should be set to HTTPSDirector.
 	Director func(*http.Request)
+
+	// Transport is the low-level transport to perform proxy requests.
+	// If nil, http.DefaultTransport is used.
+	Transport http.RoundTripper
 }
 
 var (
@@ -119,6 +123,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		rp := &httputil.ReverseProxy{
 			Director:      p.Director,
 			FlushInterval: p.FlushInterval,
+			Transport:     p.Transport,
 		}
 		if rp.Director == nil {
 			rp.Director = HTTPDirector
