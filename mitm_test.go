@@ -7,6 +7,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"flag"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -17,6 +18,8 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"golang.org/x/net/websocket"
 )
 
 func init() {
@@ -312,6 +315,68 @@ func TestNewListener(t *testing.T) {
 	}
 	if resp.StatusCode != 200 {
 		t.Errorf("want StatusCode 200, got %d", resp.StatusCode)
+	}
+}
+
+func TestWebsocket(t *testing.T) {
+	// Start a mitm proxy
+	p := &Proxy{
+		Wrap: func(upstream http.Handler) http.Handler {
+			t.Error("WebSocket connection should not have triggered request wrapper, but did")
+			return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {})
+		},
+		Director: HTTPDirector,
+	}
+	l, err := net.Listen("tcp", "localhost:0")
+	if err != nil {
+		t.Fatal("Listen:", err)
+	}
+	defer l.Close()
+
+	go func() {
+		if err := http.Serve(l, p); err != nil {
+			if !strings.Contains(err.Error(), "use of closed network") {
+				t.Fatal("Serve:", err)
+			}
+		}
+	}()
+
+	// Start a WebSocket echo server
+	wcServer := httptest.NewServer(websocket.Handler(func(ws *websocket.Conn) {
+		io.Copy(ws, ws)
+	}))
+	defer wcServer.Close()
+
+	// Connect to echo server through proxy
+	d, err := net.Dial(l.Addr().Network(), l.Addr().String())
+	if err != nil {
+		t.Fatal("Dial error:", err)
+	}
+
+	config, err := websocket.NewConfig(wcServer.URL, "http://localhost/")
+	if err != nil {
+		t.Fatal("Config error:", err)
+	}
+	c, err := websocket.NewClient(config, d)
+	if err != nil {
+		t.Fatal("Websocket client error:", err)
+	}
+	defer c.Close()
+
+	for i := 0; i < 3; i++ {
+		snd := fmt.Sprintf("Hello, world! %d\n", i)
+		if _, err := c.Write([]byte(snd)); err != nil {
+			t.Error("Error writing to websocket:", err)
+		}
+
+		rcv := make([]byte, 512)
+		var n int
+		if n, err = c.Read(rcv); err != nil {
+			t.Error("Error reading from websocket:", err)
+		}
+		if string(rcv[:n]) != snd {
+			t.Errorf("Received wrong message from websocket: expected %s, got %s", snd, rcv[:n])
+		}
 	}
 }
 

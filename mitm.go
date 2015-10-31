@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/httputil"
+	"strings"
 	"sync"
 	"time"
 )
@@ -119,14 +120,19 @@ var (
 )
 
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	if p.Director == nil {
+		p.Director = HTTPDirector
+	}
+	if isWebSocket(req) {
+		p.Director(req)
+		forwardWebSocket(w, req)
+		return
+	}
 	if req.Method != "CONNECT" {
 		rp := &httputil.ReverseProxy{
 			Director:      p.Director,
 			FlushInterval: p.FlushInterval,
 			Transport:     p.Transport,
-		}
-		if rp.Director == nil {
-			rp.Director = HTTPDirector
 		}
 		p.Wrap(rp).ServeHTTP(w, req)
 		return
@@ -171,6 +177,57 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	p.proxyMITM(sc, cc)
+}
+
+func isWebSocket(req *http.Request) bool {
+	return strings.Contains(strings.ToLower(req.Header.Get("Upgrade")), "websocket") &&
+		strings.Contains(strings.ToLower(req.Header.Get("Connection")), "upgrade")
+}
+
+// forwardWebSocket forwards a WebSocket connection directly to the
+// source, skipping the request wrapper. Code shamelessly stolen from
+// https://groups.google.com/forum/#!topic/golang-nuts/KBx9pDlvFOc
+func forwardWebSocket(w http.ResponseWriter, req *http.Request) {
+	host, port, err := net.SplitHostPort(req.URL.Host)
+	if err != nil {
+		// Assume there is no port and use default
+		host = req.URL.Host
+		if req.URL.Scheme == "https" {
+			port = "443"
+		} else {
+			port = "80"
+		}
+	}
+	address := net.JoinHostPort(host, port)
+	d, err := net.Dial("tcp", address)
+	if err != nil {
+		log.Printf("forwardWebSocket: error dialing websocket backend %s: %v", address, err)
+		http.Error(w, "No Upstream", 503)
+		return
+	}
+	nc, _, err := w.(http.Hijacker).Hijack()
+	if err != nil {
+		log.Printf("forwardWebSocket: hijack error: %v", err)
+		http.Error(w, "No Upstream", 503)
+		return
+	}
+	defer nc.Close()
+	defer d.Close()
+
+	err = req.Write(d)
+	if err != nil {
+		log.Printf("forwardWebSocket: error copying request to target: %v", err)
+		return
+	}
+
+	errc := make(chan error, 2)
+	cp := func(dst io.Writer, src io.Reader) {
+		_, err := io.Copy(dst, src)
+		errc <- err
+	}
+	go cp(d, nc)
+	go cp(nc, d)
+	<-errc
 }
 
 func (p *Proxy) tlsDial(addr, serverName string) (net.Conn, error) {
