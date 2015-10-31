@@ -1,0 +1,10 @@
+{
+	"ImportPath": "github.com/rainforestapp/mitm",
+	"GoVersion": "go1.5.1",
+	"Deps": [
+		{
+			"ImportPath": "golang.org/x/net/websocket",
+			"Rev": "c95266fa704a83c2716406ae957772a273e1380d"
+		}
+	]
+}
