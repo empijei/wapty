@@ -39,9 +39,11 @@ var (
 )
 
 func testProxy(t *testing.T, setupReq func(req *http.Request), wrap func(http.Handler) http.Handler, downstream http.HandlerFunc, checkResp func(*http.Response)) {
-	ds := httptest.NewTLSServer(downstream)
-	defer ds.Close()
+	testProxyTransparent(t, setupReq, wrap, downstream, checkResp)
+	testProxyDirect(t, setupReq, wrap, downstream, checkResp)
+}
 
+func setupCA() (*x509.CertPool, *tls.Certificate) {
 	rootCAs := x509.NewCertPool()
 	if !rootCAs.AppendCertsFromPEM(caCert) {
 		panic("can't add cert")
@@ -55,12 +57,84 @@ func testProxy(t *testing.T, setupReq func(req *http.Request), wrap func(http.Ha
 	if err != nil {
 		panic(err)
 	}
-	cert, err := GenerateCert(&ca, "www.google.com")
+
+	return rootCAs, &ca
+}
+
+// testProxyTransparent executes a test against Proxy using a
+// simulating a transparent proxy (set up by NewListener).
+func testProxyTransparent(t *testing.T, setupReq func(req *http.Request), wrap func(http.Handler) http.Handler, downstream http.HandlerFunc, checkResp func(*http.Response)) {
+	ds := httptest.NewTLSServer(downstream)
+	defer ds.Close()
+
+	rootCAs, ca := setupCA()
+	cert, err := GenerateCert(ca, "www.google.com")
 	if err != nil {
 		t.Fatal("GenerateCert:", err)
 	}
 	p := &Proxy{
-		CA: &ca,
+		Director: HTTPSDirector,
+		Wrap:     wrap,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		},
+	}
+
+	l, err := net.Listen("tcp", "localhost:0")
+	if err != nil {
+		t.Fatal("Listen:", err)
+	}
+	l = NewListener(l, ca, &tls.Config{
+		MinVersion:   tls.VersionSSL30,
+		Certificates: []tls.Certificate{*cert},
+	})
+	defer l.Close()
+
+	go func() {
+		if err := http.Serve(l, p); err != nil {
+			if !strings.Contains(err.Error(), "use of closed network") {
+				t.Fatal("Serve:", err)
+			}
+		}
+	}()
+
+	t.Logf("requesting %q", ds.URL)
+	req, err := http.NewRequest("GET", ds.URL, nil)
+	if err != nil {
+		t.Fatal("NewRequest:", err)
+	}
+	setupReq(req)
+	d, err := tls.Dial(l.Addr().Network(), l.Addr().String(), &tls.Config{
+		RootCAs: rootCAs,
+	})
+	if err != nil {
+		t.Fatal("Dial error:", err)
+	}
+
+	err = req.Write(d)
+	if err != nil {
+		t.Fatal("Request write error:", err)
+	}
+	resp, err := http.ReadResponse(bufio.NewReader(d), req)
+	checkResp(resp)
+}
+
+// testProxyDirect executes a test against Proxy with a client-side
+// proxy configuration.
+func testProxyDirect(t *testing.T, setupReq func(req *http.Request), wrap func(http.Handler) http.Handler, downstream http.HandlerFunc, checkResp func(*http.Response)) {
+	ds := httptest.NewTLSServer(downstream)
+	defer ds.Close()
+
+	rootCAs, ca := setupCA()
+
+	cert, err := GenerateCert(ca, "www.google.com")
+	if err != nil {
+		t.Fatal("GenerateCert:", err)
+	}
+	p := &Proxy{
+		CA: ca,
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: true,
 		},
