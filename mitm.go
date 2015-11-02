@@ -205,6 +205,8 @@ func forwardWebSocket(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "No Upstream", 503)
 		return
 	}
+	defer d.Close()
+
 	nc, _, err := w.(http.Hijacker).Hijack()
 	if err != nil {
 		log.Printf("forwardWebSocket: hijack error: %v", err)
@@ -212,7 +214,6 @@ func forwardWebSocket(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	defer nc.Close()
-	defer d.Close()
 
 	err = req.Write(d)
 	if err != nil {
