@@ -318,13 +318,54 @@ func TestNewListener(t *testing.T) {
 	}
 }
 
-func TestWebsocket(t *testing.T) {
-	// Start a mitm proxy
+func TestWebsocketTLS(t *testing.T) {
+	rootCAs, ca := setupCA()
+	cert, err := GenerateCert(ca, "www.google.com")
+	if err != nil {
+		t.Fatal("GenerateCert:", err)
+	}
 	p := &Proxy{
-		Wrap: func(upstream http.Handler) http.Handler {
-			t.Error("WebSocket connection should not have triggered request wrapper, but did")
-			return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {})
+		Director: HTTPSDirector,
+		Wrap:     shouldNotReach(t),
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
 		},
+	}
+
+	l, err := net.Listen("tcp", "localhost:0")
+	if err != nil {
+		t.Fatal("Listen:", err)
+	}
+	l = NewListener(l, ca, &tls.Config{
+		MinVersion:   tls.VersionSSL30,
+		Certificates: []tls.Certificate{*cert},
+	})
+	defer l.Close()
+
+	go func() {
+		if err := http.Serve(l, p); err != nil {
+			if !strings.Contains(err.Error(), "use of closed network") {
+				t.Fatal("Serve:", err)
+			}
+		}
+	}()
+
+	wcServer := httptest.NewTLSServer(echoServer())
+	defer wcServer.Close()
+
+	proxyConn, err := tls.Dial(l.Addr().Network(), l.Addr().String(), &tls.Config{
+		RootCAs: rootCAs,
+	})
+	if err != nil {
+		t.Fatal("Dial error:", err)
+	}
+
+	testEchoServer(wcServer.URL, proxyConn, t)
+}
+
+func TestWebsocket(t *testing.T) {
+	p := &Proxy{
+		Wrap:     shouldNotReach(t),
 		Director: HTTPDirector,
 	}
 	l, err := net.Listen("tcp", "localhost:0")
@@ -341,23 +382,38 @@ func TestWebsocket(t *testing.T) {
 		}
 	}()
 
-	// Start a WebSocket echo server
-	wcServer := httptest.NewServer(websocket.Handler(func(ws *websocket.Conn) {
-		io.Copy(ws, ws)
-	}))
+	wcServer := httptest.NewServer(echoServer())
 	defer wcServer.Close()
 
-	// Connect to echo server through proxy
-	d, err := net.Dial(l.Addr().Network(), l.Addr().String())
+	proxyConn, err := net.Dial(l.Addr().Network(), l.Addr().String())
 	if err != nil {
 		t.Fatal("Dial error:", err)
 	}
 
-	config, err := websocket.NewConfig(wcServer.URL, "http://localhost/")
+	testEchoServer(wcServer.URL, proxyConn, t)
+}
+
+func echoServer() http.Handler {
+	return websocket.Handler(func(ws *websocket.Conn) {
+		io.Copy(ws, ws)
+	})
+}
+
+func shouldNotReach(t *testing.T) func(http.Handler) http.Handler {
+	return func(upstream http.Handler) http.Handler {
+		t.Error("WebSocket connection should not have triggered request wrapper, but did")
+		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {})
+	}
+}
+
+// testEchoServer tests the connection to a websocket echo server at
+// URL u over proxy connection conn.
+func testEchoServer(u string, conn io.ReadWriteCloser, t *testing.T) {
+	config, err := websocket.NewConfig(u, "http://localhost/")
 	if err != nil {
 		t.Fatal("Config error:", err)
 	}
-	c, err := websocket.NewClient(config, d)
+	c, err := websocket.NewClient(config, conn)
 	if err != nil {
 		t.Fatal("Websocket client error:", err)
 	}
