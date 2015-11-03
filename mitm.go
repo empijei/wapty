@@ -124,8 +124,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		p.Director = HTTPDirector
 	}
 	if isWebSocket(req) {
-		p.Director(req)
-		forwardWebSocket(w, req)
+		p.forwardWebSocket(w, req)
 		return
 	}
 	if req.Method != "CONNECT" {
@@ -187,7 +186,8 @@ func isWebSocket(req *http.Request) bool {
 // forwardWebSocket forwards a WebSocket connection directly to the
 // source, skipping the request wrapper. Code shamelessly stolen from
 // https://groups.google.com/forum/#!topic/golang-nuts/KBx9pDlvFOc
-func forwardWebSocket(w http.ResponseWriter, req *http.Request) {
+func (p *Proxy) forwardWebSocket(w http.ResponseWriter, req *http.Request) {
+	p.Director(req)
 	host, port, err := net.SplitHostPort(req.URL.Host)
 	if err != nil {
 		// Assume there is no port and use default
@@ -199,7 +199,12 @@ func forwardWebSocket(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 	address := net.JoinHostPort(host, port)
-	d, err := net.Dial("tcp", address)
+	var d io.ReadWriteCloser
+	if req.URL.Scheme == "https" {
+		d, err = tls.Dial("tcp", address, p.TLSClientConfig)
+	} else {
+		d, err = net.Dial("tcp", address)
+	}
 	if err != nil {
 		log.Printf("forwardWebSocket: error dialing websocket backend %s: %v", address, err)
 		http.Error(w, "No Upstream", 503)
