@@ -128,7 +128,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if p.Director == nil {
 		p.Director = HTTPDirector
 	}
-	if SkipRequest(req) || isWebSocket(req) {
+	if p.SkipRequest(req) || isWebSocket(req) {
 		p.forwardRequest(w, req)
 		return
 	}
