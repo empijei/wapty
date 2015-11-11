@@ -393,6 +393,49 @@ func TestWebsocket(t *testing.T) {
 	testEchoServer(wcServer.URL, proxyConn, t)
 }
 
+func skipAll(req *http.Request) bool {
+	return true
+}
+
+func TestSkipRequest(t *testing.T) {
+	p := &Proxy{
+		Wrap:     shouldNotReach(t),
+		Director: HTTPDirector,
+		SkipRequest: skipAll,
+	}
+	l, err := net.Listen("tcp", "localhost:0")
+	if err != nil {
+		t.Fatal("Listen:", err)
+	}
+	defer l.Close()
+
+	go func() {
+		if err := http.Serve(l, p); err != nil {
+			if !strings.Contains(err.Error(), "use of closed network") {
+				t.Fatal("Serve:", err)
+			}
+		}
+	}()
+
+	req, _ := http.NewRequest("GET", "http://www.google.com/", nil)
+
+	c := &http.Client{
+		Transport: &http.Transport{
+			Proxy: func(r *http.Request) (*url.URL, error) {
+				u := *r.URL
+				u.Scheme = "https"
+				u.Host = l.Addr().String()
+				return &u, nil
+			},
+		},
+	}
+
+	_, err = c.Do(req)
+	if err != nil {
+		t.Fatal("Do:", err)
+	}
+}
+
 func echoServer() http.Handler {
 	return websocket.Handler(func(ws *websocket.Conn) {
 		io.Copy(ws, ws)
