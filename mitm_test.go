@@ -417,7 +417,12 @@ func TestSkipRequest(t *testing.T) {
 		}
 	}()
 
-	req, _ := http.NewRequest("GET", "http://www.google.com/", nil)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+	}))
+	defer server.Close()
+
+	req, _ := http.NewRequest("GET", server.URL, nil)
 
 	c := &http.Client{
 		Transport: &http.Transport{
