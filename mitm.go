@@ -107,6 +107,9 @@ type Proxy struct {
 	// proxies it should be set to HTTPSDirector.
 	Director func(*http.Request)
 
+	// SkipRequest is a function used to skip some requests from being
+	// proxied. If it returns true, the request passes by without being
+	// wrapped. If false, it's wrapped and proxied.
 	SkipRequest func(*http.Request) bool
 
 	// Transport is the low-level transport to perform proxy requests.
@@ -183,6 +186,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	p.proxyMITM(sc, cc)
 }
 
+// By default we don't skip any request and proxy all of them.
 func SkipNone(req *http.Request) bool {
 	return false
 }
