@@ -83,7 +83,7 @@ func GenerateCert(ca *tls.Certificate, hosts ...string) (*tls.Certificate, error
 		NotAfter:              now.Add(leafMaxAge),
 		KeyUsage:              leafUsage,
 		BasicConstraintsValid: true,
-		SignatureAlgorithm:    x509.ECDSAWithSHA512,
+		SignatureAlgorithm:    x509.ECDSAWithSHA256,
 	}
 
 	for _, h := range hosts {
@@ -110,5 +110,5 @@ func GenerateCert(ca *tls.Certificate, hosts ...string) (*tls.Certificate, error
 }
 
 func genKeyPair() (*ecdsa.PrivateKey, error) {
-	return ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
+	return ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
 }
