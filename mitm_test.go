@@ -110,7 +110,8 @@ func testProxyTransparent(t *testing.T, setupReq func(req *http.Request), wrap f
 	}
 	setupReq(req)
 	d, err := tls.Dial(l.Addr().Network(), l.Addr().String(), &tls.Config{
-		RootCAs: rootCAs,
+		InsecureSkipVerify: true,
+		RootCAs:            rootCAs,
 	})
 	if err != nil {
 		t.Fatal("Dial error:", err)
@@ -178,7 +179,8 @@ func testProxyDirect(t *testing.T, setupReq func(req *http.Request), wrap func(h
 				return &u, nil
 			},
 			TLSClientConfig: &tls.Config{
-				RootCAs: rootCAs,
+				InsecureSkipVerify: true,
+				RootCAs:            rootCAs,
 			},
 		},
 	}
@@ -354,7 +356,8 @@ func TestWebsocketTLS(t *testing.T) {
 	defer wcServer.Close()
 
 	proxyConn, err := tls.Dial(l.Addr().Network(), l.Addr().String(), &tls.Config{
-		RootCAs: rootCAs,
+		InsecureSkipVerify: true,
+		RootCAs:            rootCAs,
 	})
 	if err != nil {
 		t.Fatal("Dial error:", err)
@@ -399,8 +402,8 @@ func skipAll(req *http.Request) bool {
 
 func TestSkipRequest(t *testing.T) {
 	p := &Proxy{
-		Wrap:     shouldNotReach(t),
-		Director: HTTPDirector,
+		Wrap:        shouldNotReach(t),
+		Director:    HTTPDirector,
 		SkipRequest: skipAll,
 	}
 	l, err := net.Listen("tcp", "localhost:0")

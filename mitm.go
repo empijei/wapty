@@ -13,6 +13,7 @@ import (
 	"time"
 )
 
+// ServerParam struct
 type ServerParam struct {
 	CA        *tls.Certificate // the Root CA for generatng on the fly MITM certificates
 	TLSConfig *tls.Config      // a template TLS config for the server.
@@ -372,9 +373,8 @@ func getCachedCert(ca *tls.Certificate, host string) *tls.Certificate {
 	cert := certCache[ca][host]
 	if cert == nil || cert.Leaf.NotAfter.Before(time.Now()) {
 		return nil
-	} else {
-		return cert
 	}
+	return cert
 }
 
 func cacheCert(ca *tls.Certificate, host string, cert *tls.Certificate) {
