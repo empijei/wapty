@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"log"
 	"net/http"
-	"testing"
 )
 
 type codeRecorder struct {
@@ -18,7 +17,7 @@ func (w *codeRecorder) WriteHeader(code int) {
 	w.code = code
 }
 
-func ExampleProxy(t *testing.T) {
+func ExampleProxy() {
 	ca, err := loadCA()
 	if err != nil {
 		log.Fatal(err)
