@@ -16,8 +16,10 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"regexp"
 	"strings"
 	"testing"
+	"time"
 
 	"golang.org/x/net/websocket"
 )
@@ -366,7 +368,7 @@ func TestWebsocketTLS(t *testing.T) {
 	testEchoServer(wcServer.URL, proxyConn, t)
 }
 
-func TestWebsocket(t *testing.T) {
+func TestWebSocket(t *testing.T) {
 	p := &Proxy{
 		Wrap:     shouldNotReach(t),
 		Director: HTTPDirector,
@@ -394,6 +396,93 @@ func TestWebsocket(t *testing.T) {
 	}
 
 	testEchoServer(wcServer.URL, proxyConn, t)
+}
+
+func TestWebSocketRawHeaders(t *testing.T) {
+	p := &Proxy{
+		Wrap:     shouldNotReach(t),
+		Director: HTTPDirector,
+	}
+	l, err := net.Listen("tcp", "localhost:0")
+	if err != nil {
+		t.Fatal("Listen:", err)
+	}
+	defer l.Close()
+
+	go func() {
+		if err := http.Serve(l, p); err != nil {
+			if !strings.Contains(err.Error(), "use of closed network") {
+				t.Fatal("Serve:", err)
+			}
+		}
+	}()
+
+	// We can't use any sort of "normal" HTTP server, unfortunately, because
+	// parsing the request messes with the headers (which is the actual bug).
+	wsListener, err := net.Listen("tcp", "localhost:0")
+	if err != nil {
+		t.Fatal("Listen:", err)
+	}
+	reqServed := make(chan struct{})
+	go func() {
+		c, err := wsListener.Accept()
+		if err != nil {
+			t.Fatal("listener:", err)
+		}
+		buff := make([]byte, 500)
+		n, err := c.Read(buff)
+		if err != nil {
+			t.Fatal("Read error:", err)
+		}
+		lines := strings.Split(string(buff[:n]), "\n")
+		for _, line := range lines {
+			checkErr := func(err error) {
+				if err != nil {
+					t.Fatal("Regexp err:", err)
+				}
+			}
+			match, err := regexp.MatchString("Sec-", line)
+			checkErr(err)
+			if match {
+				rightMatch, err := regexp.MatchString("Sec-WebSocket", line)
+				checkErr(err)
+				if !rightMatch {
+					t.Error("Improperly formatted WebSocket header:", line)
+				}
+			}
+		}
+		reqServed <- struct{}{}
+	}()
+	defer wsListener.Close()
+
+	proxyConn, err := net.Dial(l.Addr().Network(), l.Addr().String())
+	if err != nil {
+		t.Fatal("Dial error:", err)
+	}
+	defer proxyConn.Close()
+	if err != nil {
+		t.Fatal("URL error:", err)
+	}
+
+	req := fmt.Sprintf(`GET / HTTP/1.1
+Host: %s
+Origin: localhost
+Connection: keep-alive, Upgrade
+Sec-WebSocket-Extensions: permessage-deflate
+Sec-WebSocket-Key: dUt+k2EWdbVVVVmrUjXO8g==
+Sec-WebSocket-Protocol: tr_json
+Sec-WebSocket-Version: 13
+Pragma: no-cache
+Upgrade: websocket
+
+`, wsListener.Addr().String())
+
+	io.WriteString(proxyConn, req)
+	select {
+	case <-reqServed:
+	case <-time.After(time.Second):
+		t.Fatal("Request never reached server")
+	}
 }
 
 func skipAll(req *http.Request) bool {
