@@ -12,7 +12,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/empijei/mitm/mitm"
+	"github.com/empijei/WAPTy/mitm"
 )
 
 var (
@@ -70,14 +70,17 @@ func genCA() (cert tls.Certificate, err error) {
 
 func intercept(upstream http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Request intercepted")
 		req, err := httputil.DumpRequest(r, true)
 		if err != nil {
 			upstream.ServeHTTP(w, r)
+			return
 		}
 		fmt.Printf("%s", req)
 		_ = ioutil.WriteFile("tmp", req, 0644)
 		reader := bufio.NewReader(os.Stdin)
 		_, _ = reader.ReadString('\n')
+		log.Println("Continued")
 		//TODO chech this error
 		editedRequestFile, _ := os.Open("tmp")
 		//TODO chech this error
