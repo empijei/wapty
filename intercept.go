@@ -1,5 +1,3 @@
-// +build ignore
-
 package main
 
 import (
@@ -14,7 +12,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/kr/mitm"
+	"github.com/empijei/mitm/mitm"
 )
 
 var (
@@ -58,7 +56,7 @@ func genCA() (cert tls.Certificate, err error) {
 	if err != nil {
 		return
 	}
-	certPEM, keyPEM, err := mitm.GenCA(hostname)
+	certPEM, keyPEM, err := mitm.GenerateCA(hostname)
 	if err != nil {
 		return
 	}
@@ -77,12 +75,13 @@ func intercept(upstream http.Handler) http.Handler {
 			upstream.ServeHTTP(w, r)
 		}
 		fmt.Printf("%s", req)
-		ioutil.WriteFile("tmp", req, 0644)
+		_ = ioutil.WriteFile("tmp", req, 0644)
 		reader := bufio.NewReader(os.Stdin)
 		_, _ = reader.ReadString('\n')
 		//TODO chech this error
-		editedRequestFile, _ = os.Open("tmp")
-		editedRequest = http.ReadRequest(bufio.NewReader(editedRequestFile))
+		editedRequestFile, _ := os.Open("tmp")
+		//TODO chech this error
+		editedRequest, _ := http.ReadRequest(bufio.NewReader(editedRequestFile))
 		upstream.ServeHTTP(w, editedRequest)
 	})
 }
