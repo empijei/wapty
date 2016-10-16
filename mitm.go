@@ -153,7 +153,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "No Upstream", 503)
 		return
 	}
-	defer cn.Close()
+	defer func() { _ = cn.Close() }()
 
 	_, err = io.WriteString(cn, okHeader)
 	if err != nil {
@@ -166,7 +166,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		name := dnsName(req.Host)
 		if name == "" {
 			log.Println("cannot determine cert name for " + req.Host)
-			io.WriteString(cn, noDownstreamHeader)
+			_, _ = io.WriteString(cn, noDownstreamHeader)
 			return
 		}
 		sc = Server(cn, ServerParam{
@@ -182,7 +182,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	cc, err := p.tlsDial(req.Host, sc.ServerName)
 	if err != nil {
 		log.Println("tlsDial:", err)
-		io.WriteString(cn, noUpstreamHeader)
+		_, _ = io.WriteString(cn, noUpstreamHeader)
 		return
 	}
 	p.proxyMITM(sc, cc)
@@ -242,7 +242,7 @@ func (p *Proxy) forwardRequest(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "No Upstream", 503)
 		return
 	}
-	defer d.Close()
+	defer func() { _ = d.Close() }()
 
 	nc, _, err := w.(http.Hijacker).Hijack()
 	if err != nil {
@@ -250,7 +250,7 @@ func (p *Proxy) forwardRequest(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "No Upstream", 503)
 		return
 	}
-	defer nc.Close()
+	defer func() { _ = nc.Close() }()
 
 	err = req.Write(d)
 	if err != nil {
@@ -296,7 +296,7 @@ func (p *Proxy) proxyMITM(upstream, downstream net.Conn) {
 	}
 	ch := make(chan struct{})
 	wc := &onCloseConn{upstream, func() { ch <- struct{}{} }}
-	http.Serve(&oneShotListener{wc}, p.Wrap(rp))
+	_ = http.Serve(&oneShotListener{wc}, p.Wrap(rp))
 	<-ch
 }
 

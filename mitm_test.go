@@ -95,7 +95,7 @@ func testProxyTransparent(t *testing.T, setupReq func(req *http.Request), wrap f
 		MinVersion:   tls.VersionSSL30,
 		Certificates: []tls.Certificate{*cert},
 	})
-	defer l.Close()
+	defer func() { _ = l.Close() }()
 
 	go func() {
 		if err := http.Serve(l, p); err != nil {
@@ -155,7 +155,7 @@ func testProxyDirect(t *testing.T, setupReq func(req *http.Request), wrap func(h
 	if err != nil {
 		t.Fatal("Listen:", err)
 	}
-	defer l.Close()
+	defer func() { _ = l.Close() }()
 
 	go func() {
 		if err := http.Serve(l, p); err != nil {
@@ -264,7 +264,7 @@ func TestNewListener(t *testing.T) {
 	if err != nil {
 		t.Fatal("Listen:", err)
 	}
-	defer l.Close()
+	defer func() { _ = l.Close() }()
 
 	cert, err := GenerateCert(&ca, "www.google.com")
 	if err != nil {
@@ -277,12 +277,14 @@ func TestNewListener(t *testing.T) {
 	paddr := l.Addr().String()
 
 	called := false
-	go http.Serve(l, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		if req.Host != "www.google.com" {
-			t.Errorf("want Host www.google.com, got %s", req.Host)
-		}
-		called = true
-	}))
+	go func() {
+		_ = http.Serve(l, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			if req.Host != "www.google.com" {
+				t.Errorf("want Host www.google.com, got %s", req.Host)
+			}
+			called = true
+		}))
+	}()
 
 	rootCAs := x509.NewCertPool()
 	if !rootCAs.AppendCertsFromPEM(caCert) {
@@ -302,10 +304,10 @@ func TestNewListener(t *testing.T) {
 
 	bw := bufio.NewWriter(cc)
 	var w io.Writer = &stickyErrWriter{bw, &err}
-	io.WriteString(w, "GET / HTTP/1.1\r\n")
-	io.WriteString(w, "Host: www.google.com\r\n")
-	io.WriteString(w, "\r\n\r\n")
-	bw.Flush()
+	_, _ = io.WriteString(w, "GET / HTTP/1.1\r\n")
+	_, _ = io.WriteString(w, "Host: www.google.com\r\n")
+	_, _ = io.WriteString(w, "\r\n\r\n")
+	_ = bw.Flush()
 	if err != nil {
 		t.Error("Write:", err)
 	}
@@ -344,7 +346,8 @@ func TestWebsocketTLS(t *testing.T) {
 		MinVersion:   tls.VersionSSL30,
 		Certificates: []tls.Certificate{*cert},
 	})
-	defer l.Close()
+
+	defer func() { _ = l.Close() }()
 
 	go func() {
 		if err := http.Serve(l, p); err != nil {
@@ -377,7 +380,7 @@ func TestWebSocket(t *testing.T) {
 	if err != nil {
 		t.Fatal("Listen:", err)
 	}
-	defer l.Close()
+	defer func() { _ = l.Close() }()
 
 	go func() {
 		if err := http.Serve(l, p); err != nil {
@@ -407,7 +410,7 @@ func TestWebSocketRawHeaders(t *testing.T) {
 	if err != nil {
 		t.Fatal("Listen:", err)
 	}
-	defer l.Close()
+	defer func() { _ = l.Close() }()
 
 	go func() {
 		if err := http.Serve(l, p); err != nil {
@@ -453,13 +456,13 @@ func TestWebSocketRawHeaders(t *testing.T) {
 		}
 		reqServed <- struct{}{}
 	}()
-	defer wsListener.Close()
+	defer func() { _ = wsListener.Close() }()
 
 	proxyConn, err := net.Dial(l.Addr().Network(), l.Addr().String())
 	if err != nil {
 		t.Fatal("Dial error:", err)
 	}
-	defer proxyConn.Close()
+	defer func() { _ = proxyConn.Close() }()
 	if err != nil {
 		t.Fatal("URL error:", err)
 	}
@@ -477,7 +480,7 @@ Upgrade: websocket
 
 `, wsListener.Addr().String())
 
-	io.WriteString(proxyConn, req)
+	_, _ = io.WriteString(proxyConn, req)
 	select {
 	case <-reqServed:
 	case <-time.After(time.Second):
@@ -499,7 +502,7 @@ func TestSkipRequest(t *testing.T) {
 	if err != nil {
 		t.Fatal("Listen:", err)
 	}
-	defer l.Close()
+	defer func() { _ = l.Close() }()
 
 	go func() {
 		if err := http.Serve(l, p); err != nil {
@@ -535,7 +538,7 @@ func TestSkipRequest(t *testing.T) {
 
 func echoServer() http.Handler {
 	return websocket.Handler(func(ws *websocket.Conn) {
-		io.Copy(ws, ws)
+		_, _ = io.Copy(ws, ws)
 	})
 }
 
@@ -557,7 +560,7 @@ func testEchoServer(u string, conn io.ReadWriteCloser, t *testing.T) {
 	if err != nil {
 		t.Fatal("Websocket client error:", err)
 	}
-	defer c.Close()
+	defer func() { _ = c.Close() }()
 
 	for i := 0; i < 3; i++ {
 		snd := fmt.Sprintf("Hello, world! %d\n", i)
