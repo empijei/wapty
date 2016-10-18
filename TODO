@@ -1,4 +1,6 @@
-Add link between req and resp
+Find a better way to link req and resp
+Add Autoedit
+Add Content Lengt fix for reqs
 Add history
 Move cert-related stuff to own package
 Add content length fix

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -11,6 +12,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/empijei/WAPTy/intercept"
 	"github.com/empijei/WAPTy/mitm"
 )
 
@@ -27,6 +29,7 @@ type MayBeRequest struct {
 	Err error
 }
 type PendingRequest struct {
+	Id              int64
 	OriginalRequest *http.Request
 	ModifiedRequest chan *MayBeRequest
 }
@@ -38,6 +41,7 @@ type MayBeResponse struct {
 	Err error
 }
 type PendingResponse struct {
+	Id               int64
 	OriginalResponse *http.Response
 	OriginalRequest  *http.Request
 	ModifiedResponse chan *MayBeResponse
@@ -61,10 +65,11 @@ func DispatchLoop() {
 			_ = ioutil.WriteFile("tmp.request", req, 0644)
 			_, _ = stdin.ReadString('\n')
 			log.Println("Continued")
-			//TODO chech this error
-			editedRequestFile, _ := os.Open("tmp.request")
-			//TODO chech this error
-			editedRequest, _ := http.ReadRequest(bufio.NewReader(editedRequestFile))
+			editedRequestFile, _ := os.Open("tmp.request")                           //TODO chech this error
+			editedRequest, _ := http.ReadRequest(bufio.NewReader(editedRequestFile)) //TODO chech this error
+			editedRequestDump, _ := httputil.DumpRequest(editedRequest, true)        //TODO chech this error
+			intercept.Status.AddEditedRequest(preq.Id, &editedRequestDump)
+			editedRequest.Header.Set(intercept.IDHeader, fmt.Sprintf("%d", preq.Id)) //Check if header already present
 			preq.ModifiedRequest <- &MayBeRequest{Req: editedRequest}
 
 		case presp := <-ResponseQueue:
@@ -72,6 +77,7 @@ func DispatchLoop() {
 			res.ContentLength = -1
 			res.Header.Set("Content-Length", "-1")
 			rawRes, err := httputil.DumpResponse(res, true)
+			intercept.Status.AddResponse(presp.Id, &rawRes)
 			if err != nil {
 				log.Println("Error while dumping response" + err.Error())
 				presp.ModifiedResponse <- &MayBeResponse{Err: err}
@@ -80,13 +86,12 @@ func DispatchLoop() {
 			_ = ioutil.WriteFile("tmp.response", rawRes, 0644)
 			_, _ = stdin.ReadString('\n')
 			log.Println("Continued")
-			//TODO chech this error
-			editedResponseFile, _ := os.Open("tmp.response")
+			editedResponseFile, _ := os.Open("tmp.response") //TODO chech this error
 			editedResponseBuffer := bufio.NewReader(editedResponseFile)
-			//TODO chech this error
-			editedResponse, _ := http.ReadResponse(editedResponseBuffer, presp.OriginalRequest)
+			editedResponse, _ := http.ReadResponse(editedResponseBuffer, presp.OriginalRequest) //TODO chech this error
+			editedResponseDump, _ := httputil.DumpResponse(editedResponse, true)                //TODO check this error
+			intercept.Status.AddEditedResponse(presp.Id, &editedResponseDump)
 			//TODO adjust content length Header?
-			//tmp, _ := httputil.DumpResponse(editedResponse, true)
 			//fmt.Printf("%s", tmp)
 			presp.ModifiedResponse <- &MayBeResponse{Res: editedResponse, Err: err}
 
@@ -101,13 +106,16 @@ type ResponseInterceptor struct {
 }
 
 func (ri *ResponseInterceptor) RoundTrip(req *http.Request) (res *http.Response, err error) {
+	Id := intercept.ParseID(req.Header.Get(intercept.IDHeader))
+	req.Header.Del(intercept.IDHeader)
+
 	res, err = ri.WrappedRT.RoundTrip(req)
 	log.Println("Response intercepted")
 	if err != nil {
 		return
 	}
 	ModifiedResponse := make(chan *MayBeResponse)
-	ResponseQueue <- &PendingResponse{ModifiedResponse: ModifiedResponse, OriginalRequest: req, OriginalResponse: res}
+	ResponseQueue <- &PendingResponse{Id: Id, ModifiedResponse: ModifiedResponse, OriginalRequest: req, OriginalResponse: res}
 	mayBeRes := <-ModifiedResponse
 	res, err = mayBeRes.Res, mayBeRes.Err
 	return
@@ -134,7 +142,7 @@ func main() {
 			MinVersion: tls.VersionTLS12,
 			//CipherSuites: []uint16{tls.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA},
 		},
-		Wrap:      intercept,
+		Wrap:      interceptRequest,
 		Transport: &modifiedTransport,
 	}
 	log.Fatal(http.ListenAndServe(":8080", p))
@@ -169,11 +177,20 @@ func genCA() (cert tls.Certificate, err error) {
 	return cert, err
 }
 
-func intercept(upstream http.Handler) http.Handler {
+func interceptRequest(upstream http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Request intercepted")
+		tmp, err := httputil.DumpRequest(r, true)
+		if err != nil {
+			upstream.ServeHTTP(w, r)
+			log.Println(err.Error())
+			return
+		}
+		Id := intercept.NewReqResp(&tmp).Id
+		//r.Header.Set(intercept.InterceptHeader, "true")             //Check if header already present
+		//TODO Add autoedit!
 		ModifiedRequest := make(chan *MayBeRequest)
-		RequestQueue <- &PendingRequest{OriginalRequest: r, ModifiedRequest: ModifiedRequest}
+		RequestQueue <- &PendingRequest{Id: Id, OriginalRequest: r, ModifiedRequest: ModifiedRequest}
 		mayBeReq := <-ModifiedRequest
 		if mayBeReq.Err != nil {
 			upstream.ServeHTTP(w, r)
