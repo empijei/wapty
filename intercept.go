@@ -22,43 +22,107 @@ var (
 	certFile = path.Join(dir, "ca-cert.pem")
 )
 
+type MayBeRequest struct {
+	Req *http.Request
+	Err error
+}
+type PendingRequest struct {
+	OriginalRequest *http.Request
+	ModifiedRequest chan *MayBeRequest
+}
+
+var RequestQueue chan *PendingRequest
+
+type MayBeResponse struct {
+	Res *http.Response
+	Err error
+}
+type PendingResponse struct {
+	OriginalResponse *http.Response
+	OriginalRequest  *http.Request
+	ModifiedResponse chan *MayBeResponse
+}
+
+var ResponseQueue chan *PendingResponse
+
+var Done chan struct{}
+
+func DispatchLoop() {
+	for {
+		select {
+		case preq := <-RequestQueue:
+			r := preq.OriginalRequest
+			req, err := httputil.DumpRequest(r, true)
+			if err != nil {
+				preq.ModifiedRequest <- &MayBeRequest{Err: err}
+				break
+			}
+			//fmt.Printf("%s", req)
+			_ = ioutil.WriteFile("tmp.request", req, 0644)
+			_, _ = stdin.ReadString('\n')
+			log.Println("Continued")
+			//TODO chech this error
+			editedRequestFile, _ := os.Open("tmp.request")
+			//TODO chech this error
+			editedRequest, _ := http.ReadRequest(bufio.NewReader(editedRequestFile))
+			preq.ModifiedRequest <- &MayBeRequest{Req: editedRequest}
+
+		case presp := <-ResponseQueue:
+			res := presp.OriginalResponse
+			res.ContentLength = -1
+			res.Header.Set("Content-Length", "-1")
+			rawRes, err := httputil.DumpResponse(res, true)
+			if err != nil {
+				log.Println("Error while dumping response" + err.Error())
+				presp.ModifiedResponse <- &MayBeResponse{Err: err}
+				break
+			}
+			_ = ioutil.WriteFile("tmp.response", rawRes, 0644)
+			_, _ = stdin.ReadString('\n')
+			log.Println("Continued")
+			//TODO chech this error
+			editedResponseFile, _ := os.Open("tmp.response")
+			editedResponseBuffer := bufio.NewReader(editedResponseFile)
+			//TODO chech this error
+			editedResponse, _ := http.ReadResponse(editedResponseBuffer, presp.OriginalRequest)
+			//TODO adjust content length Header?
+			//tmp, _ := httputil.DumpResponse(editedResponse, true)
+			//fmt.Printf("%s", tmp)
+			presp.ModifiedResponse <- &MayBeResponse{Res: editedResponse, Err: err}
+
+		case <-Done:
+			return
+		}
+	}
+}
+
 type ResponseInterceptor struct {
 	WrappedRT http.RoundTripper
 }
 
 func (ri *ResponseInterceptor) RoundTrip(req *http.Request) (res *http.Response, err error) {
 	res, err = ri.WrappedRT.RoundTrip(req)
-	if err != nil {
-		return
-	}
-
 	log.Println("Response intercepted")
-	res.ContentLength = -1
-	res.Header.Set("Content-Length", "-1")
-	rawRes, err := httputil.DumpResponse(res, true)
 	if err != nil {
-		log.Println("Error while dumping response" + err.Error())
 		return
 	}
-	//fmt.Printf("%s", rawRes)
-	_ = ioutil.WriteFile("tmp.response", rawRes, 0644)
-	_, _ = stdin.ReadString('\n')
-	log.Println("Continued")
-	//TODO chech this error
-	editedResponseFile, _ := os.Open("tmp.response")
-	editedResponseBuffer := bufio.NewReader(editedResponseFile)
-	//TODO chech this error
-	editedResponse, _ := http.ReadResponse(editedResponseBuffer, req)
-	//TODO adjust content length Header?
-	//tmp, _ := httputil.DumpResponse(editedResponse, true)
-	//fmt.Printf("%s", tmp)
-	return editedResponse, err
+	ModifiedResponse := make(chan *MayBeResponse)
+	ResponseQueue <- &PendingResponse{ModifiedResponse: ModifiedResponse, OriginalRequest: req, OriginalResponse: res}
+	mayBeRes := <-ModifiedResponse
+	res, err = mayBeRes.Res, mayBeRes.Err
+	return
 }
 
 var stdin *bufio.ReadWriter
 
-func main() {
+func init() {
+	RequestQueue = make(chan *PendingRequest)
+	ResponseQueue = make(chan *PendingResponse)
+	Done = make(chan struct{})
 	stdin = bufio.NewReadWriter(bufio.NewReader(os.Stdin), bufio.NewWriter(os.Stdin))
+}
+func main() {
+	go DispatchLoop()
 	ca, err := loadCA()
 	if err != nil {
 		log.Fatal(err)
@@ -108,19 +172,13 @@ func genCA() (cert tls.Certificate, err error) {
 func intercept(upstream http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Request intercepted")
-		req, err := httputil.DumpRequest(r, true)
-		if err != nil {
+		ModifiedRequest := make(chan *MayBeRequest)
+		RequestQueue <- &PendingRequest{OriginalRequest: r, ModifiedRequest: ModifiedRequest}
+		mayBeReq := <-ModifiedRequest
+		if mayBeReq.Err != nil {
 			upstream.ServeHTTP(w, r)
 			return
 		}
-		//fmt.Printf("%s", req)
-		_ = ioutil.WriteFile("tmp.request", req, 0644)
-		_, _ = stdin.ReadString('\n')
-		log.Println("Continued")
-		//TODO chech this error
-		editedRequestFile, _ := os.Open("tmp.request")
-		//TODO chech this error
-		editedRequest, _ := http.ReadRequest(bufio.NewReader(editedRequestFile))
-		upstream.ServeHTTP(w, editedRequest)
+		upstream.ServeHTTP(w, mayBeReq.Req)
 	})
 }
