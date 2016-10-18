@@ -33,6 +33,8 @@ func (ri *ResponseInterceptor) RoundTrip(req *http.Request) (res *http.Response,
 	}
 
 	log.Println("Response intercepted")
+	res.ContentLength = -1
+	res.Header.Set("Content-Length", "-1")
 	rawRes, err := httputil.DumpResponse(res, true)
 	if err != nil {
 		log.Println("Error while dumping response" + err.Error())
@@ -44,9 +46,12 @@ func (ri *ResponseInterceptor) RoundTrip(req *http.Request) (res *http.Response,
 	log.Println("Continued")
 	//TODO chech this error
 	editedResponseFile, _ := os.Open("tmp.response")
+	editedResponseBuffer := bufio.NewReader(editedResponseFile)
 	//TODO chech this error
-	editedResponse, _ := http.ReadResponse(bufio.NewReader(editedResponseFile), req)
-	//TODO adjust content length
+	editedResponse, _ := http.ReadResponse(editedResponseBuffer, req)
+	//TODO adjust content length Header?
+	//tmp, _ := httputil.DumpResponse(editedResponse, true)
+	//fmt.Printf("%s", tmp)
 	return editedResponse, err
 }
 

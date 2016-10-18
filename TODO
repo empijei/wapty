@@ -1,6 +1,8 @@
-Move cert-related stuff to own package
-Add edit of responses
+Add queues
 Add link between req and resp
+Add history
+Move cert-related stuff to own package
+Add content length fix
 Add GUI/CLI
 Add Scoping
 Add Save
