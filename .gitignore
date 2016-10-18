@@ -1,3 +1,5 @@
 *.pem
 *.swp
 /*.test
+tmp.request
+tmp.response

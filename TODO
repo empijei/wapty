@@ -1,0 +1,12 @@
+Move cert-related stuff to own package
+Add edit of responses
+Add link between req and resp
+Add GUI/CLI
+Add Scoping
+Add Save
+Add Repeater
+Add Intruder
+Add Decoder
+Add Spider
+Add Scanner
+Add Beautifier?

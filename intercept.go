@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"crypto/tls"
 	"crypto/x509"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -23,18 +22,51 @@ var (
 	certFile = path.Join(dir, "ca-cert.pem")
 )
 
+type ResponseInterceptor struct {
+	WrappedRT http.RoundTripper
+}
+
+func (ri *ResponseInterceptor) RoundTrip(req *http.Request) (res *http.Response, err error) {
+	res, err = ri.WrappedRT.RoundTrip(req)
+	if err != nil {
+		return
+	}
+
+	log.Println("Response intercepted")
+	rawRes, err := httputil.DumpResponse(res, true)
+	if err != nil {
+		log.Println("Error while dumping response" + err.Error())
+		return
+	}
+	//fmt.Printf("%s", rawRes)
+	_ = ioutil.WriteFile("tmp.response", rawRes, 0644)
+	_, _ = stdin.ReadString('\n')
+	log.Println("Continued")
+	//TODO chech this error
+	editedResponseFile, _ := os.Open("tmp.response")
+	//TODO chech this error
+	editedResponse, _ := http.ReadResponse(bufio.NewReader(editedResponseFile), req)
+	//TODO adjust content length
+	return editedResponse, err
+}
+
+var stdin *bufio.ReadWriter
+
 func main() {
+	stdin = bufio.NewReadWriter(bufio.NewReader(os.Stdin), bufio.NewWriter(os.Stdin))
 	ca, err := loadCA()
 	if err != nil {
 		log.Fatal(err)
 	}
+	modifiedTransport := ResponseInterceptor{WrappedRT: http.DefaultTransport}
 	p := &mitm.Proxy{
 		CA: &ca,
 		TLSServerConfig: &tls.Config{
 			MinVersion: tls.VersionTLS12,
 			//CipherSuites: []uint16{tls.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA},
 		},
-		Wrap: intercept,
+		Wrap:      intercept,
+		Transport: &modifiedTransport,
 	}
 	log.Fatal(http.ListenAndServe(":8080", p))
 }
@@ -76,13 +108,12 @@ func intercept(upstream http.Handler) http.Handler {
 			upstream.ServeHTTP(w, r)
 			return
 		}
-		fmt.Printf("%s", req)
-		_ = ioutil.WriteFile("tmp", req, 0644)
-		reader := bufio.NewReader(os.Stdin)
-		_, _ = reader.ReadString('\n')
+		//fmt.Printf("%s", req)
+		_ = ioutil.WriteFile("tmp.request", req, 0644)
+		_, _ = stdin.ReadString('\n')
 		log.Println("Continued")
 		//TODO chech this error
-		editedRequestFile, _ := os.Open("tmp")
+		editedRequestFile, _ := os.Open("tmp.request")
 		//TODO chech this error
 		editedRequest, _ := http.ReadRequest(bufio.NewReader(editedRequestFile))
 		upstream.ServeHTTP(w, editedRequest)
