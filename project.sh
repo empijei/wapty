@@ -1,0 +1,1 @@
+vim +"source project.vim"
