@@ -6,42 +6,45 @@ import (
 	"sync"
 )
 
-var Status History
+var status history
 
-const IDHeader = "MAPTY-ID"
-const InterceptHeader = "MAPTY-Intercept"
+//Header used to keep track of requests across different routines
+const idHeader = "MAPTY-ID"
+
+//Header used to keep track of intercepted requests
+const interceptHeader = "MAPTY-Intercept"
 
 func init() {
-	Status.ReqResps = make(map[int64]*ReqResp)
+	status.reqResps = make(map[int64]*ReqResp)
 }
 
-type History struct {
+type history struct {
 	sync.Mutex
-	Count    int64
-	ReqResps map[int64]*ReqResp
+	count    int64
+	reqResps map[int64]*ReqResp
 }
 
-func ParseID(reqId string) (Id int64) {
-	Id, err := strconv.ParseInt(reqId, 10, 64)
+func parseID(reqId string) (id int64) {
+	id, err := strconv.ParseInt(reqId, 10, 64)
 	if err != nil {
 		panic(err)
 	}
 	return
 }
 
-func (h *History) AddEditedRequest(Id int64, rawEditedReq *[]byte) {
+func (h *history) addEditedRequest(Id int64, rawEditedReq *[]byte) {
 	h.Lock()
-	h.ReqResps[Id].RawEditedReq = rawEditedReq
+	h.reqResps[Id].RawEditedReq = rawEditedReq
 	h.Unlock()
 }
-func (h *History) AddResponse(Id int64, rawRes *[]byte) {
+func (h *history) addResponse(Id int64, rawRes *[]byte) {
 	h.Lock()
-	h.ReqResps[Id].RawRes = rawRes
+	h.reqResps[Id].RawRes = rawRes
 	h.Unlock()
 }
-func (h *History) AddEditedResponse(Id int64, rawEditedRes *[]byte) {
+func (h *history) addEditedResponse(Id int64, rawEditedRes *[]byte) {
 	h.Lock()
-	h.ReqResps[Id].RawEditedRes = rawEditedRes
+	h.reqResps[Id].RawEditedRes = rawEditedRes
 	h.Unlock()
 	//TODO remove this
 	//	foo, err := json.MarshalIndent(h.ReqResps[Id], " ", " ")
@@ -60,34 +63,34 @@ type ReqResp struct {
 	RawEditedRes *[]byte
 }
 
-func NewReqResp(rawReq *[]byte) *ReqResp {
-	Status.Lock()
-	Status.Count += 1
-	curReq := Status.Count
+func newReqResp(rawReq *[]byte) *ReqResp {
+	status.Lock()
+	status.count += 1
+	curReq := status.count
 	tmp := &ReqResp{RawReq: rawReq, Id: curReq}
-	Status.ReqResps[curReq] = tmp
-	Status.Unlock()
+	status.reqResps[curReq] = tmp
+	status.Unlock()
 	return tmp
 }
 
-type MayBeRequest struct {
-	Req *http.Request
-	Err error
+type mayBeRequest struct {
+	req *http.Request
+	err error
 }
-type PendingRequest struct {
-	Id              int64
-	Intercepted     bool
-	OriginalRequest *http.Request
-	ModifiedRequest chan *MayBeRequest
+type pendingRequest struct {
+	id              int64
+	intercepted     bool
+	originalRequest *http.Request
+	modifiedRequest chan *mayBeRequest
 }
 
-type MayBeResponse struct {
-	Res *http.Response
-	Err error
+type mayBeResponse struct {
+	res *http.Response
+	err error
 }
-type PendingResponse struct {
-	Id               int64
-	OriginalResponse *http.Response
-	OriginalRequest  *http.Request
-	ModifiedResponse chan *MayBeResponse
+type pendingResponse struct {
+	id               int64
+	originalResponse *http.Response
+	originalRequest  *http.Request
+	modifiedResponse chan *mayBeResponse
 }
