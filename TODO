@@ -16,3 +16,9 @@ Add Spider
 Add Scanner
 Add Beautifier?
 Check if custom headers are already present?
+
+
+all the deferred closes if err!= nil send that, otherwise propagate the new one
+handle panics within the package
+packagecomment
+Doc comment should be a complete sentence that starts with the name being declared.

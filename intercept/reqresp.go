@@ -19,7 +19,7 @@ func init() {
 }
 
 type history struct {
-	sync.Mutex
+	sync.RWMutex
 	count    int64
 	reqResps map[int64]*ReqResp
 }

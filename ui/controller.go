@@ -8,6 +8,7 @@ type Command struct {
 	Args    map[string]string
 }
 
+//FIXME This is not a good solution. Implement something that a component can unsubsctibe from
 var subScriptions map[string][]chan<- Command
 var subsMutex sync.Mutex
 var ioChan chan Command

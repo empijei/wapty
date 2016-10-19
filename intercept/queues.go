@@ -29,7 +29,7 @@ var Done chan struct{}
 var intercept SyncBool
 
 type SyncBool struct {
-	sync.Mutex
+	sync.RWMutex
 	value bool
 }
 
@@ -124,9 +124,9 @@ func interceptRequestWrapper(upstream http.Handler) http.Handler {
 			return
 		}
 		Id := newReqResp(&tmp).Id
-		intercept.Lock()
+		intercept.RLock()
 		intercepted := intercept.value
-		intercept.Unlock()
+		intercept.RUnlock()
 		if !intercepted {
 			r.Header.Set(idHeader, fmt.Sprintf("%d", Id))
 			upstream.ServeHTTP(w, r)
