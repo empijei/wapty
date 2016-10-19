@@ -76,6 +76,7 @@ type MayBeRequest struct {
 }
 type PendingRequest struct {
 	Id              int64
+	Intercepted     bool
 	OriginalRequest *http.Request
 	ModifiedRequest chan *MayBeRequest
 }

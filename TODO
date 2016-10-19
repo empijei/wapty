@@ -1,14 +1,18 @@
-Add intercept toggle
-Add Content Lengt fix for reqs
 Add GUI/CLI
+Add Content Lengt fix for reqs
+Add Drop Request/Response
 Add Scoping
 Add Repeater
 Add Save
+Add AutoEdit
+Add Provide Response functionality
+Add Content-Length override
 Add Intruder
 Find a better way to link req and resp?
+On error default to bare sockets?
 Add Autoedit
 Add Decoder
 Add Spider
 Add Scanner
 Add Beautifier?
-
+Check if custom headers are already present?
