@@ -1,14 +1,13 @@
-Find a better way to link req and resp
-Add Autoedit
+Add intercept toggle
 Add Content Lengt fix for reqs
-Add history
-Move cert-related stuff to own package
-Add content length fix
 Add GUI/CLI
 Add Scoping
-Add Save
 Add Repeater
+Add Save
 Add Intruder
+Move cert-related stuff to own package
+Find a better way to link req and resp
+Add Autoedit
 Add Decoder
 Add Spider
 Add Scanner

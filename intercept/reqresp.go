@@ -1,9 +1,7 @@
 package intercept
 
 import (
-	"encoding/json"
-	"fmt"
-	"log"
+	"net/http"
 	"strconv"
 	"sync"
 )
@@ -46,13 +44,14 @@ func (h *History) AddEditedResponse(Id int64, rawEditedRes *[]byte) {
 	h.ReqResps[Id].RawEditedRes = rawEditedRes
 	h.Unlock()
 	//TODO remove this
-	foo, err := json.MarshalIndent(h.ReqResps[Id], " ", " ")
-	if err != nil {
-		log.Println(err.Error())
-	}
-	log.Printf("%s", foo)
+	//	foo, err := json.MarshalIndent(h.ReqResps[Id], " ", " ")
+	//	if err != nil {
+	//		log.Println(err.Error())
+	//	}
+	//	log.Printf("%s", foo)
 }
 
+//TODO methods to parse req-resp
 type ReqResp struct {
 	Id           int64
 	RawReq       *[]byte
@@ -71,8 +70,23 @@ func NewReqResp(rawReq *[]byte) *ReqResp {
 	return tmp
 }
 
-//TODO methods to parse req-resp
+type MayBeRequest struct {
+	Req *http.Request
+	Err error
+}
+type PendingRequest struct {
+	Id              int64
+	OriginalRequest *http.Request
+	ModifiedRequest chan *MayBeRequest
+}
 
-func main() {
-	fmt.Println("vim-go")
+type MayBeResponse struct {
+	Res *http.Response
+	Err error
+}
+type PendingResponse struct {
+	Id               int64
+	OriginalResponse *http.Response
+	OriginalRequest  *http.Request
+	ModifiedResponse chan *MayBeResponse
 }
