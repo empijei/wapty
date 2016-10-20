@@ -147,6 +147,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	//empijei: This type assertion is awful
 	cn, _, err := w.(http.Hijacker).Hijack()
 	if err != nil {
 		log.Println("Hijack:", err)
@@ -290,7 +291,9 @@ func (p *Proxy) proxyMITM(upstream, downstream net.Conn) {
 		return cn, nil
 	}
 	rp := &httputil.ReverseProxy{
-		Director:      HTTPSDirector,
+		Director: HTTPSDirector,
+		//empijei: TODO check if this can be adapted to use a provided transport
+		//or wrap it with the interceptor. Why isn't this usint p.Transport?
 		Transport:     &http.Transport{DialTLS: dial},
 		FlushInterval: p.FlushInterval,
 	}
