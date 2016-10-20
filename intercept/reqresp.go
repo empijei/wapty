@@ -33,19 +33,19 @@ func parseID(reqId string) (id int64) {
 }
 
 func (h *history) addEditedRequest(Id int64, rawEditedReq *[]byte) {
-	h.Lock()
+	h.RLock()
 	h.reqResps[Id].RawEditedReq = rawEditedReq
-	h.Unlock()
+	h.RUnlock()
 }
 func (h *history) addResponse(Id int64, rawRes *[]byte) {
-	h.Lock()
+	h.RLock()
 	h.reqResps[Id].RawRes = rawRes
-	h.Unlock()
+	h.RUnlock()
 }
 func (h *history) addEditedResponse(Id int64, rawEditedRes *[]byte) {
-	h.Lock()
+	h.RLock()
 	h.reqResps[Id].RawEditedRes = rawEditedRes
-	h.Unlock()
+	h.RUnlock()
 	//TODO remove this
 	//	foo, err := json.MarshalIndent(h.ReqResps[Id], " ", " ")
 	//	if err != nil {

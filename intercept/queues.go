@@ -46,12 +46,19 @@ func init() {
 //for new requests and response that have been intercepted and takes action
 //based on current configuration.
 func MainLoop() {
+	//Load Certificate authority
 	ca, err := mitm.LoadCA()
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	//Call dispatchloop on other goroutine
 	go dispatchLoop()
+
+	//Create the modified transport to intercept responses
 	modifiedTransport := responseInterceptor{wrappedRT: http.DefaultTransport}
+
+	//Creates the mitm.Proxy with the modified transport, the loaded CA and the interceptRequestWrapper
 	p := &mitm.Proxy{
 		CA: &ca,
 		TLSServerConfig: &tls.Config{
@@ -61,9 +68,13 @@ func MainLoop() {
 		Wrap:      interceptRequestWrapper,
 		Transport: &modifiedTransport,
 	}
-	log.Fatal(http.ListenAndServe(":8080", p))
+	//Starts the mitm.Proxy
+	log.Fatal(http.ListenAndServe(":8080", p)) //TODO parametrize this
 }
 
+//This loop will keep reading from the RequestQueue and ResponseQueue for new intercepted payloads.
+//When a request or response is intercepted it is dumped to file to be edited and the loop will wait for the user to press enter to continue.
+//When a request or response is intercepted and/or modified it is added to the History.
 func dispatchLoop() {
 	for {
 		select {
@@ -71,18 +82,22 @@ func dispatchLoop() {
 			r := preq.originalRequest
 			req, err := httputil.DumpRequest(r, true)
 			if err != nil {
+				//Something went wrong, abort
 				preq.modifiedRequest <- &mayBeRequest{err: err}
 				break
 			}
-			//fmt.Printf("%s", req)
 			_ = ioutil.WriteFile("tmp.request", req, 0644)
+			log.Println("Request intercepted, edit it and press enter to continue.")
 			_, _ = stdin.ReadString('\n')
 			log.Println("Continued")
+			//Read the edited request and sent it back to the intercept RequestWrapper
 			editedRequestFile, _ := os.Open("tmp.request")                           //TODO chech this error
 			editedRequest, _ := http.ReadRequest(bufio.NewReader(editedRequestFile)) //TODO chech this error
 			editedRequestDump, _ := httputil.DumpRequest(editedRequest, true)        //TODO chech this error
 			status.addEditedRequest(preq.id, &editedRequestDump)
+			//Give the request an Id
 			editedRequest.Header.Set(idHeader, fmt.Sprintf("%d", preq.id))
+			//Mark the request as intercepted
 			editedRequest.Header.Set(interceptHeader, "true")
 			preq.modifiedRequest <- &mayBeRequest{req: editedRequest}
 
@@ -93,13 +108,16 @@ func dispatchLoop() {
 			rawRes, err := httputil.DumpResponse(res, true)
 			status.addResponse(presp.id, &rawRes)
 			if err != nil {
+				//Something went wrong, abort
 				log.Println("Error while dumping response" + err.Error())
 				presp.modifiedResponse <- &mayBeResponse{err: err}
 				break
 			}
 			_ = ioutil.WriteFile("tmp.response", rawRes, 0644)
+			log.Println("Response intercepted, edit it an press enter to continue.")
 			_, _ = stdin.ReadString('\n')
 			log.Println("Continued")
+			//Read the edited response and sent it back to the responseInterceptor
 			editedResponseFile, _ := os.Open("tmp.response") //TODO chech this error
 			editedResponseBuffer := bufio.NewReader(editedResponseFile)
 			editedResponse, _ := http.ReadResponse(editedResponseBuffer, presp.originalRequest) //TODO chech this error
@@ -115,6 +133,8 @@ func dispatchLoop() {
 	}
 }
 
+//Decorates an http.Handler to make it intercept requests
+//see https://www.youtube.com/watch?v=xyDkyFjzFVc
 func interceptRequestWrapper(upstream http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tmp, err := httputil.DumpRequest(r, true)
@@ -128,37 +148,53 @@ func interceptRequestWrapper(upstream http.Handler) http.Handler {
 		intercepted := intercept.value
 		intercept.RUnlock()
 		if !intercepted {
+			//If intercept is false just add the request Id and keep going
 			r.Header.Set(idHeader, fmt.Sprintf("%d", Id))
 			upstream.ServeHTTP(w, r)
 			return
 		}
-		log.Println("Request intercepted")
 		//TODO Add autoedit!
 
+		//Intercept is true, send request to the dispatchLoop
 		ModifiedRequest := make(chan *mayBeRequest)
 		RequestQueue <- &pendingRequest{id: Id, originalRequest: r, modifiedRequest: ModifiedRequest}
+		//Wait for edited request
 		mayBeReq := <-ModifiedRequest
 		if mayBeReq.err != nil {
+			//If edit goes wrong, try to keep going with the original request
+			log.Println(mayBeReq.err.Error())
 			upstream.ServeHTTP(w, r)
 			return
 		}
+		//Serve the edited request
 		upstream.ServeHTTP(w, mayBeReq.req)
 	})
 }
 
+//This is a struct that respects the net.RoundTripper interface and just wraps the original http.RoundTripper
 type responseInterceptor struct {
 	wrappedRT http.RoundTripper
 }
 
-//This is a mock RoundTrip used to intercept responses before they are forwarded
-//by the proxy
+//This is a mock RoundTrip used to intercept responses before they are forwarded by the proxy
 func (ri *responseInterceptor) RoundTrip(req *http.Request) (res *http.Response, err error) {
+	//Read request id from header and remove it
 	Id := parseID(req.Header.Get(idHeader))
 	req.Header.Del(idHeader)
+	//Get if the original request was intercepted and remove the header
+	intercepted = req.Header.Get(interceptHeader) == ""
+	req.Header.Del(interceptHeader)
+
+	//Perform the request
 	res, err = ri.wrappedRT.RoundTrip(req)
 
-	//Skip intercept if request was not intercepted
-	if req.Header.Get(interceptHeader) == "" {
+	if err != nil {
+		log.Println("Something went wrong trying to contact the server")
+		return
+	}
+
+	//Skip intercept if request was not intercepted, only add the response to the Status
+	if !intercepted {
 		rawRes, dumpErr := httputil.DumpResponse(res, true)
 		if dumpErr != nil {
 			log.Println(dumpErr.Error())
@@ -167,11 +203,8 @@ func (ri *responseInterceptor) RoundTrip(req *http.Request) (res *http.Response,
 		}
 		return
 	}
-	req.Header.Del(interceptHeader)
-	log.Println("Response intercepted")
-	if err != nil {
-		return
-	}
+
+	//Request was intercepted, go throug the intercept/edit process
 	ModifiedResponse := make(chan *mayBeResponse)
 	ResponseQueue <- &pendingResponse{id: Id, modifiedResponse: ModifiedResponse, originalRequest: req, originalResponse: res}
 	mayBeRes := <-ModifiedResponse
