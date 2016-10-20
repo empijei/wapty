@@ -24,7 +24,10 @@ Edited req should be saved only if modified, return nil, intercept will forward 
 
 history marshal omit if nil
 
+decompress HTTP2 instead of disabling it?
+
 all the deferred closes if err!= nil send that, otherwise propagate the new one
 handle panics within the package
 packagecomment
 Doc comment should be a complete sentence that starts with the name being declared.
+add dependency to golang.org/x/net/websocket

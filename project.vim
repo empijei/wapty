@@ -1,6 +1,6 @@
 :NERDTreeToggle
 :normal P
 :normal O
-:TagbarToggle
+":TagbarToggle
 :tabedit TODO
 :tabnext

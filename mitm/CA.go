@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	hostname, _ = os.Hostname()
+	localhostname, _ = os.Hostname()
 
 	dir      = path.Join(os.Getenv("HOME"), ".mitm")
 	keyFile  = path.Join(dir, "ca-key.pem")
@@ -33,7 +33,7 @@ func genCA() (cert tls.Certificate, err error) {
 	if err != nil {
 		return
 	}
-	certPEM, keyPEM, err := GenerateCA(hostname)
+	certPEM, keyPEM, err := GenerateCA(localhostname)
 	if err != nil {
 		return
 	}
