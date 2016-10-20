@@ -56,7 +56,11 @@ func MainLoop() {
 	go dispatchLoop()
 
 	//Create the modified transport to intercept responses
-	modifiedTransport := responseInterceptor{wrappedRT: http.DefaultTransport}
+	//modifiedTransport := ResponseInterceptor{wrappedRT: http.DefaultTransport} //This uses HTTP2
+	noHTTP2Transport := &http.Transport{
+		TLSNextProto: make(map[string]func(authority string, c *tls.Conn) http.RoundTripper),
+	}
+	modifiedTransport := ResponseInterceptor{wrappedRT: noHTTP2Transport}
 
 	//Creates the mitm.Proxy with the modified transport, the loaded CA and the
 	//interceptRequestWrapper
@@ -177,12 +181,12 @@ func interceptRequestWrapper(upstream http.Handler) http.Handler {
 
 //This is a struct that respects the net.RoundTripper interface and just wraps
 //the original http.RoundTripper
-type responseInterceptor struct {
+type ResponseInterceptor struct {
 	wrappedRT http.RoundTripper
 }
 
 //This is a mock RoundTrip used to intercept responses before they are forwarded by the proxy
-func (ri *responseInterceptor) RoundTrip(req *http.Request) (res *http.Response, err error) {
+func (ri *ResponseInterceptor) RoundTrip(req *http.Request) (res *http.Response, err error) {
 	//Read request id from header and remove it
 	Id := parseID(req.Header.Get(idHeader))
 	req.Header.Del(idHeader)
