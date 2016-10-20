@@ -63,7 +63,7 @@ func MainLoop() {
 	p := &mitm.Proxy{
 		CA: &ca,
 		TLSServerConfig: &tls.Config{
-			MinVersion: tls.VersionTLS12,
+			MinVersion: tls.VersionSSL30,
 			//CipherSuites: []uint16{tls.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA},
 		},
 		Wrap:      interceptRequestWrapper,
@@ -187,7 +187,7 @@ func (ri *responseInterceptor) RoundTrip(req *http.Request) (res *http.Response,
 	Id := parseID(req.Header.Get(idHeader))
 	req.Header.Del(idHeader)
 	//Get if the original request was intercepted and remove the header
-	intercepted := req.Header.Get(interceptHeader) == ""
+	intercepted := req.Header.Get(interceptHeader) != ""
 	req.Header.Del(interceptHeader)
 
 	//Perform the request
