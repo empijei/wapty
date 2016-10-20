@@ -58,7 +58,8 @@ func MainLoop() {
 	//Create the modified transport to intercept responses
 	modifiedTransport := responseInterceptor{wrappedRT: http.DefaultTransport}
 
-	//Creates the mitm.Proxy with the modified transport, the loaded CA and the interceptRequestWrapper
+	//Creates the mitm.Proxy with the modified transport, the loaded CA and the
+	//interceptRequestWrapper
 	p := &mitm.Proxy{
 		CA: &ca,
 		TLSServerConfig: &tls.Config{
@@ -72,9 +73,12 @@ func MainLoop() {
 	log.Fatal(http.ListenAndServe(":8080", p)) //TODO parametrize this
 }
 
-//This loop will keep reading from the RequestQueue and ResponseQueue for new intercepted payloads.
-//When a request or response is intercepted it is dumped to file to be edited and the loop will wait for the user to press enter to continue.
-//When a request or response is intercepted and/or modified it is added to the History.
+//This loop will keep reading from the RequestQueue and ResponseQueue for new
+//intercepted payloads.
+//When a request or response is intercepted it is dumped to file to be edited
+//and the loop will wait for the user to press enter to continue.
+//When a request or response is intercepted and/or modified it is added to the
+//History.
 func dispatchLoop() {
 	for {
 		select {
@@ -143,7 +147,7 @@ func interceptRequestWrapper(upstream http.Handler) http.Handler {
 			log.Println(err.Error())
 			return
 		}
-		Id := newReqResp(&tmp).Id
+		Id := newReqResp(&tmp)
 		intercept.RLock()
 		intercepted := intercept.value
 		intercept.RUnlock()
@@ -171,7 +175,8 @@ func interceptRequestWrapper(upstream http.Handler) http.Handler {
 	})
 }
 
-//This is a struct that respects the net.RoundTripper interface and just wraps the original http.RoundTripper
+//This is a struct that respects the net.RoundTripper interface and just wraps
+//the original http.RoundTripper
 type responseInterceptor struct {
 	wrappedRT http.RoundTripper
 }
@@ -182,7 +187,7 @@ func (ri *responseInterceptor) RoundTrip(req *http.Request) (res *http.Response,
 	Id := parseID(req.Header.Get(idHeader))
 	req.Header.Del(idHeader)
 	//Get if the original request was intercepted and remove the header
-	intercepted = req.Header.Get(interceptHeader) == ""
+	intercepted := req.Header.Get(interceptHeader) == ""
 	req.Header.Del(interceptHeader)
 
 	//Perform the request
