@@ -279,26 +279,28 @@ func (p *Proxy) tlsDial(addr, serverName string) (net.Conn, error) {
 }
 
 func (p *Proxy) proxyMITM(upstream, downstream net.Conn) {
-	var mu sync.Mutex
-	dial := func(network, addr string) (net.Conn, error) {
-		mu.Lock()
-		defer mu.Unlock()
-		if downstream == nil {
-			return nil, io.EOF
-		}
-		cn := downstream
-		downstream = nil
-		return cn, nil
-	}
+	//var mu sync.Mutex
+	//dial := func(network, addr string) (net.Conn, error) {
+	//	mu.Lock()
+	//	defer mu.Unlock()
+	//	if downstream == nil {
+	//		return nil, io.EOF
+	//	}
+	//	cn := downstream
+	//	downstream = nil
+	//	return cn, nil
+	//}
 	rp := &httputil.ReverseProxy{
 		Director: HTTPSDirector,
 		//empijei: TODO check if this can be adapted to use a provided transport
 		//or wrap it with the interceptor. Why isn't this usint p.Transport?
-		Transport:     &http.Transport{DialTLS: dial},
+		//Transport:     &http.Transport{DialTLS: dial},
+		Transport:     p.Transport,
 		FlushInterval: p.FlushInterval,
 	}
 	ch := make(chan struct{})
 	wc := &onCloseConn{upstream, func() { ch <- struct{}{} }}
+	//empijei: TODO pool this?
 	_ = http.Serve(&oneShotListener{wc}, p.Wrap(rp))
 	<-ch
 }
