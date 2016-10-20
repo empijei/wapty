@@ -1,4 +1,5 @@
 Add GUI/CLI
+Add protocol indicator
 Add Drop Request/Response
 Add Content Lengt fix for reqs
 Add Scoping
@@ -17,6 +18,11 @@ Add Scanner
 Add Beautifier?
 Check if custom headers are already present?
 
+Forward without edit.
+
+Edited req should be saved only if modified, return nil, intercept will forward the original one
+
+history marshal omit if nil
 
 all the deferred closes if err!= nil send that, otherwise propagate the new one
 handle panics within the package
