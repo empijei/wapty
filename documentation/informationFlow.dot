@@ -1,0 +1,26 @@
+digraph{
+	rankdir=LR;
+//	main -> interceptMainloop[label = "executes", constraint=false];
+//	interceptMainloop	-> dispatchLoop[label = "spawns", constraint=false];
+//	interceptMainloop -> modifiedTransport[label = "creates", constraint=false];
+//	interceptMainloop -> mitmProxy[label = "creates", constraint=false];
+//	mitmProxy -> modifiedTransport[label = "uses", constraint=false];
+	ExternalClient:w->mitmProxy[label="1 Original Request", constraint=false];
+	mitmProxy -> interceptRequestWrapper[label="2 Original Request", constraint=false];
+	interceptRequestWrapper -> RequestQueue[label="3 if intercept\nOriginal Request", constraint=false];
+	RequestQueue -> dispatchLoop[label="4 Original Request", constraint=false];
+	dispatchLoop -> interceptRequestWrapper[label="5 Edited Request", constraint=false];
+	interceptRequestWrapper -> mitmProxy[label="6 Edited? Request"];
+	mitmProxy -> modifiedTransport[label="7 Request"];
+	modifiedTransport -> ExternalServer[label="8 Request"];
+	ExternalServer -> modifiedTransport[label="9 Original Response", constraint=false];
+	modifiedTransport -> ResponseQueue[label = "10 if req was intercepted\nsends Original Response", constraint=false];
+	ResponseQueue -> dispatchLoop[label = "11 Original Response", constraint=false];
+	dispatchLoop -> modifiedTransport[label = "12 Edited Response", constraint=false];
+	modifiedTransport -> mitmProxy[label = "13 Edited? Response", constraint=false];
+	mitmProxy ->ExternalClient:e[label = "14 Edited? Response", constraint=false];
+
+{rank=same modifiedTransport }
+
+{rank=same mitmProxy dispatchLoop ResponseQueue RequestQueue ExternalClient}
+}
