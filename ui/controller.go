@@ -1,3 +1,6 @@
+//ui is a general high level representation of all the uis connected to the current
+//instance of Wapty. Use this from other packages to read user input and write
+//output
 package ui
 
 import (
@@ -8,19 +11,23 @@ import (
 //only listen for localhost
 type Command struct {
 	Channel string
-	Args    map[string]string
+	Args    Args
 }
 
 type Args map[string]string
 
-var subScriptions map[string]map[int64]Subscription
+type SubsChannel map[int64]Subscription
+
+var subScriptions map[string]SubsChannel
 var subsMutex sync.RWMutex
 var subsCounter int64
-var ioChan chan Command
+var iChan chan Command
+var oChan chan Command
 
 func init() {
-	subScriptions = make(map[string]map[int64]Subscription)
-	ioChan = make(chan Command)
+	subScriptions = make(map[string]SubsChannel)
+	iChan = make(chan Command)
+	oChan = make(chan Command)
 }
 
 type Subscription struct {
@@ -32,11 +39,11 @@ func (s *Subscription) Read() Command {
 	return <-s.channel
 }
 
-//Unless you are sure the out channel will be constantly read, it is strongly
-//suggested to create a buffered channel
 func SubScribe(channel string) Subscription {
 	subsMutex.Lock()
 	subsCounter++
+	//Unless you are sure the out channel will be constantly read, it is strongly
+	//suggested to create a buffered channel
 	pipe := make(chan Command, 20) //TODO this is arbitrary, give a meaning to this number
 	out := Subscription{id: subsCounter, channel: pipe}
 	if subScriptions[channel] == nil {
@@ -64,11 +71,11 @@ func UnSubscribe(s *Subscription) {
 }
 
 func Send(c Command) {
-	ioChan <- c
+	oChan <- c
 }
 
 func MainLoop() {
-	for cmd := range ioChan {
+	for cmd := range iChan {
 		subsMutex.RLock()
 		for _, out := range subScriptions[cmd.Channel] {
 			out.channel <- cmd
