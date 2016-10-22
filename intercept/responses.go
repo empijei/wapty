@@ -22,8 +22,9 @@ func init() {
 //Called by the dispatchLoop if a response is intercepted
 func handleResponse(presp *pendingResponse) {
 	res := presp.originalResponse
+	ContentLength := res.ContentLength
 	res.ContentLength = -1
-	res.Header.Set("Content-Length", "-1")
+	res.Header.Del("Content-Length")
 	rawRes, err := httputil.DumpResponse(res, true)
 	status.addResponse(presp.id, &rawRes)
 	if err != nil {
@@ -36,6 +37,7 @@ func handleResponse(presp *pendingResponse) {
 	editedResponseDump, action := editBuffer(RESPONSE, &rawRes)
 	switch action {
 	case FORWARDED:
+		res.ContentLength = ContentLength
 		editedResponse = res
 	case EDITED:
 		editedResponseBuffer := bufio.NewReader(bytes.NewReader(*editedResponseDump))
@@ -64,6 +66,7 @@ func handleResponse(presp *pendingResponse) {
 	//fmt.Printf("%s", tmp)
 	presp.modifiedResponse <- &mayBeResponse{res: editedResponse, err: err}
 
+	Dump()
 }
 
 //This is a struct that respects the net.RoundTripper interface and just wraps

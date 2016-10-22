@@ -1,6 +1,8 @@
 package intercept
 
 import (
+	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 	"sync"
@@ -57,11 +59,24 @@ func (h *history) addEditedResponse(Id int64, rawEditedRes *[]byte) {
 	h.reqResps[Id].RawEditedRes = rawEditedRes
 	h.RUnlock()
 	//TODO remove this
-	//	foo, err := json.MarshalIndent(h.ReqResps[Id], " ", " ")
+	//	foo, err := json.marshalindent(h.reqresps[id], " ", " ")
 	//	if err != nil {
-	//		log.Println(err.Error())
+	//		log.println(err.error())
 	//	}
-	//	log.Printf("%s", foo)
+	//	log.printf("%s", foo)
+}
+
+//Dumps the status in the log. This is only meant for debug purposes.
+func Dump() {
+	status.RLock()
+	for _, reqresp := range status.reqResps {
+		foo, err := json.MarshalIndent(reqresp, " ", " ")
+		if err != nil {
+			log.Println(err.Error())
+		}
+		log.Printf("%s", foo)
+	}
+	status.RUnlock()
 }
 
 //Represents an item of the proxy history

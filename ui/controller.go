@@ -82,6 +82,8 @@ func Receive(c Command) {
 
 //This function is used by uis servers to read all the messages from wapty.
 func ConnectUI() <-chan Command {
+	//TODO actually duplicate the streams, use the Send function to write to all
+	//uis available
 	return oChan
 }
 

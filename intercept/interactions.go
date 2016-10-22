@@ -21,9 +21,9 @@ const (
 )
 
 var actions = [...]string{
+	"forwarded",
 	"edited",
 	"dropped",
-	"forwarded",
 	"respProvided",
 }
 
