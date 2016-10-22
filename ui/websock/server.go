@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/empijei/Wapty/ui"
-	"github.com/golang-samples/websocket/websocket-chat/src/chat"
 
 	"golang.org/x/net/websocket"
 )
@@ -128,7 +127,7 @@ func (s *Server) Listen() {
 
 func MainLoop() {
 	// websocket server
-	server := chat.NewServer("/ws")
+	server := NewServer("/ws")
 	go server.Listen()
 
 	// static files
