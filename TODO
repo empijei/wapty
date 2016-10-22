@@ -20,6 +20,7 @@ Add Beautifier?
 Check if custom headers are already present?
 
 Forward without edit.
+If a request / response is not parsed, keep going with raw buffers?
 
 Edited req should be saved only if modified, return nil, intercept will forward the original one
 

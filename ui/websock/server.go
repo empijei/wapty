@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/empijei/Wapty/ui"
+	"github.com/golang-samples/websocket/websocket-chat/src/chat"
 
 	"golang.org/x/net/websocket"
 )
@@ -91,6 +92,8 @@ func (s *Server) Listen() {
 		s.AddClient(client)
 		client.Listen()
 	}
+
+	//TODO only listen for localhost
 	http.Handle(s.pattern, websocket.Handler(onConnected))
 	log.Println("Created handler")
 
@@ -121,4 +124,16 @@ func (s *Server) Listen() {
 			return
 		}
 	}
+}
+
+func MainLoop() {
+	// websocket server
+	server := chat.NewServer("/ws")
+	go server.Listen()
+
+	// static files
+	http.Handle("/", http.FileServer(http.Dir("webroot")))
+
+	log.Fatal(http.ListenAndServe(":8081", nil))
+
 }

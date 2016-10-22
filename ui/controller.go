@@ -8,10 +8,10 @@ import (
 	"sync"
 )
 
-//only listen for localhost
 type Command struct {
 	Channel string
 	Args    Args
+	Payload *[]byte
 }
 
 type Args map[string]string
@@ -39,7 +39,7 @@ func (s *Subscription) Read() Command {
 	return <-s.channel
 }
 
-func SubScribe(channel string) Subscription {
+func Subscribe(channel string) *Subscription {
 	subsMutex.Lock()
 	subsCounter++
 	//Unless you are sure the out channel will be constantly read, it is strongly
@@ -51,7 +51,7 @@ func SubScribe(channel string) Subscription {
 	}
 	subScriptions[channel][subsCounter] = out
 	subsMutex.Unlock()
-	return out
+	return &out
 }
 
 func UnSubscribe(s *Subscription) {

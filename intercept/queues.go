@@ -6,9 +6,9 @@ package intercept
 
 import (
 	"bufio"
+	"bytes"
 	"crypto/tls"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -16,6 +16,7 @@ import (
 	"sync"
 
 	"github.com/empijei/Wapty/mitm"
+	"github.com/empijei/Wapty/ui"
 )
 
 var stdin *bufio.ReadWriter
@@ -88,61 +89,107 @@ func MainLoop() {
 //When a request or response is intercepted and/or modified it is added to the
 //History.
 func dispatchLoop() {
+	uiEditor = ui.Subscribe(EDITORCHANNEL) //FIXME hardcoded string
 	for {
 		select {
 		case preq := <-RequestQueue:
-			r := preq.originalRequest
-			req, err := httputil.DumpRequest(r, true)
-			if err != nil {
-				//Something went wrong, abort
-				preq.modifiedRequest <- &mayBeRequest{err: err}
-				break
-			}
-			_ = ioutil.WriteFile("tmp.request", req, 0644)
-			log.Println("Request intercepted, edit it and press enter to continue.")
-			_, _ = stdin.ReadString('\n')
-			log.Println("Continued")
-			//Read the edited request and sent it back to the intercept RequestWrapper
-			editedRequestFile, _ := os.Open("tmp.request")                           //TODO chech this error
-			editedRequest, _ := http.ReadRequest(bufio.NewReader(editedRequestFile)) //TODO chech this error
-			editedRequestDump, _ := httputil.DumpRequest(editedRequest, true)        //TODO chech this error
-			status.addEditedRequest(preq.id, &editedRequestDump)
-			//Give the request an Id
-			editedRequest.Header.Set(idHeader, fmt.Sprintf("%d", preq.id))
-			//Mark the request as intercepted
-			editedRequest.Header.Set(interceptHeader, "true")
-			preq.modifiedRequest <- &mayBeRequest{req: editedRequest}
-
+			handleRequest(preq)
 		case presp := <-ResponseQueue:
-			res := presp.originalResponse
-			res.ContentLength = -1
-			res.Header.Set("Content-Length", "-1")
-			rawRes, err := httputil.DumpResponse(res, true)
-			status.addResponse(presp.id, &rawRes)
-			if err != nil {
-				//Something went wrong, abort
-				log.Println("Error while dumping response" + err.Error())
-				presp.modifiedResponse <- &mayBeResponse{err: err}
-				break
-			}
-			_ = ioutil.WriteFile("tmp.response", rawRes, 0644)
-			log.Println("Response intercepted, edit it an press enter to continue.")
-			_, _ = stdin.ReadString('\n')
-			log.Println("Continued")
-			//Read the edited response and sent it back to the responseInterceptor
-			editedResponseFile, _ := os.Open("tmp.response") //TODO chech this error
-			editedResponseBuffer := bufio.NewReader(editedResponseFile)
-			editedResponse, _ := http.ReadResponse(editedResponseBuffer, presp.originalRequest) //TODO chech this error
-			editedResponseDump, _ := httputil.DumpResponse(editedResponse, true)                //TODO check this error
-			status.addEditedResponse(presp.id, &editedResponseDump)
-			//TODO adjust content length Header?
-			//fmt.Printf("%s", tmp)
-			presp.modifiedResponse <- &mayBeResponse{res: editedResponse, err: err}
-
+			handleResponse(presp)
 		case <-Done:
 			return
 		}
 	}
+}
+
+//Called by the dispatchLoop if a request is intercepted
+func handleRequest(preq *pendingRequest) {
+	r := preq.originalRequest
+	req, err := httputil.DumpRequest(r, true)
+	if err != nil {
+		//Something went wrong, abort
+		preq.modifiedRequest <- &mayBeRequest{err: err}
+		return
+	}
+	var editedRequest *http.Request
+	editedRequestDump, action := editBuffer(REQUEST, &req)
+	switch action {
+	case FORWARDED:
+		editedRequest = preq.originalRequest
+	case EDITED:
+		editedRequest, err = http.ReadRequest(bufio.NewReader(bytes.NewReader(*editedRequestDump)))
+		if err != nil {
+			log.Println("Error during edited request parsing, forwarding original request.")
+			editedRequest = preq.originalRequest
+		}
+		//TODO adjust content length
+		status.addEditedRequest(preq.id, editedRequestDump)
+	case DROPPED:
+		//TODO implement this
+		log.Println("Not implemented yet")
+		editedRequest = preq.originalRequest
+	case RESPPROVIDED:
+		//TODO implement this
+		log.Println("Not implemented yet")
+		editedRequest = preq.originalRequest
+	default:
+		//TODO implement this
+		log.Println("Not implemented yet")
+		editedRequest = preq.originalRequest
+	}
+
+	//Give the request an Id
+	editedRequest.Header.Set(idHeader, fmt.Sprintf("%d", preq.id))
+	//Mark the request as intercepted
+	editedRequest.Header.Set(interceptHeader, "true")
+	preq.modifiedRequest <- &mayBeRequest{req: editedRequest}
+}
+
+//Called by the dispatchLoop if a response is intercepted
+func handleResponse(presp *pendingResponse) {
+	res := presp.originalResponse
+	res.ContentLength = -1
+	res.Header.Set("Content-Length", "-1")
+	rawRes, err := httputil.DumpResponse(res, true)
+	status.addResponse(presp.id, &rawRes)
+	if err != nil {
+		//Something went wrong, abort
+		log.Println("Error while dumping response" + err.Error())
+		presp.modifiedResponse <- &mayBeResponse{err: err}
+		return
+	}
+	var editedResponse *http.Response
+	editedResponseDump, action := editBuffer(RESPONSE, &rawRes)
+	switch action {
+	case FORWARDED:
+		editedResponse = res
+	case EDITED:
+		editedResponseBuffer := bufio.NewReader(bytes.NewReader(*editedResponseDump))
+		editedResponse, err = http.ReadResponse(editedResponseBuffer, presp.originalRequest)
+		if err != nil {
+			//TODO chech this error and hijack connection to send raw bytes
+			log.Println("Error during edited response parsing, forwarding original response.")
+			editedResponse = res
+		}
+		status.addEditedResponse(presp.id, editedResponseDump)
+	case DROPPED:
+		//TODO implement this
+		log.Println("Not implemented yet")
+		editedResponse = res
+	case RESPPROVIDED:
+		//TODO implement this
+		log.Println("Action not allowed on Responses")
+		editedResponse = res
+	default:
+		//TODO implement this
+		log.Println("Not implemented yet")
+		editedResponse = res
+	}
+
+	//TODO adjust content length Header?
+	//fmt.Printf("%s", tmp)
+	presp.modifiedResponse <- &mayBeResponse{res: editedResponse, err: err}
+
 }
 
 //Decorates an http.Handler to make it intercept requests
