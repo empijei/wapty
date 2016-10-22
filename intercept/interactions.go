@@ -1,6 +1,10 @@
 package intercept
 
-import "github.com/empijei/Wapty/ui"
+import (
+	"log"
+
+	"github.com/empijei/Wapty/ui"
+)
 
 var uiEditor *ui.Subscription
 
@@ -58,9 +62,12 @@ func (p PayloadType) String() string {
 }
 
 func editBuffer(p PayloadType, b *[]byte) (*[]byte, Action) {
+	log.Println("Editing " + p.String())
 	args := ui.Args(map[string]string{"type": p.String()})
 	ui.Send(ui.Command{Channel: EDITORCHANNEL, Args: args, Payload: b})
+	log.Println("Waiting for user interaction")
 	result := uiEditor.Read()
-	action := parseAction(result.Args["action"])
+	log.Println("User interacted")
+	action := parseAction(result.Args["action"]) //TODO make this a const
 	return result.Payload, action
 }

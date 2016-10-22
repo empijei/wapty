@@ -69,7 +69,7 @@ func (s *Server) sendAllClients(msg *ui.Command) {
 }
 
 func (s *Server) msgReceived(msg *ui.Command) {
-	ui.Send(*msg)
+	ui.Receive(*msg)
 }
 
 // Listen and serve.
@@ -125,11 +125,19 @@ func (s *Server) Listen() {
 	}
 }
 
+func writeLoop(s *Server) {
+	oChan := ui.ConnectUI()
+	for msg := range oChan {
+		s.SendAllClients(&msg)
+	}
+}
+
 func MainLoop() {
 	// websocket server
 	server := NewServer("/ws")
 	go server.Listen()
 
+	go writeLoop(server)
 	// static files
 	http.Handle("/", http.FileServer(http.Dir("webroot")))
 

@@ -14,6 +14,7 @@ type Command struct {
 	Payload *[]byte
 }
 
+//TODO create an helper to build these
 type Args map[string]string
 
 type SubsChannel map[int64]Subscription
@@ -71,7 +72,17 @@ func UnSubscribe(s *Subscription) {
 }
 
 func Send(c Command) {
+	log.Println("controller sending: ", c)
 	oChan <- c
+}
+
+func Receive(c Command) {
+	iChan <- c
+}
+
+//This function is used by uis servers to read all the messages from wapty.
+func ConnectUI() <-chan Command {
+	return oChan
 }
 
 func MainLoop() {
