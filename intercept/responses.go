@@ -66,7 +66,7 @@ func handleResponse(presp *pendingResponse) {
 	//fmt.Printf("%s", tmp)
 	presp.modifiedResponse <- &mayBeResponse{res: editedResponse, err: err}
 
-	Dump()
+	StatusDump()
 }
 
 //This is a struct that respects the net.RoundTripper interface and just wraps

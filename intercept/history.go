@@ -17,28 +17,27 @@ const idHeader = "MAPTY-ID"
 const interceptHeader = "MAPTY-Intercept"
 
 func init() {
-	status.reqResps = make(map[int64]*ReqResp)
 }
 
 //This type is used to represent all the req/resp that went through the proxy
 type history struct {
 	sync.RWMutex
-	count    int64
-	reqResps map[int64]*ReqResp
+	count    uint
+	reqResps []*ReqResp
 }
 
-//Parses a string into an int64
-func parseID(reqId string) (id int64) {
-	id, err := strconv.ParseInt(reqId, 10, 64)
+//Parses a string into an uint
+func parseID(reqId string) (id uint) {
+	sid, err := strconv.Atoi(reqId)
 	if err != nil {
 		panic(err)
 	}
-	return
+	return uint(sid)
 }
 
 //Finds the correct Request based on the ID and adds the modified request to it
 //This is thread safe
-func (h *history) addEditedRequest(Id int64, rawEditedReq *[]byte) {
+func (h *history) addEditedRequest(Id uint, rawEditedReq *[]byte) {
 	h.RLock()
 	h.reqResps[Id].RawEditedReq = rawEditedReq
 	h.RUnlock()
@@ -46,7 +45,7 @@ func (h *history) addEditedRequest(Id int64, rawEditedReq *[]byte) {
 
 //Finds the correct Request based on the ID and adds the original response to it
 //This is thread safe
-func (h *history) addResponse(Id int64, rawRes *[]byte) {
+func (h *history) addResponse(Id uint, rawRes *[]byte) {
 	h.RLock()
 	h.reqResps[Id].RawRes = rawRes
 	h.RUnlock()
@@ -54,7 +53,7 @@ func (h *history) addResponse(Id int64, rawRes *[]byte) {
 
 //Finds the correct Request based on the ID and adds the modified response to it
 //This is thread safe
-func (h *history) addEditedResponse(Id int64, rawEditedRes *[]byte) {
+func (h *history) addEditedResponse(Id uint, rawEditedRes *[]byte) {
 	h.RLock()
 	h.reqResps[Id].RawEditedRes = rawEditedRes
 	h.RUnlock()
@@ -67,15 +66,13 @@ func (h *history) addEditedResponse(Id int64, rawEditedRes *[]byte) {
 }
 
 //Dumps the status in the log. This is only meant for debug purposes.
-func Dump() {
+func StatusDump() {
 	status.RLock()
-	for _, reqresp := range status.reqResps {
-		foo, err := json.MarshalIndent(reqresp, " ", " ")
-		if err != nil {
-			log.Println(err.Error())
-		}
-		log.Printf("%s", foo)
+	foo, err := json.MarshalIndent(status.reqResps, " ", " ")
+	if err != nil {
+		log.Println(err.Error())
 	}
+	log.Printf("%s", foo)
 	status.RUnlock()
 }
 
@@ -83,7 +80,7 @@ func Dump() {
 //TODO methods to parse req-resp
 type ReqResp struct {
 	//Unique Id in the history
-	Id int64
+	Id uint
 	//Original Request
 	RawReq *[]byte
 	//Original Response
@@ -97,12 +94,12 @@ type ReqResp struct {
 //Creates a new history item and safely adds it to the status, incrementing the
 //current id value
 //Returns the id of the newly created item
-func newReqResp(rawReq *[]byte) int64 {
+func newReqResp(rawReq *[]byte) uint {
 	status.Lock()
-	status.count += 1
 	curReq := status.count
 	tmp := &ReqResp{RawReq: rawReq, Id: curReq}
-	status.reqResps[curReq] = tmp
+	status.reqResps = append(status.reqResps, tmp)
+	status.count += 1
 	status.Unlock()
 	return curReq
 }
@@ -116,7 +113,7 @@ type mayBeRequest struct {
 //a struct used to transmit to the dispatchLoop a requests that waits to be
 //edited or forwarded by the user
 type pendingRequest struct {
-	id              int64
+	id              uint
 	intercepted     bool
 	originalRequest *http.Request
 	modifiedRequest chan *mayBeRequest
@@ -131,7 +128,7 @@ type mayBeResponse struct {
 //a struct used to transmit to the dispatchLoop a response that waits to be
 //edited or forwarded by the user
 type pendingResponse struct {
-	id               int64
+	id               uint
 	originalResponse *http.Response
 	originalRequest  *http.Request
 	modifiedResponse chan *mayBeResponse
