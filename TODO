@@ -1,14 +1,17 @@
+Add Intercept control to cli
 Add a README
-Add GUI/CLI
+Make subscriptions as prefixes to allow multiple subs
 Add Drop Request/Response
 Add Provide Response functionality
 Add protocol indicator
 Fix host header and destination
+Add testing
 Add Content Lengt fix for reqs
 Add Scoping
 Add Repeater
 Add Save
 Add AutoEdit
+Add GUI
 Add Content-Length override
 Add Intruder
 Find a better way to link req and resp?
@@ -17,6 +20,7 @@ Add Autoedit
 Add Decoder
 Add Spider
 Add Scanner
+Add Mock Server
 Add Beautifier?
 Check if custom headers are already present?
 decompress HTTP2 instead of disabling it?

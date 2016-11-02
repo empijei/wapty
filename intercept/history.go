@@ -6,24 +6,28 @@ import (
 	"net/http"
 	"strconv"
 	"sync"
+
+	"github.com/empijei/Wapty/ui"
 )
 
-var status history
+var status History
 
 //Header used to keep track of requests across different routines
-const idHeader = "MAPTY-ID"
+const idHeader = "WAPTY-ID"
 
 //Header used to keep track of intercepted requests
-const interceptHeader = "MAPTY-Intercept"
+const interceptHeader = "WAPTY-Intercept"
 
 func init() {
 }
 
 //This type is used to represent all the req/resp that went through the proxy
-type history struct {
+//FIXME make the fields private and create a dummy object to transmit this
+type History struct {
 	sync.RWMutex
-	count    uint
-	reqResps []*ReqResp
+	//Remove count, use it only for serialization
+	Count    uint
+	ReqResps []*ReqResp
 }
 
 //Parses a string into an uint
@@ -37,25 +41,25 @@ func parseID(reqId string) (id uint) {
 
 //Finds the correct Request based on the ID and adds the modified request to it
 //This is thread safe
-func (h *history) addEditedRequest(Id uint, rawEditedReq *[]byte) {
+func (h *History) addEditedRequest(Id uint, rawEditedReq []byte) {
 	h.RLock()
-	h.reqResps[Id].RawEditedReq = rawEditedReq
+	h.ReqResps[Id].RawEditedReq = rawEditedReq
 	h.RUnlock()
 }
 
 //Finds the correct Request based on the ID and adds the original response to it
 //This is thread safe
-func (h *history) addResponse(Id uint, rawRes *[]byte) {
+func (h *History) addResponse(Id uint, rawRes []byte) {
 	h.RLock()
-	h.reqResps[Id].RawRes = rawRes
+	h.ReqResps[Id].RawRes = rawRes
 	h.RUnlock()
 }
 
 //Finds the correct Request based on the ID and adds the modified response to it
 //This is thread safe
-func (h *history) addEditedResponse(Id uint, rawEditedRes *[]byte) {
+func (h *History) addEditedResponse(Id uint, rawEditedRes []byte) {
 	h.RLock()
-	h.reqResps[Id].RawEditedRes = rawEditedRes
+	h.ReqResps[Id].RawEditedRes = rawEditedRes
 	h.RUnlock()
 	//TODO remove this
 	//	foo, err := json.marshalindent(h.reqresps[id], " ", " ")
@@ -66,14 +70,34 @@ func (h *history) addEditedResponse(Id uint, rawEditedRes *[]byte) {
 }
 
 //Dumps the status in the log. This is only meant for debug purposes.
-func StatusDump() {
+func StatusDump(status History) {
 	status.RLock()
-	foo, err := json.MarshalIndent(status.reqResps, " ", " ")
+	foo, err := json.MarshalIndent(status, " ", " ")
 	if err != nil {
 		log.Println(err.Error())
 	}
 	log.Printf("%s", foo)
 	status.RUnlock()
+}
+
+//This loop will wait for commands directed to the history control and will
+//execute them
+func historyLoop() {
+	for {
+		cmd := uiHistory.Read()
+		switch cmd.Action {
+		case FETCH.String():
+			status.RLock()
+			dump, err := json.Marshal(status)
+			status.RUnlock()
+			if err != nil {
+				StatusDump(status)
+				panic(err)
+			}
+			log.Printf("Dump: %s\n", dump)
+			ui.Send(ui.Command{Channel: HISTORYCHANNEL, Action: "Fetch", Args: ui.Args{}, Payload: dump})
+		}
+	}
 }
 
 //Represents an item of the proxy history
@@ -82,24 +106,24 @@ type ReqResp struct {
 	//Unique Id in the history
 	Id uint
 	//Original Request
-	RawReq *[]byte
+	RawReq []byte
 	//Original Response
-	RawRes *[]byte
+	RawRes []byte
 	//Edited Request
-	RawEditedReq *[]byte
+	RawEditedReq []byte
 	//Edited Response
-	RawEditedRes *[]byte
+	RawEditedRes []byte
 }
 
 //Creates a new history item and safely adds it to the status, incrementing the
 //current id value
 //Returns the id of the newly created item
-func newReqResp(rawReq *[]byte) uint {
+func newReqResp(rawReq []byte) uint {
 	status.Lock()
-	curReq := status.count
+	curReq := status.Count
 	tmp := &ReqResp{RawReq: rawReq, Id: curReq}
-	status.reqResps = append(status.reqResps, tmp)
-	status.count += 1
+	status.ReqResps = append(status.ReqResps, tmp)
+	status.Count += 1
 	status.Unlock()
 	return curReq
 }

@@ -26,7 +26,7 @@ func handleResponse(presp *pendingResponse) {
 	res.ContentLength = -1
 	res.Header.Del("Content-Length")
 	rawRes, err := httputil.DumpResponse(res, true)
-	status.addResponse(presp.id, &rawRes)
+	status.addResponse(presp.id, rawRes)
 	if err != nil {
 		//Something went wrong, abort
 		log.Println("Error while dumping response" + err.Error())
@@ -34,13 +34,13 @@ func handleResponse(presp *pendingResponse) {
 		return
 	}
 	var editedResponse *http.Response
-	editedResponseDump, action := editBuffer(RESPONSE, &rawRes)
+	editedResponseDump, action := editBuffer(RESPONSE, rawRes)
 	switch action {
-	case FORWARDED:
+	case FORWARD:
 		res.ContentLength = ContentLength
 		editedResponse = res
-	case EDITED:
-		editedResponseBuffer := bufio.NewReader(bytes.NewReader(*editedResponseDump))
+	case EDIT:
+		editedResponseBuffer := bufio.NewReader(bytes.NewReader(editedResponseDump))
 		editedResponse, err = http.ReadResponse(editedResponseBuffer, presp.originalRequest)
 		if err != nil {
 			//TODO chech this error and hijack connection to send raw bytes
@@ -48,11 +48,11 @@ func handleResponse(presp *pendingResponse) {
 			editedResponse = res
 		}
 		status.addEditedResponse(presp.id, editedResponseDump)
-	case DROPPED:
+	case DROP:
 		//TODO implement this
 		log.Println("Not implemented yet")
 		editedResponse = res
-	case RESPPROVIDED:
+	case PROVIDERESP:
 		//TODO implement this
 		log.Println("Action not allowed on Responses")
 		editedResponse = res
@@ -65,8 +65,6 @@ func handleResponse(presp *pendingResponse) {
 	//TODO adjust content length Header?
 	//fmt.Printf("%s", tmp)
 	presp.modifiedResponse <- &mayBeResponse{res: editedResponse, err: err}
-
-	StatusDump()
 }
 
 //This is a struct that respects the net.RoundTripper interface and just wraps
@@ -98,7 +96,7 @@ func (ri *ResponseInterceptor) RoundTrip(req *http.Request) (res *http.Response,
 		if dumpErr != nil {
 			log.Println(dumpErr.Error())
 		} else {
-			status.addResponse(Id, &rawRes)
+			status.addResponse(Id, rawRes)
 		}
 		return
 	}

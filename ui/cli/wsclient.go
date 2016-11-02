@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -26,8 +27,9 @@ func init() {
 	cliChannel = make(chan string)
 	stdin = bufio.NewScanner(os.Stdin)
 	suppCommands = make(map[string]dir)
-	suppCommands[intercept.EDITED.String()] = edit
-	suppCommands[intercept.FORWARDED.String()] = forward
+	suppCommands[intercept.EDIT.String()] = edit
+	suppCommands[intercept.FORWARD.String()] = forward
+	suppCommands[intercept.FETCH.String()] = fetch
 }
 
 func main() {
@@ -40,8 +42,13 @@ func mainLoop() {
 	for {
 		select {
 		case cmd := <-serverChannel:
-			_ = ioutil.WriteFile("tmp.swp", *cmd.Payload, 0644)
-			log.Println("Payload intercepted, edit it and press enter to continue.")
+			switch cmd.Channel {
+			case intercept.EDITORCHANNEL:
+				_ = ioutil.WriteFile("tmp.swp", cmd.Payload, 0644)
+				log.Println("Payload intercepted, edit it and press enter to continue.")
+			case intercept.HISTORYCHANNEL:
+				handleHistory(cmd)
+			}
 
 		case input := <-cliChannel:
 			cmd, err := parseInput(input)
@@ -58,7 +65,10 @@ func mainLoop() {
 }
 
 func printHelp() {
-	fmt.Println("TODO implement help")
+	fmt.Println("Supported commands:")
+	for cmd, _ := range suppCommands {
+		fmt.Println(cmd)
+	}
 }
 
 func parseInput(in string) (ui.Command, error) {
@@ -68,9 +78,13 @@ func parseInput(in string) (ui.Command, error) {
 		for cmd, dir := range suppCommands {
 			if strings.HasPrefix(cmd, commands[0]) {
 				directive = dir
-				return directive(commands), nil
+				if ok == true {
+					return ui.Command{}, fmt.Errorf("Ambiguous command")
+				}
+				ok = true
 			}
 		}
+		return directive(commands), nil
 	} else {
 		return directive(commands), nil
 	}
@@ -80,13 +94,15 @@ func parseInput(in string) (ui.Command, error) {
 func edit(commands []string) ui.Command {
 	var payload []byte
 	payload, _ = ioutil.ReadFile("tmp.swp") //TODO chech this error
-	args := ui.Args(map[string]string{"action": intercept.EDITED.String()})
-	return ui.Command{Args: args, Channel: intercept.EDITORCHANNEL, Payload: &payload}
+	return ui.Command{Action: intercept.EDIT.String(), Channel: intercept.EDITORCHANNEL, Payload: payload}
 }
 
 func forward(commands []string) ui.Command {
-	args := ui.Args(map[string]string{"action": intercept.FORWARDED.String()})
-	return ui.Command{Args: args, Channel: intercept.EDITORCHANNEL}
+	return ui.Command{Action: intercept.FORWARD.String(), Channel: intercept.EDITORCHANNEL}
+}
+
+func fetch(commands []string) ui.Command {
+	return ui.Command{Action: intercept.FETCH.String(), Channel: intercept.HISTORYCHANNEL}
 }
 
 func interact() {
@@ -95,31 +111,13 @@ func interact() {
 	}
 }
 
-func cli() {
-	for cmd := range serverChannel {
-		_ = ioutil.WriteFile("tmp.swp", *cmd.Payload, 0644)
-		log.Println("Payload intercepted, edit it and press enter to continue.")
-		var payload []byte
-		var args ui.Args
-		for args == nil {
-			stdin.Scan()
-			switch stdin.Text() {
-			case intercept.EDITED.String():
-				payload, _ = ioutil.ReadFile("tmp.swp") //TODO chech this error
-				args = ui.Args(map[string]string{"action": intercept.EDITED.String()})
-			case intercept.FORWARDED.String():
-				args = ui.Args(map[string]string{"action": intercept.FORWARDED.String()})
-			default:
-				log.Println("Unknown command")
-				log.Println("Try with ", intercept.EDITED, " ", intercept.FORWARDED)
-			}
-		}
-		log.Println("Continued")
-		err := websocket.JSON.Send(ws, ui.Command{Args: args, Channel: intercept.EDITORCHANNEL, Payload: &payload})
-		if err != nil {
-			panic(err)
-		}
+func handleHistory(cmd ui.Command) {
+	var status intercept.History
+	err := json.Unmarshal(cmd.Payload, &status)
+	if err != nil {
+		panic(err)
 	}
+	intercept.StatusDump(status)
 }
 
 func wsLoop() {

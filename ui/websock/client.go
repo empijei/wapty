@@ -110,6 +110,7 @@ func (c *Client) listenRead() {
 			} else if err != nil {
 				c.server.Err(err)
 			} else {
+				//TODO check if action != nil
 				c.server.msgReceived(&msg)
 			}
 		}

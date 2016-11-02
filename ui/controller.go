@@ -8,10 +8,14 @@ import (
 	"sync"
 )
 
+//String used to detect the main action within an ui.Args
+const ACTION = "action"
+
 type Command struct {
 	Channel string
+	Action  string
 	Args    Args
-	Payload *[]byte
+	Payload []byte
 }
 
 //TODO create an helper to build these

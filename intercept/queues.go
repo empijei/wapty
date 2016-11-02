@@ -11,7 +11,6 @@ import (
 	"sync"
 
 	"github.com/empijei/Wapty/mitm"
-	"github.com/empijei/Wapty/ui"
 )
 
 //Not used yet
@@ -44,6 +43,9 @@ func MainLoop() {
 	//Call dispatchloop on other goroutine
 	go dispatchLoop()
 
+	//Run History interactions
+	go historyLoop()
+
 	//Create the modified transport to intercept responses
 	//modifiedTransport := ResponseInterceptor{wrappedRT: http.DefaultTransport} //This uses HTTP2
 	noHTTP2Transport := &http.Transport{
@@ -73,7 +75,6 @@ func MainLoop() {
 //When a request or response is intercepted and/or modified it is added to the
 //History.
 func dispatchLoop() {
-	uiEditor = ui.Subscribe(EDITORCHANNEL) //FIXME hardcoded string
 	for {
 		select {
 		case preq := <-RequestQueue:

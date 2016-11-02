@@ -36,23 +36,23 @@ func handleRequest(preq *pendingRequest) {
 		return
 	}
 	var editedRequest *http.Request
-	editedRequestDump, action := editBuffer(REQUEST, &req)
+	editedRequestDump, action := editBuffer(REQUEST, req)
 	switch action {
-	case FORWARDED:
+	case FORWARD:
 		editedRequest = preq.originalRequest
-	case EDITED:
-		editedRequest, err = http.ReadRequest(bufio.NewReader(bytes.NewReader(*editedRequestDump)))
+	case EDIT:
+		editedRequest, err = http.ReadRequest(bufio.NewReader(bytes.NewReader(editedRequestDump)))
 		if err != nil {
 			log.Println("Error during edited request parsing, forwarding original request.")
 			editedRequest = preq.originalRequest
 		}
 		//TODO adjust content length
 		status.addEditedRequest(preq.id, editedRequestDump)
-	case DROPPED:
+	case DROP:
 		//TODO implement this
 		log.Println("Not implemented yet")
 		editedRequest = preq.originalRequest
-	case RESPPROVIDED:
+	case PROVIDERESP:
 		//TODO implement this
 		log.Println("Not implemented yet")
 		editedRequest = preq.originalRequest
@@ -79,7 +79,7 @@ func interceptRequestWrapper(upstream http.Handler) http.Handler {
 			log.Println(err.Error())
 			return
 		}
-		Id := newReqResp(&tmp)
+		Id := newReqResp(tmp)
 		intercept.RLock()
 		intercepted := intercept.value
 		intercept.RUnlock()
