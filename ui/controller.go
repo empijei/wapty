@@ -14,12 +14,11 @@ const ACTION = "action"
 type Command struct {
 	Channel string
 	Action  string
-	Args    Args
+	Args    []string
 	Payload []byte
 }
 
 //TODO create an helper to build these
-type Args map[string]string
 
 type SubsChannel map[int64]Subscription
 
@@ -59,6 +58,7 @@ func Subscribe(channel string) *Subscription {
 	return &out
 }
 
+//TODO delete this? Dangerous and never used
 func UnSubscribe(s *Subscription) {
 	subsMutex.RLock()
 	defer subsMutex.RUnlock()

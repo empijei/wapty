@@ -11,6 +11,7 @@ import (
 	"sync"
 
 	"github.com/empijei/Wapty/mitm"
+	"github.com/empijei/Wapty/ui"
 )
 
 //Not used yet
@@ -18,6 +19,8 @@ var Done chan struct{}
 
 //If value is set to true tells the proxy to start the intercept
 var intercept SyncBool
+
+var uiSettings *ui.Subscription
 
 type SyncBool struct {
 	sync.RWMutex
@@ -27,6 +30,7 @@ type SyncBool struct {
 func init() {
 	Done = make(chan struct{})
 	intercept.value = true
+	uiSettings = ui.Subscribe(SETTINGSCHANNEL)
 }
 
 //In order for the program to work this should always be started.
@@ -45,6 +49,9 @@ func MainLoop() {
 
 	//Run History interactions
 	go historyLoop()
+
+	//Listen for settings changes
+	go settingsLoop()
 
 	//Create the modified transport to intercept responses
 	//modifiedTransport := ResponseInterceptor{wrappedRT: http.DefaultTransport} //This uses HTTP2

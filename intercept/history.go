@@ -95,7 +95,7 @@ func historyLoop() {
 				panic(err)
 			}
 			log.Printf("Dump: %s\n", dump)
-			ui.Send(ui.Command{Channel: HISTORYCHANNEL, Action: "Fetch", Args: ui.Args{}, Payload: dump})
+			ui.Send(ui.Command{Channel: HISTORYCHANNEL, Action: "Fetch", Payload: dump})
 		}
 	}
 }

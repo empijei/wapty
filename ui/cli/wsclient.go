@@ -30,6 +30,7 @@ func init() {
 	suppCommands[intercept.EDIT.String()] = edit
 	suppCommands[intercept.FORWARD.String()] = forward
 	suppCommands[intercept.FETCH.String()] = fetch
+	suppCommands["intercept"] = setIntercept
 }
 
 func main() {
@@ -48,6 +49,8 @@ func mainLoop() {
 				log.Println("Payload intercepted, edit it and press enter to continue.")
 			case intercept.HISTORYCHANNEL:
 				handleHistory(cmd)
+			case intercept.SETTINGSCHANNEL:
+				handleSettings(cmd)
 			}
 
 		case input := <-cliChannel:
@@ -84,7 +87,9 @@ func parseInput(in string) (ui.Command, error) {
 				ok = true
 			}
 		}
-		return directive(commands), nil
+		if directive != nil {
+			return directive(commands), nil
+		}
 	} else {
 		return directive(commands), nil
 	}
@@ -105,9 +110,27 @@ func fetch(commands []string) ui.Command {
 	return ui.Command{Action: intercept.FETCH.String(), Channel: intercept.HISTORYCHANNEL}
 }
 
+func setIntercept(commands []string) ui.Command {
+	if len(commands) == 1 {
+		return ui.Command{Action: "intercept", Channel: intercept.SETTINGSCHANNEL}
+	}
+	value := "false"
+	if strings.HasPrefix("true", commands[1]) {
+		value = "true"
+	}
+	return ui.Command{Action: "intercept", Channel: intercept.SETTINGSCHANNEL, Args: []string{value}}
+}
+
 func interact() {
 	for stdin.Scan() {
 		cliChannel <- stdin.Text()
+	}
+}
+
+func handleSettings(cmd ui.Command) {
+	switch cmd.Action {
+	case "intercept":
+		fmt.Println("Intercept is " + cmd.Args[0])
 	}
 }
 

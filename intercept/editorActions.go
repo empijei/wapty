@@ -7,7 +7,6 @@ import (
 )
 
 var uiEditor *ui.Subscription
-var uiHistory *ui.Subscription
 
 //String used to recognize commands directed to this module
 const EDITORCHANNEL = "proxy/intercept/editor"
@@ -23,7 +22,7 @@ const (
 )
 
 var editorActions = [...]string{
-	"forwar",
+	"forward",
 	"edit",
 	"drop",
 	"provideResp",
@@ -71,7 +70,7 @@ func filterHistory() {
 
 func editBuffer(p PayloadType, b []byte) ([]byte, EditorAction) {
 	log.Println("Editing " + p.String())
-	args := ui.Args(map[string]string{"type": p.String()})
+	args := []string{p.String()}
 	ui.Send(ui.Command{Channel: EDITORCHANNEL, Action: "Edit", Args: args, Payload: b}) //TODO add Action?
 	log.Println("Waiting for user interaction")
 	result := uiEditor.Read()
