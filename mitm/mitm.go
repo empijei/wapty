@@ -304,8 +304,13 @@ func (p *Proxy) proxyMITM(upstream, downstream net.Conn) {
 	}
 	ch := make(chan struct{})
 	wc := &onCloseConn{upstream, func() { ch <- struct{}{} }}
-	//empijei: TODO pool this?
-	_ = http.Serve(&oneShotListener{wc}, p.Wrap(rp))
+
+	//empijei: TODO create a pool of these?
+	var handler http.Handler = rp
+	if p.Wrap != nil {
+		handler = p.Wrap(rp)
+	}
+	_ = http.Serve(&oneShotListener{c: wc}, handler)
 	<-ch
 }
 
@@ -326,10 +331,13 @@ func HTTPSDirector(req *http.Request) {
 // A oneShotListener implements net.Listener whos Accept only returns a
 // net.Conn as specified by c followed by an error for each subsequent Accept.
 type oneShotListener struct {
+	sync.Mutex
 	c net.Conn
 }
 
 func (l *oneShotListener) Accept() (net.Conn, error) {
+	l.Lock()
+	defer l.Unlock()
 	if l.c == nil {
 		return nil, errors.New("closed")
 	}
