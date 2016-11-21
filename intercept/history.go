@@ -29,15 +29,6 @@ type History struct {
 	ReqResps []*ReqResp
 }
 
-//Parses a string into an uint
-//func parseID(reqId string) (id uint) {
-//sid, err := strconv.Atoi(reqId)
-//if err != nil {
-//panic(err)
-//}
-//return uint(sid)
-//}
-
 //Finds the correct Request based on the ID and adds the modified request to it
 //This is thread safe
 func (h *History) addEditedRequest(Id uint, rawEditedReq []byte) {
@@ -60,12 +51,6 @@ func (h *History) addEditedResponse(Id uint, rawEditedRes []byte) {
 	h.RLock()
 	h.ReqResps[Id].RawEditedRes = rawEditedRes
 	h.RUnlock()
-	//TODO remove this
-	//	foo, err := json.marshalindent(h.reqresps[id], " ", " ")
-	//	if err != nil {
-	//		log.println(err.error())
-	//	}
-	//	log.printf("%s", foo)
 }
 
 //Dumps the status in the log. This is only meant for debug purposes.
@@ -104,6 +89,8 @@ func historyLoop() {
 type ReqResp struct {
 	//Unique Id in the history
 	Id uint
+	//Meta Data about both Req and Resp
+	MetaData *ReqRespMetaData
 	//Original Request
 	RawReq []byte
 	//Original Response
@@ -120,7 +107,7 @@ type ReqResp struct {
 func newReqResp(rawReq []byte) uint {
 	status.Lock()
 	curReq := status.Count
-	tmp := &ReqResp{RawReq: rawReq, Id: curReq}
+	tmp := &ReqResp{RawReq: rawReq, Id: curReq, MetaData: newReqRespMetaData(curReq)}
 	status.ReqResps = append(status.ReqResps, tmp)
 	status.Count += 1
 	status.Unlock()

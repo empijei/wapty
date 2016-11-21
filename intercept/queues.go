@@ -29,7 +29,7 @@ type SyncBool struct {
 
 func init() {
 	Done = make(chan struct{})
-	intercept.value = true
+	//intercept.value = true
 	uiSettings = ui.Subscribe(SETTINGSCHANNEL)
 }
 
@@ -118,6 +118,9 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 			log.Println(err)
 		}
 	}
+	status.RLock()
+	status.ReqResps[Id].parseRequest(req)
+	status.RUnlock()
 
 	//Perform the request
 	res, err = ri.wrappedRT.RoundTrip(req)
@@ -126,5 +129,10 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 		log.Println("Something went wrong trying to contact the server")
 		return
 	}
-	return editResponse(req, res, intercepted, Id)
+	res, err = editResponse(req, res, intercepted, Id)
+	status.RLock()
+	status.ReqResps[Id].parseResponse(res)
+	status.RUnlock()
+	StatusDump(status)
+	return
 }
