@@ -75,6 +75,8 @@ type ResponseInterceptor struct {
 
 //This is a mock RoundTrip used to intercept responses before they are forwarded by the proxy
 func (ri *ResponseInterceptor) RoundTrip(req *http.Request) (res *http.Response, err error) {
+	//TODO edit request HERE
+
 	//Read request id from header and remove it
 	Id := parseID(req.Header.Get(idHeader))
 	req.Header.Del(idHeader)
