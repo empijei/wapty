@@ -143,7 +143,11 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			FlushInterval: p.FlushInterval,
 			Transport:     p.Transport,
 		}
-		p.Wrap(rp).ServeHTTP(w, req)
+		if p.Wrap != nil {
+			p.Wrap(rp).ServeHTTP(w, req)
+		} else {
+			rp.ServeHTTP(w, req)
+		}
 		return
 	}
 
