@@ -1,10 +1,14 @@
 package intercept
 
 import (
+	"encoding/json"
+	"log"
 	"net"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/empijei/Wapty/ui"
 )
 
 type ReqRespMetaData struct {
@@ -68,6 +72,7 @@ func (rr *ReqResp) parseRequest(req *http.Request) {
 		this.IP = ips[0]
 	}
 	this.Time = time.Now().String()
+	sendMetaData(this)
 }
 
 //DISCLAIMER use original res AFTER editing the new one
@@ -86,4 +91,13 @@ func (rr *ReqResp) parseResponse(res *http.Response) {
 	for _, cookie := range tmp {
 		this.Cookies += cookie.String() + "; "
 	}
+	sendMetaData(this)
+}
+
+func sendMetaData(metaData *ReqRespMetaData) {
+	metaJSON, err := json.Marshal(metaData)
+	if err != nil {
+		log.Println(err)
+	}
+	ui.Send(ui.Command{Channel: HISTORYCHANNEL, Action: "metaData", Args: []string{string(metaJSON)}})
 }

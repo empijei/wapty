@@ -1,9 +1,10 @@
 Stage 1:
+UI tabcontroller
 UI add history tab
 Move raw dumping to history methods
 Unit testing
 Fix host header and destination
-UI autodetect changes in proxybuffer and merge the two forward buttons
+UI autodetect changes in proxybuffer and merge the two "forward" buttons
 UI show already pending request/response on connection
 UI disable buttons if no request is present
 UI detect disconnection

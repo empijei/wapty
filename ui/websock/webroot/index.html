@@ -6,12 +6,13 @@
 		<button id="forwardModified" type="button" onclick="clickhandler();">Forward Modified</button>
 		<button id="drop" type="button" onclick="clickhandler();">Drop</button>
 		<button id="provideResponse" type="button" onclick="clickhandler();">Provide Response</button>
-		<label><input type="checkbox" id="interceptToggle" value="Intercept" onclick="clickhandler();">Intercept<label>
-				<button id="menu" type="button">Action</button>
-				<br>
-				<br>
+		<label><input type="checkbox" id="interceptToggle" value="Intercept" onclick="clickhandler();">Intercept</label>
 
-				<textarea id="proxybuffer" name="Text1" cols="100" rows="40"></textarea>
+		<button id="menu" type="button">Action</button>
+		<br>
+		<br>
+
+		<textarea id="proxybuffer" name="Text1" cols="100" rows="40"></textarea>
 
 	</BODY>
 	<SCRIPT> 
@@ -45,6 +46,14 @@ waptyServer.onmessage = function(event){
 			switch (msg.Action){
 				case "intercept":
 					document.getElementById("interceptToggle").checked = msg.Args[0] === "true";
+			}
+			break;
+		case intercept.HISTORYCHANNEL:
+			switch (msg.Action){
+				case "metaData":
+					var metaData = JSON.parse(msg.Args[0])
+					console.log("Metadata for request " + metaData.Id + " received:");
+					console.log(metaData)
 			}
 			break;
 	}
