@@ -58,7 +58,7 @@ func MainLoop() {
 	noHTTP2Transport := &http.Transport{
 		TLSNextProto: make(map[string]func(authority string, c *tls.Conn) http.RoundTripper),
 	}
-	modifiedTransport := ResponseInterceptor{wrappedRT: noHTTP2Transport}
+	modifiedTransport := Interceptor{wrappedRT: noHTTP2Transport}
 
 	//Creates the mitm.Proxy with the modified transport, the loaded CA and the
 	//interceptRequestWrapper
@@ -68,7 +68,8 @@ func MainLoop() {
 			MinVersion: tls.VersionSSL30,
 			//CipherSuites: []uint16{tls.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA},
 		},
-		Wrap:      interceptRequestWrapper,
+		//FIXME disabled for debug purposes
+		//Wrap:      interceptRequestWrapper,
 		Transport: &modifiedTransport,
 	}
 	//Starts the mitm.Proxy
@@ -92,4 +93,38 @@ func dispatchLoop() {
 			return
 		}
 	}
+}
+
+//This is a struct that respects the net.RoundTripper interface and just wraps
+//the original http.RoundTripper
+type Interceptor struct {
+	wrappedRT http.RoundTripper
+}
+
+//This is a mock RoundTrip used to intercept responses before they are forwarded by the proxy
+func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err error) {
+	intercept.RLock()
+	intercepted := intercept.value
+	intercept.RUnlock()
+	req, Id, err := preProcessRequest(req)
+	if err != nil {
+		//TODO
+		log.Println(err)
+	}
+	if intercepted {
+		req, err = editRequest(req, Id)
+		if err != nil {
+			//TODO
+			log.Println(err)
+		}
+	}
+
+	//Perform the request
+	res, err = ri.wrappedRT.RoundTrip(req)
+
+	if err != nil {
+		log.Println("Something went wrong trying to contact the server")
+		return
+	}
+	return editResponse(req, res, intercepted, Id)
 }

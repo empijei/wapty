@@ -1,6 +1,5 @@
-Use templates for GUI
-UI disable buttons if no request is present
 Move request interception to modified RoundTripper
+UI disable buttons if no request is present
 Unit testing
 Add history metadata (with host and protocol indicator)
 Fix host header and destination

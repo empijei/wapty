@@ -43,7 +43,7 @@ func handleResponse(presp *pendingResponse) {
 		editedResponseBuffer := bufio.NewReader(bytes.NewReader(editedResponseDump))
 		editedResponse, err = http.ReadResponse(editedResponseBuffer, presp.originalRequest)
 		if err != nil {
-			//TODO chech this error and hijack connection to send raw bytes
+			//TODO check this error and hijack connection to send raw bytes
 			log.Println("Error during edited response parsing, forwarding original response.")
 			editedResponse = res
 		}
@@ -67,46 +67,24 @@ func handleResponse(presp *pendingResponse) {
 	presp.modifiedResponse <- &mayBeResponse{res: editedResponse, err: err}
 }
 
-//This is a struct that respects the net.RoundTripper interface and just wraps
-//the original http.RoundTripper
-type ResponseInterceptor struct {
-	wrappedRT http.RoundTripper
-}
-
-//This is a mock RoundTrip used to intercept responses before they are forwarded by the proxy
-func (ri *ResponseInterceptor) RoundTrip(req *http.Request) (res *http.Response, err error) {
-	//TODO edit request HERE
-
-	//Read request id from header and remove it
-	Id := parseID(req.Header.Get(idHeader))
-	req.Header.Del(idHeader)
-	//Get if the original request was intercepted and remove the header
-	intercepted := req.Header.Get(interceptHeader) != ""
-	req.Header.Del(interceptHeader)
-
-	//Perform the request
-	res, err = ri.wrappedRT.RoundTrip(req)
-
-	if err != nil {
-		log.Println("Something went wrong trying to contact the server")
-		return
-	}
-
+func editResponse(req *http.Request, res *http.Response, intercepted bool, Id uint) (*http.Response, error) {
 	//Skip intercept if request was not intercepted, only add the response to the Status
+	rawRes, dumpErr := httputil.DumpResponse(res, true)
+	if dumpErr != nil {
+		log.Println(dumpErr.Error())
+	} else {
+		status.addResponse(Id, rawRes)
+	}
+	//TODO autoEdit here
+	//TODO add to status as edited if autoedited
 	if !intercepted {
-		rawRes, dumpErr := httputil.DumpResponse(res, true)
-		if dumpErr != nil {
-			log.Println(dumpErr.Error())
-		} else {
-			status.addResponse(Id, rawRes)
-		}
-		return
+		return res, dumpErr
 	}
 
 	//Request was intercepted, go throug the intercept/edit process
+	//TODO use the autoedited one to edit
 	ModifiedResponse := make(chan *mayBeResponse)
 	ResponseQueue <- &pendingResponse{id: Id, modifiedResponse: ModifiedResponse, originalRequest: req, originalResponse: res}
 	mayBeRes := <-ModifiedResponse
-	res, err = mayBeRes.res, mayBeRes.err
-	return
+	return mayBeRes.res, mayBeRes.err
 }

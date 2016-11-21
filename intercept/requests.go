@@ -69,41 +69,35 @@ func handleRequest(preq *pendingRequest) {
 	preq.modifiedRequest <- &mayBeRequest{req: editedRequest}
 }
 
-//Decorates an http.Handler to make it intercept requests
-//see https://www.youtube.com/watch?v=xyDkyFjzFVc
-func interceptRequestWrapper(upstream http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		tmp, err := httputil.DumpRequest(r, true)
-		if err != nil {
-			upstream.ServeHTTP(w, r)
-			log.Println(err.Error())
-			return
-		}
-		Id := newReqResp(tmp)
-		intercept.RLock()
-		intercepted := intercept.value
-		intercept.RUnlock()
-		if !intercepted {
-			//If intercept is false just add the request Id and keep going
-			r.Header.Set(idHeader, fmt.Sprintf("%d", Id))
-			upstream.ServeHTTP(w, r)
-			return
-		}
-		//TODO Add autoedit!
+func preProcessRequest(req *http.Request) (autoEdited *http.Request, Id uint, err error) {
+	tmp, err := httputil.DumpRequest(req, true)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	Id = newReqResp(tmp)
+	//TODO Add autoedit here
+	autoEdited = req
+	//TODO add to status as edited response
+	//TODO Return edited one
+	//TODO Add auto-resolve hostnames here
+	return
 
-		//Intercept is true, send request to the dispatchLoop
-		ModifiedRequest := make(chan *mayBeRequest)
-		RequestQueue <- &pendingRequest{id: Id, originalRequest: r, modifiedRequest: ModifiedRequest}
-		log.Println("Request intercepted")
-		//Wait for edited request
-		mayBeReq := <-ModifiedRequest
-		if mayBeReq.err != nil {
-			//If edit goes wrong, try to keep going with the original request
-			log.Println(mayBeReq.err.Error())
-			upstream.ServeHTTP(w, r)
-			return
-		}
-		//Serve the edited request
-		upstream.ServeHTTP(w, mayBeReq.req)
-	})
+	//TODO move this outside
+}
+
+func editRequest(req *http.Request, Id uint) (*http.Request, error) {
+	//Send request to the dispatchLoop
+	ModifiedRequest := make(chan *mayBeRequest)
+	RequestQueue <- &pendingRequest{id: Id, originalRequest: req, modifiedRequest: ModifiedRequest}
+	log.Println("Request intercepted")
+	//Wait for edited request
+	mayBeReq := <-ModifiedRequest
+	if mayBeReq.err != nil {
+		//If edit goes wrong, try to keep going with the original request
+		log.Println(mayBeReq.err.Error())
+		//FIXME Document this weir behavior or use error properly
+		return req, nil
+	}
+	return mayBeReq.req, nil
 }

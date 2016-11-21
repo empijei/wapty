@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strconv"
 	"sync"
 
 	"github.com/empijei/Wapty/ui"
@@ -31,13 +30,13 @@ type History struct {
 }
 
 //Parses a string into an uint
-func parseID(reqId string) (id uint) {
-	sid, err := strconv.Atoi(reqId)
-	if err != nil {
-		panic(err)
-	}
-	return uint(sid)
-}
+//func parseID(reqId string) (id uint) {
+//sid, err := strconv.Atoi(reqId)
+//if err != nil {
+//panic(err)
+//}
+//return uint(sid)
+//}
 
 //Finds the correct Request based on the ID and adds the modified request to it
 //This is thread safe
