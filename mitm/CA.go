@@ -16,7 +16,7 @@ import (
 var (
 	localhostname, _ = os.Hostname()
 
-	dir      = path.Join(os.Getenv("HOME"), ".mitm")
+	dir      = path.Join(os.Getenv("HOME"), ".wapty")
 	keyFile  = path.Join(dir, "ca-key.pem")
 	certFile = path.Join(dir, "ca-cert.pem")
 )
