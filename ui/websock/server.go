@@ -139,7 +139,7 @@ func MainLoop() {
 
 	go writeLoop(server)
 	// static files
-	http.Handle("/", http.FileServer(http.Dir("webroot")))
+	http.Handle("/", http.FileServer(http.Dir("ui/websock/webroot")))
 
 	log.Fatal(http.ListenAndServe(":8081", nil))
 

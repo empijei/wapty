@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 
@@ -41,12 +40,13 @@ func main() {
 
 func mainLoop() {
 	for {
+		prompt()
 		select {
 		case cmd := <-serverChannel:
 			switch cmd.Channel {
 			case intercept.EDITORCHANNEL:
 				_ = ioutil.WriteFile("tmp.swp", cmd.Payload, 0644)
-				log.Println("Payload intercepted, edit it and press enter to continue.")
+				fmt.Println("\nPayload intercepted, edit it and press enter to continue.")
 			case intercept.HISTORYCHANNEL:
 				handleHistory(cmd)
 			case intercept.SETTINGSCHANNEL:
@@ -115,7 +115,7 @@ func setIntercept(commands []string) ui.Command {
 		return ui.Command{Action: "intercept", Channel: intercept.SETTINGSCHANNEL}
 	}
 	value := "false"
-	if strings.HasPrefix("true", commands[1]) {
+	if strings.HasPrefix("true", commands[1]) || strings.HasPrefix("on", commands[1]) {
 		value = "true"
 	}
 	return ui.Command{Action: "intercept", Channel: intercept.SETTINGSCHANNEL, Args: []string{value}}
@@ -141,6 +141,10 @@ func handleHistory(cmd ui.Command) {
 		panic(err)
 	}
 	intercept.StatusDump(status)
+}
+
+func prompt() {
+	fmt.Printf("wapty-cli >> ")
 }
 
 func wsLoop() {
