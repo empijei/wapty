@@ -8,6 +8,7 @@ import (
 
 var webFiles = map[string]string{}
 
+//This is pure genius, thanks https://stackoverflow.com/a/21596576
 func LoadRoutes() {
 	for fileName, content := range webFiles {
 		log.Println("Loading /" + fileName)
