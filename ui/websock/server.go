@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/empijei/Wapty/ui"
+	"github.com/empijei/Wapty/ui/websock/webroot"
 
 	"golang.org/x/net/websocket"
 )
@@ -139,7 +140,8 @@ func MainLoop() {
 
 	go writeLoop(server)
 	// static files
-	http.Handle("/", http.FileServer(http.Dir("ui/websock/webroot")))
+
+	webroot.LoadRoutes()
 
 	log.Fatal(http.ListenAndServe(":8081", nil))
 

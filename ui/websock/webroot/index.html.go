@@ -1,4 +1,15 @@
-<HTML>
+package webroot
+
+import (
+	"log"
+)
+
+func init() {
+	log.Println("Got here")
+	webFiles[""] = indexHtml
+}
+
+const indexHtml = `<HTML>
 	<HEAD>
 	</HEAD>
 	<BODY>
@@ -99,3 +110,4 @@ function clickhandler(){
 }
 	</SCRIPT>
 </HTML>
+`
