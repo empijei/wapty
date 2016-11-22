@@ -1,4 +1,5 @@
 Stage 1:
+FIX THE DEADLOCK on newReqResp
 Add req ID to editor
 Move raw dumping to history methods
 Fix host header and destination
@@ -9,6 +10,7 @@ Add Provide Response
 Serve the certificates on a specific path
 Default to bare sockets on error
 UI fix that mess, use Angular, improve style.
+UI work on problem "problem" of duplicate receives event
 UI tabcontroller
 UI add history tab
 UI Sanitize metadata server-side? Rely on Angular? Cry in a corner?

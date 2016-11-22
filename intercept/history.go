@@ -105,11 +105,14 @@ type ReqResp struct {
 //current id value
 //Returns the id of the newly created item
 func newReqResp(rawReq []byte) uint {
+	//log.Println("Locking status for write")
 	status.Lock()
+	//log.Println("Locked")
 	curReq := status.Count
 	tmp := &ReqResp{RawReq: rawReq, Id: curReq, MetaData: newReqRespMetaData(curReq)}
 	status.ReqResps = append(status.ReqResps, tmp)
 	status.Count += 1
+	//log.Println("UnLocking status")
 	status.Unlock()
 	return curReq
 }

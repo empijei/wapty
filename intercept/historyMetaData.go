@@ -51,6 +51,7 @@ func newReqRespMetaData(Id uint) *ReqRespMetaData {
 }
 
 //DISCLAIMER use original req AFTER editing the new one
+//And use it from a thread that has a readlock on the status
 func (rr *ReqResp) parseRequest(req *http.Request) {
 	this := rr.MetaData
 	this.Host = req.Host
@@ -60,9 +61,8 @@ func (rr *ReqResp) parseRequest(req *http.Request) {
 		_ = req.ParseForm()
 	}
 	this.Params = len(req.Form) > 0
-	status.RLock()
+	//this supposes to alread have a RLock on the status.
 	this.Edited = status.ReqResps[this.Id].RawEditedReq != nil
-	status.RUnlock()
 	tmp := strings.Split(this.Path, ".")
 	if !strings.Contains(tmp[len(tmp)-1], "/") {
 		this.Extension = tmp[len(tmp)-1]
@@ -76,12 +76,12 @@ func (rr *ReqResp) parseRequest(req *http.Request) {
 }
 
 //DISCLAIMER use original res AFTER editing the new one
+//And use it from a thread that has a readlock on the status
 func (rr *ReqResp) parseResponse(res *http.Response) {
 	this := rr.MetaData
 	if !this.Edited {
-		status.RLock()
+		//this supposes to alread have a RLock on the status.
 		this.Edited = status.ReqResps[this.Id].RawEditedRes != nil
-		status.RUnlock()
 	}
 	this.Status = res.Status
 	this.Length = res.ContentLength

@@ -20,6 +20,10 @@ waptyServer.onopen = function(event){
 	waptyServer.send(JSON.stringify(msg));
 
 }
+
+//remove this
+var debugHistory = {}
+
 waptyServer.onmessage = function(event){
 	//	console.log(event.data);
 	msg = JSON.parse(event.data);
@@ -40,14 +44,26 @@ waptyServer.onmessage = function(event){
 		case intercept.HISTORYCHANNEL:
 			switch (msg.Action){
 				case "metaData":
+					var problem = false;
 					var metaData = JSON.parse(msg.Args[0])
 					console.log("Metadata for request " + metaData.Id + " received:");
 					console.log(metaData)
-					document.getElementById("historyTable").innerHTML=document.getElementById("historyTable").innerHTML + "<tr>"+
-						"<td>"+metaData.Id+"</td>"+
+					if (""+metaData.Id in debugHistory){
+						if (debugHistory[""+metaData.Id]==1){
+							debugHistory[""+metaData.Id]=2
+						}else{
+							console.log("Problem with request " + metaData.Id);
+							problem=true;
+						}
+					}else{
+						debugHistory[""+metaData.Id]=1
+					}
+document.getElementById("historyTable").innerHTML=document.getElementById("historyTable").innerHTML + "<tr"+(problem?" style='color:red;' ":"")+
+						"><td>"+metaData.Id+"</td>"+
 						"<td>"+metaData.Host+"</td>"+
 						"<td>"+metaData.Path+"</td>"+
 						"</tr>";
+
 			}
 			break;
 	}

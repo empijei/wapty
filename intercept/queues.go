@@ -103,10 +103,13 @@ type Interceptor struct {
 
 //This is a mock RoundTrip used to intercept responses before they are forwarded by the proxy
 func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err error) {
+	//log.Println("Request read by proxy")
 	intercept.RLock()
 	intercepted := intercept.value
 	intercept.RUnlock()
+	//log.Println("Preprocessing...")
 	req, Id, err := preProcessRequest(req)
+	//log.Println("...done")
 	if err != nil {
 		//TODO
 		log.Println(err)
@@ -123,8 +126,9 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 	status.RUnlock()
 
 	//Perform the request
+	//log.Println("Requesting: ", Id)
 	res, err = ri.wrappedRT.RoundTrip(req)
-
+	//log.Println("Received response for req: ", Id)
 	if err != nil {
 		log.Println("Something went wrong trying to contact the server")
 		return
