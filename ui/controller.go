@@ -76,7 +76,7 @@ func UnSubscribe(s *Subscription) {
 }
 
 func Send(c Command) {
-	log.Println("controller sending: ", c)
+	//log.Println("controller sending: ", c)
 	oChan <- c
 }
 

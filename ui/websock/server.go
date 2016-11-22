@@ -114,7 +114,7 @@ func (s *Server) Listen() {
 
 		// broadcast message for all clients
 		case msg := <-s.sendAllCh:
-			log.Println("Send all:", msg)
+			//log.Println("Send all:", msg)
 			s.sendAllClients(msg)
 
 		case err := <-s.errCh:
