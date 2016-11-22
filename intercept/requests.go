@@ -32,6 +32,7 @@ func handleRequest(preq *pendingRequest) {
 	req, err := httputil.DumpRequest(r, true)
 	if err != nil {
 		//Something went wrong, abort
+		log.Println(err)
 		preq.modifiedRequest <- &mayBeRequest{err: err}
 		return
 	}

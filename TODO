@@ -1,20 +1,22 @@
 Stage 1:
+Add req ID to editor
+Move raw dumping to history methods
+Fix host header and destination
+Unit testing
+Add Content Length fix for requests
+Add Drop Request/Response
+Add Provide Response
+Serve the certificates on a specific path
+Default to bare sockets on error
+UI fix that mess, use Angular, improve style.
 UI tabcontroller
 UI add history tab
-Move raw dumping to history methods
-Unit testing
-Fix host header and destination
+UI Sanitize metadata server-side? Rely on Angular? Cry in a corner?
 UI autodetect changes in proxybuffer and merge the two "forward" buttons
 UI show already pending request/response on connection
 UI disable buttons if no request is present
 UI detect disconnection
 UI error log
-Add Drop Request/Response
-Add Provide Response
-Add Content Length fix for requests
-Default to bare sockets on error
-Embed html into the executable, use .html.go files
-Serve the certificates on a specific path
 Add/Update Doc
 Add a README
 Publish

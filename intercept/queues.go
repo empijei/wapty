@@ -133,6 +133,5 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 	status.RLock()
 	status.ReqResps[Id].parseResponse(res)
 	status.RUnlock()
-	StatusDump(status)
 	return
 }

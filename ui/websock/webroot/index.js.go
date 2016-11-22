@@ -27,8 +27,8 @@ waptyServer.onmessage = function(event){
 	switch (msg.Channel){
 		case intercept.EDITORCHANNEL:
 			//if ('Payload' in msg){
-			console.log(atob(msg.Payload));
 			document.getElementById("proxybuffer").value=atob(msg.Payload);
+			controls = true;
 			//}
 			break;
 		case intercept.SETTINGSCHANNEL:
@@ -43,32 +43,45 @@ waptyServer.onmessage = function(event){
 					var metaData = JSON.parse(msg.Args[0])
 					console.log("Metadata for request " + metaData.Id + " received:");
 					console.log(metaData)
+					document.getElementById("historyTable").innerHTML=document.getElementById("historyTable").innerHTML + "<tr>"+
+						"<td>"+metaData.Id+"</td>"+
+						"<td>"+metaData.Host+"</td>"+
+						"<td>"+metaData.Path+"</td>"+
+						"</tr>";
 			}
 			break;
 	}
 }
 
+var controls = false;
+
 function clickhandler(){
 	switch (event.target.id){
 		case "forwardOriginal":
+			if (!controls){
+				break;
+			}
 			var msg = {
 				Action: "forward",
 				Channel: intercept.EDITORCHANNEL
 			}
+			controls = false;
 			document.getElementById("proxybuffer").value="";
 			waptyServer.send(JSON.stringify(msg));
 			break;
 		case "forwardModified":
+			if (!controls){
+				break;
+			}
 			var payload = btoa(document.getElementById("proxybuffer").value);
 			var msg = {
 				Action: "edit",
 				Channel: intercept.EDITORCHANNEL,
 				Payload: payload
 			}
+			controls = false;
 			document.getElementById("proxybuffer").value="";
 			waptyServer.send(JSON.stringify(msg));
-			break;
-
 			break;
 		case "drop":
 			break;
