@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -135,12 +134,6 @@ func handleSettings(cmd ui.Command) {
 }
 
 func handleHistory(cmd ui.Command) {
-	var status intercept.History
-	err := json.Unmarshal(cmd.Payload, &status)
-	if err != nil {
-		panic(err)
-	}
-	intercept.StatusDump(status)
 }
 
 func prompt() {

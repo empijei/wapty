@@ -1,5 +1,4 @@
 Stage 1:
-Decompress zipped content
 Add req ID to editor and reject unexpected requests
 Provide a nice way to end loops
 Fix host header and destination

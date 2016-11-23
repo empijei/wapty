@@ -22,6 +22,7 @@ func init() {
 //Called by the dispatchLoop if a response is intercepted
 func handleResponse(presp *pendingResponse) {
 	res := presp.originalResponse
+	//res = uncompress(res)
 	ContentLength := res.ContentLength
 	res.ContentLength = -1
 	res.Header.Del("Content-Length")
@@ -81,10 +82,24 @@ func editResponse(req *http.Request, res *http.Response, intercepted bool, Id ui
 		return res, dumpErr
 	}
 
-	//Request was intercepted, go throug the intercept/edit process
+	//Request was intercepted, go through the intercept/edit process
 	//TODO use the autoedited one to edit
 	ModifiedResponse := make(chan *mayBeResponse)
 	ResponseQueue <- &pendingResponse{id: Id, modifiedResponse: ModifiedResponse, originalRequest: req, originalResponse: res}
 	mayBeRes := <-ModifiedResponse
 	return mayBeRes.res, mayBeRes.err
 }
+
+/*
+func uncompress(res *http.Response) *http.Response {
+	if encoding := res.Header.Get("Content-Encoding"); encoding != "" {
+		buf, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			log.Println(err)
+			return res
+		}
+		res.Header.Del("Content-Encoding")
+		res.Body = ioutil.NopCloser(bytes.NewBuffer(buf))
+	}
+	return res
+}*/

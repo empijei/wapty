@@ -58,6 +58,7 @@ func MainLoop() {
 	noHTTP2Transport := &http.Transport{
 		TLSNextProto: make(map[string]func(authority string, c *tls.Conn) http.RoundTripper),
 	}
+	//noHTTP2Transport.DisableCompression = false
 	modifiedTransport := Interceptor{wrappedRT: noHTTP2Transport}
 
 	//Creates the mitm.Proxy with the modified transport, the loaded CA and the
@@ -128,7 +129,9 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 	status.ReqResps[Id].parseRequest(req)
 	status.RUnlock()
 
-	//Perform the request
+	//Perform the request, but disable compressing.
+	//The gzip encoding will be used by the http package
+	req.Header.Del("Accept-Encoding")
 	//log.Println("Requesting: ", Id)
 	res, err = ri.wrappedRT.RoundTrip(req)
 	//log.Println("Received response for req: ", Id)
