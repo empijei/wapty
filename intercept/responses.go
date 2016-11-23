@@ -7,6 +7,7 @@ package intercept
 import (
 	"bufio"
 	"bytes"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -69,6 +70,7 @@ func handleResponse(presp *pendingResponse) {
 }
 
 func editResponse(req *http.Request, res *http.Response, intercepted bool, Id uint) (*http.Response, error) {
+	res = decode(res)
 	//Skip intercept if request was not intercepted, only add the response to the Status
 	rawRes, dumpErr := httputil.DumpResponse(res, true)
 	if dumpErr != nil {
@@ -90,16 +92,17 @@ func editResponse(req *http.Request, res *http.Response, intercepted bool, Id ui
 	return mayBeRes.res, mayBeRes.err
 }
 
-/*
-func uncompress(res *http.Response) *http.Response {
-	if encoding := res.Header.Get("Content-Encoding"); encoding != "" {
-		buf, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			log.Println(err)
-			return res
-		}
-		res.Header.Del("Content-Encoding")
-		res.Body = ioutil.NopCloser(bytes.NewBuffer(buf))
+//Making use of the net.http package to remove all the encoding by exausting the
+//request body and replacing it with a io.ReadCloser with the complete response.
+//This takes care of Transfer-Encoding and Content-Encoding
+func decode(res *http.Response) *http.Response {
+	buf, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.Println(err)
+		return res
 	}
+	res.Body = ioutil.NopCloser(bytes.NewBuffer(buf))
+	res.TransferEncoding = nil
+	res.Header.Del("Content-Encoding")
 	return res
-}*/
+}
