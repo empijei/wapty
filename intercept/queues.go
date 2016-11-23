@@ -15,7 +15,7 @@ import (
 )
 
 //Not used yet
-var Done chan struct{}
+var done chan struct{}
 
 //If value is set to true tells the proxy to start the intercept
 var intercept SyncBool
@@ -28,7 +28,7 @@ type SyncBool struct {
 }
 
 func init() {
-	Done = make(chan struct{})
+	done = make(chan struct{})
 	//intercept.value = true
 	uiSettings = ui.Subscribe(SETTINGSCHANNEL)
 }
@@ -73,7 +73,10 @@ func MainLoop() {
 		Transport: &modifiedTransport,
 	}
 	//Starts the mitm.Proxy
-	log.Fatal(http.ListenAndServe(":8080", p)) //TODO parametrize this
+	log.Println(http.ListenAndServe(":8080", p)) //TODO parametrize this
+	done <- struct{}{}
+	done <- struct{}{}
+	done <- struct{}{}
 }
 
 //This loop will keep reading from the RequestQueue and ResponseQueue for new
@@ -89,7 +92,7 @@ func dispatchLoop() {
 			handleRequest(preq)
 		case presp := <-ResponseQueue:
 			handleResponse(presp)
-		case <-Done:
+		case <-done:
 			return
 		}
 	}

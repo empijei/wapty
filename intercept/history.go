@@ -68,18 +68,22 @@ func StatusDump(status History) {
 //execute them
 func historyLoop() {
 	for {
-		cmd := uiHistory.Read()
-		switch cmd.Action {
-		case FETCH.String():
-			status.RLock()
-			dump, err := json.Marshal(status)
-			status.RUnlock()
-			if err != nil {
-				StatusDump(status)
-				panic(err)
+		select {
+		case cmd := <-uiHistory.Channel:
+			switch cmd.Action {
+			case FETCH.String():
+				status.RLock()
+				dump, err := json.Marshal(status)
+				status.RUnlock()
+				if err != nil {
+					StatusDump(status)
+					panic(err)
+				}
+				log.Printf("Dump: %s\n", dump)
+				ui.Send(ui.Command{Channel: HISTORYCHANNEL, Action: "Fetch", Payload: dump})
 			}
-			log.Printf("Dump: %s\n", dump)
-			ui.Send(ui.Command{Channel: HISTORYCHANNEL, Action: "Fetch", Payload: dump})
+		case <-done:
+			return
 		}
 	}
 }

@@ -37,10 +37,7 @@ func init() {
 type Subscription struct {
 	id      int64
 	channel chan Command
-}
-
-func (s *Subscription) Read() Command {
-	return <-s.channel
+	Channel <-chan Command
 }
 
 func Subscribe(channel string) *Subscription {
@@ -54,6 +51,7 @@ func Subscribe(channel string) *Subscription {
 		subScriptions[channel] = make(map[int64]Subscription)
 	}
 	subScriptions[channel][subsCounter] = out
+	out.Channel = pipe
 	subsMutex.Unlock()
 	return &out
 }

@@ -58,7 +58,8 @@ waptyServer.onmessage = function(event){
 					}else{
 						debugHistory[""+metaData.Id]=1
 					}
-document.getElementById("historyTable").innerHTML=document.getElementById("historyTable").innerHTML + "<tr"+(problem?" style='color:red;' ":"")+
+					document.getElementById("historyTable").innerHTML=document.getElementById("historyTable").innerHTML + "<tr"+
+						(problem?" style='color:red;' ":"")+
 						"><td>"+metaData.Id+"</td>"+
 						"<td>"+metaData.Host+"</td>"+
 						"<td>"+metaData.Path+"</td>"+

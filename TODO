@@ -1,9 +1,10 @@
 Stage 1:
-FIX THE DEADLOCK on newReqResp
-Add req ID to editor
-Move raw dumping to history methods
+Decompress zipped content
+Add req ID to editor and reject unexpected requests
+Provide a nice way to end loops
 Fix host header and destination
 Unit testing
+Move raw dumping to history methods
 Add Content Length fix for requests
 Add Drop Request/Response
 Add Provide Response
@@ -26,6 +27,7 @@ Publish
 Stage 2:
 Add Save/Load
 Add Scoping
+Add History filter
 Add Repeater
 Add cURL converter
 Add Intruder
