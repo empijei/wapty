@@ -1,7 +1,7 @@
 Stage 1:
-Add req ID to editor and reject unexpected requests
-Fix host header and destination
 Unit testing
+Add req ID to editor and reject unexpected requests
+Investigate body length 0 error
 Move raw dumping to history methods
 Add Content Length fix for requests
 Add Drop Request/Response

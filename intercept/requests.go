@@ -79,6 +79,8 @@ func preProcessRequest(req *http.Request) (autoEdited *http.Request, Id uint, er
 	Id = newReqResp(tmp)
 	//TODO Add autoedit here
 	autoEdited = req
+	autoEdited.Header.Del("X-Forwarded-For")
+	autoEdited.Header.Del("Proxy-Connection")
 	//TODO add to status as edited response
 	//TODO Return edited one
 	//TODO Add auto-resolve hostnames here

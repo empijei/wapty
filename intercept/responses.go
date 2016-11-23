@@ -104,5 +104,6 @@ func decode(res *http.Response) *http.Response {
 	res.Body = ioutil.NopCloser(bytes.NewBuffer(buf))
 	res.TransferEncoding = nil
 	res.Header.Del("Content-Encoding")
+	res.ContentLength = int64(len(buf))
 	return res
 }

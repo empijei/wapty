@@ -1,0 +1,5 @@
+package intercept
+
+func TestHandleIntercept() {
+
+}

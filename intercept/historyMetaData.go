@@ -24,25 +24,13 @@ type ReqRespMetaData struct {
 	Extension   string
 	TLS         bool
 	IP          string
+	Port        string
 	Cookies     string
 	Time        string
 	/*
-		✓ #
-		✓ Host
-		✓ Method (GET,POST,etc)
-		✓ URL (actually, only the path)
-		✓ Params (bool)
-		✓ Edited (bool)
-		✓ StatusCode
-		✓ Length
-		✓ MIME type (parse content-type response header)
-		✓ Extension
+		Port!
 		Title (maybe not?)
 		Comment (user-defined)
-		✓ SSL (just check if Response.TLS != nil)
-		✓ IP (dig it)
-		✓ Cookies
-		✓ Time
 	*/
 }
 
@@ -70,6 +58,11 @@ func (rr *ReqResp) parseRequest(req *http.Request) {
 	ips, err := net.LookupHost(strings.Split(this.Host, ":")[0])
 	if err == nil && len(ips) >= 1 {
 		this.IP = ips[0]
+		if len(ips) >= 2 {
+			this.Port = ips[1]
+		} else {
+			log.Println("Port not specified")
+		}
 	}
 	this.Time = time.Now().String()
 	sendMetaData(this)

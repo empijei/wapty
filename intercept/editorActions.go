@@ -64,10 +64,6 @@ func init() {
 	uiHistory = ui.Subscribe(HISTORYCHANNEL)
 }
 
-func filterHistory() {
-	//TODO implement this
-}
-
 func editBuffer(p PayloadType, b []byte) ([]byte, EditorAction) {
 	log.Println("Editing " + p.String())
 	args := []string{p.String()}
