@@ -98,7 +98,12 @@ function clickhandler(){
 			}
 			controls = false;
 			document.getElementById("proxybuffer").value="";
-			waptyServer.send(JSON.stringify(msg));
+			//This is not used as golang websocket.JSON.Read() function is bugged
+			//waptyServer.send(JSON.stringify(msg));
+			var xhr = new XMLHttpRequest();
+			xhr.open("POST", "/edit", true);
+			xhr.setRequestHeader('Content-Type', 'application/json');
+			xhr.send(JSON.stringify(msg));
 			break;
 		case "drop":
 			break;

@@ -112,6 +112,7 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 	intercepted := intercept.value
 	intercept.RUnlock()
 	//log.Println("Preprocessing...")
+	backUpURL := req.URL
 	req, Id, err := preProcessRequest(req)
 	//log.Println("...done")
 	if err != nil {
@@ -124,6 +125,8 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 			//TODO
 			log.Println(err)
 		}
+		req.URL.Scheme = backUpURL.Scheme
+		req.URL.Host = backUpURL.Host
 	}
 	status.RLock()
 	status.ReqResps[Id].parseRequest(req)

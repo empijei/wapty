@@ -3,6 +3,7 @@
 package websock
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -142,6 +143,18 @@ func MainLoop() {
 	// static files
 
 	webroot.LoadRoutes()
+
+	//This is a dirty workaround for the websocket package not reensembling frames
+	http.HandleFunc("/edit", func(rw http.ResponseWriter, req *http.Request) {
+		decoder := json.NewDecoder(req.Body)
+		defer func() { _ = req.Body.Close() }()
+		var cmd ui.Command
+		err := decoder.Decode(&cmd)
+		if err != nil {
+			log.Println(err)
+		}
+		server.msgReceived(&cmd)
+	})
 
 	log.Fatal(http.ListenAndServe(":8081", nil))
 

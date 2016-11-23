@@ -1,6 +1,5 @@
 Stage 1:
 Add req ID to editor and reject unexpected requests
-Provide a nice way to end loops
 Fix host header and destination
 Unit testing
 Move raw dumping to history methods
