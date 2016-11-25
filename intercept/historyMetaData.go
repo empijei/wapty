@@ -92,5 +92,5 @@ func sendMetaData(metaData *ReqRespMetaData) {
 	if err != nil {
 		log.Println(err)
 	}
-	ui.Send(ui.Command{Channel: HISTORYCHANNEL, Action: "metaData", Args: []string{string(metaJSON)}})
+	uiHistory.Send(ui.Command{Action: "metaData", Args: []string{string(metaJSON)}})
 }

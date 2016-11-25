@@ -39,9 +39,10 @@ func init() {
 }
 
 type Subscription struct {
-	id      int64
-	channel chan Command
-	Channel <-chan Command
+	id          int64
+	channel     string
+	dataCh      chan Command
+	DataChannel <-chan Command
 }
 
 func Subscribe(channel string) *Subscription {
@@ -50,14 +51,19 @@ func Subscribe(channel string) *Subscription {
 	//Unless you are sure the out channel will be constantly read, it is strongly
 	//suggested to create a buffered channel
 	pipe := make(chan Command, 20) //TODO this is arbitrary, give a meaning to this number
-	out := Subscription{id: subsCounter, channel: pipe}
+	out := Subscription{id: subsCounter, dataCh: pipe, channel: channel}
 	if subScriptions[channel] == nil {
 		subScriptions[channel] = make(map[int64]Subscription)
 	}
 	subScriptions[channel][subsCounter] = out
-	out.Channel = pipe
+	out.DataChannel = pipe
 	subsMutex.Unlock()
 	return &out
+}
+
+func (s *Subscription) Send(c Command) {
+	c.Channel = s.channel
+	send(c)
 }
 
 //TODO delete this? Dangerous and never used
@@ -68,7 +74,7 @@ func UnSubscribe(s *Subscription) {
 		sub, ok := channelSubs[s.id]
 		if ok {
 			subsMutex.Lock()
-			close(sub.channel)
+			close(sub.dataCh)
 			delete(channelSubs, s.id)
 			subsMutex.Unlock()
 			return
@@ -77,7 +83,7 @@ func UnSubscribe(s *Subscription) {
 	log.Println("Subscription not found")
 }
 
-func Send(c Command) {
+func send(c Command) {
 	oChans.RLock()
 	for _, oChan := range oChans.chans {
 		oChan <- c
@@ -85,6 +91,7 @@ func Send(c Command) {
 	oChans.RUnlock()
 }
 
+//This should be a server's method
 func Receive(c Command) {
 	iChan <- c
 }
@@ -102,7 +109,7 @@ func MainLoop() {
 	for cmd := range iChan {
 		subsMutex.RLock()
 		for _, out := range subScriptions[cmd.Channel] {
-			out.channel <- cmd
+			out.dataCh <- cmd
 		}
 		subsMutex.RUnlock()
 	}

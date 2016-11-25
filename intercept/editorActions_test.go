@@ -27,7 +27,7 @@ var editBufferTests = []struct {
 
 func TestEditBuffer(t *testing.T) {
 	mockChan := make(chan ui.Command)
-	uiEditor = &ui.Subscription{Channel: mockChan}
+	uiEditor = &ui.Subscription{DataChannel: mockChan}
 	defer func() {
 		uiEditor = nil
 		close(mockChan)

@@ -63,7 +63,7 @@ func StatusDump(status History) {
 func historyLoop() {
 	for {
 		select {
-		case cmd := <-uiHistory.Channel:
+		case cmd := <-uiHistory.DataChannel:
 			switch cmd.Action {
 			case FETCH.String():
 				status.RLock()
@@ -74,7 +74,7 @@ func historyLoop() {
 					panic(err)
 				}
 				log.Printf("Dump: %s\n", dump)
-				ui.Send(ui.Command{Channel: HISTORYCHANNEL, Action: "Fetch", Payload: dump})
+				uiHistory.Send(ui.Command{Action: "Fetch", Payload: dump})
 			}
 		case <-done:
 			return
