@@ -26,12 +26,16 @@ var subScriptions map[string]SubsChannel
 var subsMutex sync.RWMutex
 var subsCounter int64
 var iChan chan Command
-var oChan chan Command
+var oChans chans
+
+type chans struct {
+	sync.RWMutex
+	chans []chan Command
+}
 
 func init() {
 	subScriptions = make(map[string]SubsChannel)
 	iChan = make(chan Command)
-	oChan = make(chan Command)
 }
 
 type Subscription struct {
@@ -74,19 +78,24 @@ func UnSubscribe(s *Subscription) {
 }
 
 func Send(c Command) {
-	//log.Println("controller sending: ", c)
-	oChan <- c
+	oChans.RLock()
+	for _, oChan := range oChans.chans {
+		oChan <- c
+	}
+	oChans.RUnlock()
 }
 
 func Receive(c Command) {
 	iChan <- c
 }
 
-//This function is used by uis servers to read all the messages from wapty.
+//This function is used by uis servers to read all the messages from wapty and send them to clients.
 func ConnectUI() <-chan Command {
-	//FIXME actually duplicate the streams, use the Send function to write to all
-	//uis available
-	return oChan
+	toRet := make(chan Command)
+	oChans.Lock()
+	defer oChans.Unlock()
+	oChans.chans = append(oChans.chans, toRet)
+	return toRet
 }
 
 func MainLoop() {

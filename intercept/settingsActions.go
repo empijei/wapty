@@ -16,7 +16,7 @@ func settingsLoop() {
 			log.Println("Settings accessed")
 			switch cmd.Action {
 			case "intercept":
-				handleIntercept(cmd)
+				ui.Send(handleIntercept(cmd))
 			default:
 				log.Printf("Unknown action: %v\n", cmd.Action)
 			}
@@ -26,17 +26,17 @@ func settingsLoop() {
 	}
 }
 
-func handleIntercept(cmd ui.Command) {
+func handleIntercept(cmd ui.Command) ui.Command {
 	if len(cmd.Args) >= 1 {
 		log.Println("Requested change intercept status")
 		intercept.Lock()
-		intercept.value = cmd.Args[0] == "true"
+		intercept.value = cmd.Args[0] == "true" || cmd.Args[0] == "on"
 		value := "false"
 		if intercept.value {
 			value = "true"
 		}
 		intercept.Unlock()
-		ui.Send(ui.Command{Channel: SETTINGSCHANNEL, Action: "intercept", Args: []string{value}})
+		return ui.Command{Channel: SETTINGSCHANNEL, Action: "intercept", Args: []string{value}}
 	} else {
 		log.Println("Requested intercept status")
 		intercept.RLock()
@@ -45,6 +45,6 @@ func handleIntercept(cmd ui.Command) {
 			value = "true"
 		}
 		intercept.RUnlock()
-		ui.Send(ui.Command{Channel: SETTINGSCHANNEL, Action: "intercept", Args: []string{value}})
+		return ui.Command{Channel: SETTINGSCHANNEL, Action: "intercept", Args: []string{value}}
 	}
 }
