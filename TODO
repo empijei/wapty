@@ -1,5 +1,6 @@
 Stage 1:
 Unit testing
+Move all constant strings to actual constants
 Add req ID to editor and reject unexpected requests
 Investigate body length 0 error
 Move raw dumping to history methods

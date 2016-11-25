@@ -7,7 +7,6 @@ package intercept
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -63,10 +62,6 @@ func handleRequest(preq *pendingRequest) {
 		editedRequest = preq.originalRequest
 	}
 
-	//Give the request an Id
-	editedRequest.Header.Set(idHeader, fmt.Sprintf("%d", preq.id))
-	//Mark the request as intercepted
-	editedRequest.Header.Set(interceptHeader, "true")
 	preq.modifiedRequest <- &mayBeRequest{req: editedRequest}
 }
 

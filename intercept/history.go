@@ -11,12 +11,6 @@ import (
 
 var status History
 
-//Header used to keep track of requests across different routines
-const idHeader = "WAPTY-ID"
-
-//Header used to keep track of intercepted requests
-const interceptHeader = "WAPTY-Intercept"
-
 func init() {
 }
 

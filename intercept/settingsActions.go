@@ -18,6 +18,7 @@ func settingsLoop() {
 			case "intercept":
 				ui.Send(handleIntercept(cmd))
 			default:
+				//TODO send error?
 				log.Printf("Unknown action: %v\n", cmd.Action)
 			}
 		case <-done:
