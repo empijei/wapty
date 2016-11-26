@@ -71,7 +71,7 @@ func handleResponse(presp *pendingResponse) {
 
 func editResponse(req *http.Request, res *http.Response, intercepted bool, Id uint) (*http.Response, error) {
 	res = decode(res)
-	//Skip intercept if request was not intercepted, only add the response to the Status
+	//Skip intercept if request was not intercepted, just add the response to the Status
 	rawRes, dumpErr := httputil.DumpResponse(res, true)
 	if dumpErr != nil {
 		log.Println(dumpErr.Error())
@@ -96,6 +96,7 @@ func editResponse(req *http.Request, res *http.Response, intercepted bool, Id ui
 //request body and replacing it with a io.ReadCloser with the complete response.
 //This takes care of Transfer-Encoding and Content-Encoding
 func decode(res *http.Response) *http.Response {
+	defer func() { _ = res.Body.Close() }()
 	buf, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		log.Println(err)

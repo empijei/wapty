@@ -30,12 +30,16 @@ func stripHTHHeaders(h *http.Header) {
 	}
 }
 
+//This is a struct that respects the net.RoundTripper interface and just wraps
+//the original http.RoundTripper
+type Interceptor struct {
+	wrappedRT http.RoundTripper
+}
+
 //This is a mock RoundTrip used to intercept responses before they are forwarded by the proxy
 func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err error) {
 	//log.Println("Request read by proxy")
-	intercept.RLock()
-	intercepted := intercept.value
-	intercept.RUnlock()
+	intercepted := intercept.Value()
 	//log.Println("Preprocessing...")
 	backUpURL := req.URL
 	req, Id, err := preProcessRequest(req)
@@ -53,6 +57,7 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 		req.URL.Scheme = backUpURL.Scheme
 		req.URL.Host = backUpURL.Host
 	}
+
 	status.RLock()
 	status.ReqResps[Id].parseRequest(req)
 	status.RUnlock()
@@ -60,9 +65,7 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 	//Perform the request, but disable compressing.
 	//The gzip encoding will be used by the http package
 	req.Header.Del("Accept-Encoding")
-	//log.Println("Requesting: ", Id)
 	res, err = ri.wrappedRT.RoundTrip(req)
-	//log.Println("Received response for req: ", Id)
 	if err != nil {
 		log.Println("Something went wrong trying to contact the server")
 		return

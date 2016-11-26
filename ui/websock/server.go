@@ -128,8 +128,8 @@ func (s *Server) Listen() {
 }
 
 func writeLoop(s *Server) {
-	oChan := ui.ConnectUI()
-	for msg := range oChan {
+	oChan := ui.Connect()
+	for msg := range oChan.Channel() {
 		s.SendAllClients(&msg)
 	}
 }

@@ -22,20 +22,31 @@ type Command struct {
 
 type SubsChannel map[int64]Subscription
 
+type UI struct {
+	id      int
+	channel chan Command
+}
+
+func (u *UI) Channel() <-chan Command {
+	return u.channel
+}
+
 var subScriptions map[string]SubsChannel
 var subsMutex sync.RWMutex
 var subsCounter int64
 var iChan chan Command
-var oChans chans
+var oChans uis
 
-type chans struct {
+type uis struct {
 	sync.RWMutex
-	chans []chan Command
+	curID int
+	list  map[int]*UI
 }
 
 func init() {
 	subScriptions = make(map[string]SubsChannel)
 	iChan = make(chan Command)
+	oChans.list = make(map[int]*UI)
 }
 
 type Subscription struct {
@@ -85,8 +96,8 @@ func UnSubscribe(s *Subscription) {
 
 func send(c Command) {
 	oChans.RLock()
-	for _, oChan := range oChans.chans {
-		oChan <- c
+	for _, oChan := range oChans.list {
+		oChan.channel <- c
 	}
 	oChans.RUnlock()
 }
@@ -97,12 +108,19 @@ func Receive(c Command) {
 }
 
 //This function is used by uis servers to read all the messages from wapty and send them to clients.
-func ConnectUI() <-chan Command {
-	toRet := make(chan Command)
+func Connect() *UI {
 	oChans.Lock()
 	defer oChans.Unlock()
-	oChans.chans = append(oChans.chans, toRet)
+	toRet := &UI{channel: make(chan Command), id: oChans.curID}
+	oChans.list[oChans.curID] = toRet
+	oChans.curID++
 	return toRet
+}
+
+func Disconnect(u *UI) {
+	oChans.Lock()
+	defer oChans.Unlock()
+	delete(oChans.list[u.id])
 }
 
 func MainLoop() {

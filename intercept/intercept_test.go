@@ -1,16 +1,13 @@
 package intercept
 
 import (
+	"encoding/json"
+	"net/http"
 	"os"
 	"testing"
-
-	"github.com/empijei/Wapty/ui"
 )
 
-var oChan <-chan ui.Command
-
 func setup() {
-	oChan = ui.ConnectUI()
 }
 
 func shutdown() {}
@@ -20,4 +17,25 @@ func TestMain(m *testing.M) {
 	code := m.Run()
 	shutdown()
 	os.Exit(code)
+}
+
+func jsonEqual(a interface{}, b interface{}) (equal bool, as string, bs string) {
+	buf, err := json.MarshalIndent(a, " ", " ")
+	if err != nil {
+		panic(err)
+	}
+	as = string(buf)
+	buf, err = json.MarshalIndent(b, " ", " ")
+	if err != nil {
+		panic(err)
+	}
+	bs = string(buf)
+	equal = as == bs
+	return
+}
+
+func reqEqual(a *http.Request, b *http.Request) bool {
+	//TODO IMPLEMENT THIS but only on exported fields
+	//return reflect.DeepEqual(a, b)
+	return true
 }

@@ -1,7 +1,7 @@
 package intercept
 
 import (
-	"encoding/json"
+	"reflect"
 	"testing"
 
 	"github.com/empijei/Wapty/ui"
@@ -16,22 +16,20 @@ var handleTests = []struct {
 	out ui.Command
 }{
 	{ui.Command{Action: "intercept", Args: []string{"false"}},
-		ui.Command{Channel: SETTINGSCHANNEL, Action: "intercept", Args: []string{"false"}}},
+		ui.Command{Action: "intercept", Args: []string{"false"}}},
 	{ui.Command{Action: "intercept"},
-		ui.Command{Action: "intercept", Channel: SETTINGSCHANNEL, Args: []string{"false"}}},
+		ui.Command{Action: "intercept", Args: []string{"false"}}},
 	{ui.Command{Action: "intercept", Args: []string{"true"}},
-		ui.Command{Channel: SETTINGSCHANNEL, Action: "intercept", Args: []string{"true"}}},
+		ui.Command{Action: "intercept", Args: []string{"true"}}},
 	{ui.Command{Action: "intercept"},
-		ui.Command{Action: "intercept", Channel: SETTINGSCHANNEL, Args: []string{"true"}},
+		ui.Command{Action: "intercept", Args: []string{"true"}},
 	},
 }
 
 func TestHandleIntercept(t *testing.T) {
 	for _, tt := range handleTests {
 		out := handleIntercept(tt.in)
-		actualout, _ := json.MarshalIndent(out, " ", " ")
-		expectedout, _ := json.MarshalIndent(tt.out, " ", " ")
-		if string(actualout) != string(expectedout) {
+		if !reflect.DeepEqual(out, tt.out) {
 			t.Errorf("handleIntercept(%v) => %v, want %v", tt.in, out, tt.out)
 		}
 	}

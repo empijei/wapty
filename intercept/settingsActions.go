@@ -30,22 +30,18 @@ func settingsLoop() {
 func handleIntercept(cmd ui.Command) ui.Command {
 	if len(cmd.Args) >= 1 {
 		log.Println("Requested change intercept status")
-		intercept.Lock()
-		intercept.value = cmd.Args[0] == "true" || cmd.Args[0] == "on"
+		intercept.SetValue(cmd.Args[0] == "true" || cmd.Args[0] == "on")
 		value := "false"
-		if intercept.value {
+		if intercept.Value() {
 			value = "true"
 		}
-		intercept.Unlock()
 		return ui.Command{Action: "intercept", Args: []string{value}}
 	} else {
 		log.Println("Requested intercept status")
-		intercept.RLock()
 		value := "false"
-		if intercept.value {
+		if intercept.Value() {
 			value = "true"
 		}
-		intercept.RUnlock()
 		return ui.Command{Action: "intercept", Args: []string{value}}
 	}
 }
