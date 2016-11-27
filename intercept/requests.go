@@ -28,10 +28,12 @@ func init() {
 func handleRequest(preq *pendingRequest) {
 	log.Println("Handling request")
 	r := preq.originalRequest
+	ContentLength := r.ContentLength
+	r.ContentLength = -1
+	r.Header.Del("Content-Length")
 	req, err := httputil.DumpRequest(r, true)
 	if err != nil {
-		//Something went wrong, abort
-		log.Println(err)
+		log.Println("intercept: dumping request " + err.Error())
 		preq.modifiedRequest <- &mayBeRequest{err: err}
 		return
 	}
@@ -39,23 +41,24 @@ func handleRequest(preq *pendingRequest) {
 	editedRequestDump, action := editBuffer(REQUEST, req)
 	switch action {
 	case FORWARD:
-		editedRequest = preq.originalRequest
+		r.ContentLength = ContentLength
+		editedRequest = r
 	case EDIT:
 		editedRequest, err = http.ReadRequest(bufio.NewReader(bytes.NewReader(editedRequestDump)))
 		if err != nil {
 			log.Println("Error during edited request parsing, forwarding original request.")
-			editedRequest = preq.originalRequest
+			editedRequest = r
 		}
 		//TODO adjust content length
 		status.addEditedRequest(preq.id, editedRequestDump)
 	case DROP:
 		//TODO implement this
 		log.Println("Not implemented yet")
-		editedRequest = preq.originalRequest
+		editedRequest = r
 	case PROVIDERESP:
 		//TODO implement this
 		log.Println("Not implemented yet")
-		editedRequest = preq.originalRequest
+		editedRequest = r
 	default:
 		//TODO implement this
 		log.Println("Not implemented yet")

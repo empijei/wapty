@@ -28,13 +28,12 @@ func handleResponse(presp *pendingResponse) {
 	res.ContentLength = -1
 	res.Header.Del("Content-Length")
 	rawRes, err := httputil.DumpResponse(res, true)
-	status.addResponse(presp.id, rawRes)
 	if err != nil {
-		//Something went wrong, abort
-		log.Println("Error while dumping response" + err.Error())
+		log.Println("intercept: dumping response " + err.Error())
 		presp.modifiedResponse <- &mayBeResponse{err: err}
 		return
 	}
+	status.addResponse(presp.id, rawRes)
 	var editedResponse *http.Response
 	editedResponseDump, action := editBuffer(RESPONSE, rawRes)
 	switch action {
