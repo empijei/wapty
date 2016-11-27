@@ -9,6 +9,7 @@ const indexHtml = `
 	<HEAD>
 		<!--	<SCRIPT src="/angular.min.js"></SCRIPT> -->
 		<SCRIPT src="/index.js"></SCRIPT>
+		<SCRIPT src="/angular.min.js"></SCRIPT>
 	</HEAD>
 	<BODY>
 		<div ng-app="app" ng-controller="ProxyCtrl">

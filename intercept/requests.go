@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httputil"
+	"strconv"
 )
 
 //Represents the queue of requests that have been intercepted
@@ -26,7 +27,6 @@ func init() {
 
 //Called by the dispatchLoop if a request is intercepted
 func handleRequest(preq *pendingRequest) {
-	log.Println("Handling request")
 	r := preq.originalRequest
 	ContentLength := r.ContentLength
 	r.ContentLength = -1
@@ -44,9 +44,31 @@ func handleRequest(preq *pendingRequest) {
 		r.ContentLength = ContentLength
 		editedRequest = r
 	case EDIT:
-		editedRequest, err = http.ReadRequest(bufio.NewReader(bytes.NewReader(editedRequestDump)))
+		//Adjust Content-Length
+		//Whiile Responses default to having a body,
+		//Requests will not unles Transfer-Encoding or Content-Length is specified
+		//http://greenbytes.de/tech/webdav/draft-ietf-httpbis-p1-messaging-26.html#message.body
+		//First attempt, did not work
+		//FIXME not all browsers post removing \r, detect the case!
+		tmpSplit := bytes.SplitN(editedRequestDump, []byte("\n\n"), 2)
+		tmpSplit[0] = bytes.Replace(tmpSplit[0], []byte("\n"), []byte("\n\r"), -1)
+		if len(tmpSplit) > 1 {
+			cl := strconv.Itoa(len(tmpSplit[1]))
+			log.Println("Content Length:" + cl)
+			var tmp [][]byte
+			tmp = append(tmp, tmpSplit[0], []byte("\nContent-Length: "+cl+"\n\n"), tmpSplit[1])
+			editedDump := bytes.Join(tmp, nil)
+			editedRequest, err = http.ReadRequest(bufio.NewReader(bytes.NewReader(editedDump)))
+		} else {
+			editedRequest, err = http.ReadRequest(bufio.NewReader(bytes.NewReader(editedRequestDump)))
+		}
+
+		//Original, does not work
+		//editedRequest, err = http.ReadRequest(bufio.NewReader(bytes.NewReader(editedRequestDump)))
+
 		if err != nil {
 			log.Println("Error during edited request parsing, forwarding original request.")
+			r.ContentLength = ContentLength
 			editedRequest = r
 		}
 		//TODO adjust content length
@@ -77,6 +99,8 @@ func preProcessRequest(req *http.Request) (autoEdited *http.Request, Id uint, er
 	Id = newReqResp(tmp)
 	//TODO Add autoedit here
 	autoEdited = req
+	//FIXME Call this in a "decode" function for requests, like the one used for responses
+	//move this to beginning of function
 	stripHTHHeaders(&(autoEdited.Header))
 	//TODO add to status as edited response
 	//TODO Return edited one

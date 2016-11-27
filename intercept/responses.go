@@ -23,7 +23,6 @@ func init() {
 //Called by the dispatchLoop if a response is intercepted
 func handleResponse(presp *pendingResponse) {
 	res := presp.originalResponse
-	//res = uncompress(res)
 	ContentLength := res.ContentLength
 	res.ContentLength = -1
 	res.Header.Del("Content-Length")
@@ -33,7 +32,6 @@ func handleResponse(presp *pendingResponse) {
 		presp.modifiedResponse <- &mayBeResponse{err: err}
 		return
 	}
-	status.addResponse(presp.id, rawRes)
 	var editedResponse *http.Response
 	editedResponseDump, action := editBuffer(RESPONSE, rawRes)
 	switch action {
@@ -46,6 +44,7 @@ func handleResponse(presp *pendingResponse) {
 		if err != nil {
 			//TODO check this error and hijack connection to send raw bytes
 			log.Println("Error during edited response parsing, forwarding original response.")
+			res.ContentLength = ContentLength
 			editedResponse = res
 		}
 		status.addEditedResponse(presp.id, editedResponseDump)
@@ -56,10 +55,12 @@ func handleResponse(presp *pendingResponse) {
 	case PROVIDERESP:
 		//TODO implement this
 		log.Println("Action not allowed on Responses")
+		res.ContentLength = ContentLength
 		editedResponse = res
 	default:
 		//TODO implement this
 		log.Println("Not implemented yet")
+		res.ContentLength = ContentLength
 		editedResponse = res
 	}
 
@@ -69,7 +70,7 @@ func handleResponse(presp *pendingResponse) {
 }
 
 func editResponse(req *http.Request, res *http.Response, intercepted bool, Id uint) (*http.Response, error) {
-	res = decode(res)
+	res = decodeResponse(res)
 	//Skip intercept if request was not intercepted, just add the response to the Status
 	rawRes, dumpErr := httputil.DumpResponse(res, true)
 	if dumpErr != nil {
@@ -94,7 +95,7 @@ func editResponse(req *http.Request, res *http.Response, intercepted bool, Id ui
 //Making use of the net.http package to remove all the encoding by exausting the
 //request body and replacing it with a io.ReadCloser with the complete response.
 //This takes care of Transfer-Encoding and Content-Encoding
-func decode(res *http.Response) *http.Response {
+func decodeResponse(res *http.Response) *http.Response {
 	defer func() { _ = res.Body.Close() }()
 	buf, err := ioutil.ReadAll(res.Body)
 	if err != nil {

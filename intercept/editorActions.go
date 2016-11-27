@@ -67,7 +67,7 @@ func init() {
 func editBuffer(p PayloadType, b []byte) ([]byte, EditorAction) {
 	log.Println("Editing " + p.String())
 	args := []string{p.String()}
-	uiEditor.Send(ui.Command{Action: "edit", Args: args, Payload: b}) //TODO add Action?
+	uiEditor.Send(ui.Command{Action: "edit", Args: args, Payload: b})
 	log.Println("Waiting for user interaction")
 	result := <-uiEditor.DataChannel
 	log.Println("User interacted")

@@ -18,8 +18,6 @@ type Command struct {
 	Payload []byte
 }
 
-//TODO create an helper to build these
-
 type SubsChannel map[int64]Subscription
 
 type UI struct {
@@ -120,7 +118,7 @@ func Connect() *UI {
 func Disconnect(u *UI) {
 	oChans.Lock()
 	defer oChans.Unlock()
-	delete(oChans.list[u.id])
+	delete(oChans.list, u.id)
 }
 
 func MainLoop() {
