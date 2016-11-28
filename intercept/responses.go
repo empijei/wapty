@@ -16,6 +16,18 @@ import (
 //Represents the queue of the response to requests that have been intercepted
 var ResponseQueue chan *pendingResponse
 
+const defaultResp = `
+<html>
+<head>
+<title>Nope</title>
+</head>
+<body>
+<!-- TODO WAPTY LOGO -->
+<h1>This is not the page you were looking for</h1>
+</body>
+</html>
+`
+
 func init() {
 	ResponseQueue = make(chan *pendingResponse)
 }
@@ -47,11 +59,9 @@ func handleResponse(presp *pendingResponse) {
 			res.ContentLength = ContentLength
 			editedResponse = res
 		}
-		status.addEditedResponse(presp.id, editedResponseDump)
+		status.addRawEditedResponse(presp.id, editedResponseDump)
 	case DROP:
-		//TODO implement this
-		log.Println("Not implemented yet")
-		editedResponse = res
+		editedResponse = caseDrop()
 	case PROVIDERESP:
 		//TODO implement this
 		log.Println("Action not allowed on Responses")
@@ -63,27 +73,17 @@ func handleResponse(presp *pendingResponse) {
 		res.ContentLength = ContentLength
 		editedResponse = res
 	}
-
-	//TODO adjust content length Header?
-	//fmt.Printf("%s", tmp)
 	presp.modifiedResponse <- &mayBeResponse{res: editedResponse, err: err}
 }
-
-func editResponse(req *http.Request, res *http.Response, intercepted bool, Id uint) (*http.Response, error) {
+func preProcessResponse(req *http.Request, res *http.Response, Id uint) *http.Response {
 	res = decodeResponse(res)
 	//Skip intercept if request was not intercepted, just add the response to the Status
-	rawRes, dumpErr := httputil.DumpResponse(res, true)
-	if dumpErr != nil {
-		log.Println(dumpErr.Error())
-	} else {
-		status.addResponse(Id, rawRes)
-	}
+	status.addResponse(Id, res)
 	//TODO autoEdit here
 	//TODO add to status as edited if autoedited
-	if !intercepted {
-		return res, dumpErr
-	}
-
+	return res
+}
+func editResponse(req *http.Request, res *http.Response, Id uint) (*http.Response, error) {
 	//Request was intercepted, go through the intercept/edit process
 	//TODO use the autoedited one to edit
 	ModifiedResponse := make(chan *mayBeResponse)
@@ -107,4 +107,14 @@ func decodeResponse(res *http.Response) *http.Response {
 	stripHTHHeaders(&(res.Header))
 	res.ContentLength = int64(len(buf))
 	return res
+}
+
+func caseDrop() (res *http.Response) {
+	res = &http.Response{}
+	res.ContentLength = int64(len(defaultResp))
+	res.Body = ioutil.NopCloser(bytes.NewBuffer([]byte(defaultResp)))
+	res.StatusCode = 418
+	res.Header = http.Header{}
+	res.Header.Set("X-WAPTY-Status", "Dropped")
+	return
 }

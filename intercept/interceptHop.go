@@ -45,22 +45,32 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 	req, Id, err := preProcessRequest(req)
 	//log.Println("...done")
 	if err != nil {
-		//TODO
+		//TODO handle possible autodrop
+		//TODO other errors
 		log.Println(err)
 	}
 	if intercepted {
-		req, err = editRequest(req, Id)
+		var editedReq *http.Request
+		editedReq, res, err = editRequest(req, Id)
 		if err != nil {
 			//TODO
 			log.Println(err)
 		}
-		req.URL.Scheme = backUpURL.Scheme
-		req.URL.Host = backUpURL.Host
+		if editedReq != nil {
+			req = editedReq
+			req.URL.Scheme = backUpURL.Scheme
+			req.URL.Host = backUpURL.Host
+		}
 	}
 
 	status.RLock()
 	status.ReqResps[Id].parseRequest(req)
 	status.RUnlock()
+	if res != nil {
+		//TODO Adding dropped responses should be avoided.
+		status.addResponse(Id, res)
+		return
+	}
 
 	//Perform the request, but disable compressing.
 	//The gzip encoding will be used by the http package
@@ -70,7 +80,10 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 		log.Println("Something went wrong trying to contact the server")
 		return
 	}
-	res, err = editResponse(req, res, intercepted, Id)
+	res = preProcessResponse(req, res, Id)
+	if intercepted {
+		res, err = editResponse(req, res, Id)
+	}
 	status.RLock()
 	status.ReqResps[Id].parseResponse(res)
 	status.RUnlock()

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"net/http/httputil"
 	"sync"
 
 	"github.com/empijei/Wapty/ui"
@@ -25,27 +26,34 @@ type History struct {
 
 //Finds the correct Request based on the ID and adds the modified request to it
 //This is thread safe
-func (h *History) addEditedRequest(Id uint, rawEditedReq []byte) {
+func (h *History) addRawEditedRequest(Id uint, rawEditedReq []byte) {
 	h.RLock()
 	h.ReqResps[Id].RawEditedReq = rawEditedReq
 	h.RUnlock()
 }
+func (h *History) addEditedRequest(Id uint, req *http.Request) {
+}
 
 //Finds the correct Request based on the ID and adds the original response to it
 //This is thread safe
-func (h *History) addResponse(Id uint, rawRes []byte) {
+func (h *History) addRawResponse(Id uint, rawRes []byte) {
 	h.RLock()
 	h.ReqResps[Id].RawRes = rawRes
 	h.RUnlock()
 }
 
+func (h *History) addResponse(Id uint, res *http.Response) {
+}
+
 //Finds the correct Request based on the ID and adds the modified response to it
 //This is thread safe
-func (h *History) addEditedResponse(Id uint, rawEditedRes []byte) {
+func (h *History) addRawEditedResponse(Id uint, rawEditedRes []byte) {
 	h.RLock()
 	h.ReqResps[Id].RawEditedRes = rawEditedRes
 	h.RUnlock()
 }
+
+func (h *History) addEditedResponse(Id uint, res *http.Response) {}
 
 //Dumps the status in the log. This is only meant for debug purposes.
 func StatusDump(status History) {
@@ -102,7 +110,7 @@ type ReqResp struct {
 //Creates a new history item and safely adds it to the status, incrementing the
 //current id value
 //Returns the id of the newly created item
-func newReqResp(rawReq []byte) uint {
+func newRawReqResp(rawReq []byte) uint {
 	//log.Println("Locking status for write")
 	status.Lock()
 	//log.Println("Locked")
@@ -115,9 +123,19 @@ func newReqResp(rawReq []byte) uint {
 	return curReq
 }
 
+func newReqResp(req *http.Request) uint {
+	tmp, err := httputil.DumpRequest(req, true)
+	if err != nil {
+		//TODO
+		log.Println(err.Error())
+	}
+	return newRawReqResp(tmp)
+}
+
 //represents an *http.Request if err == nil, represents the error otherwise.
 type mayBeRequest struct {
 	req *http.Request
+	res *http.Response
 	err error
 }
 

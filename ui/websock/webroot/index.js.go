@@ -69,6 +69,9 @@ waptyServer.onmessage = function(event){
 			break;
 	}
 }
+waptyServer.onclose=function(event){
+	alert("Server connection lost")
+}
 
 var controls = false;
 
@@ -106,6 +109,13 @@ function clickhandler(){
 			xhr.send(JSON.stringify(msg));
 			break;
 		case "drop":
+			var msg = {
+				Action: "drop",
+				Channel: intercept.EDITORCHANNEL,
+			}
+			controls = false;
+			document.getElementById("proxybuffer").value="";
+			waptyServer.send(JSON.stringify(msg));
 			break;
 		case "provideResponse":
 			break;

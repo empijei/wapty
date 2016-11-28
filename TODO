@@ -1,14 +1,12 @@
 Stage 1:
+Add Drop Request/Response
+Add Provide Response
 Unit testing
 Limit request duration to servers
 FIXME UI removes \n\r on some browsers
 Move all constant strings to actual constants
 Add req ID to editor and reject unexpected requests
-Investigate body length 0 error
 Move raw dumping to history methods
-Add Content Length fix for requests
-Add Drop Request/Response
-Add Provide Response
 Serve the certificates on a specific path
 Default to bare sockets on error
 UI fix that mess, use Angular, improve style.
