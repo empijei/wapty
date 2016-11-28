@@ -63,7 +63,14 @@ func (rr *ReqResp) parseRequest(req *http.Request) {
 		if len(ipport) >= 2 {
 			this.Port = ipport[1]
 		} else {
-			log.Println("Port not specified: " + this.Host)
+			switch req.URL.Scheme {
+			case "https":
+				this.Port = "443"
+			case "http":
+				this.Port = "80"
+			default:
+				log.Println("Port not specified: " + this.Host)
+			}
 		}
 	} else {
 		log.Println("Unable to resolve Host: " + this.Host)

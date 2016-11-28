@@ -7,10 +7,10 @@ package intercept
 import (
 	"bufio"
 	"bytes"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
-	"strconv"
 )
 
 //Represents the queue of requests that have been intercepted
@@ -59,7 +59,7 @@ func handleRequest(preq *pendingRequest) {
 		editedRequest = preq.originalRequest
 	}
 
-	preq.modifiedRequest <- &mayBeRequest{req: editedRequest, res: providedResp}
+	preq.modifiedRequest <- &mayBeRequest{req: editedRequest, res: providedResp, err: err}
 }
 
 func preProcessRequest(req *http.Request) (autoEdited *http.Request, Id uint, err error) {
@@ -103,25 +103,47 @@ func editCase(editedRequestDump []byte) (editedRequest *http.Request, err error)
 	//http://greenbytes.de/tech/webdav/draft-ietf-httpbis-p1-messaging-26.html#message.body
 	//First attempt, did not work
 	//FIXME not all browsers post removing \r, detect the case!
-	tmpSplit := bytes.SplitN(editedRequestDump, []byte("\n\n"), 2)
-	tmpSplit[0] = bytes.Replace(tmpSplit[0], []byte("\n"), []byte("\n\r"), -1)
-	if len(tmpSplit) > 1 {
-		cl := strconv.Itoa(len(tmpSplit[1]))
-		log.Println("Content Length:" + cl)
-		var tmp [][]byte
-		tmp = append(tmp, tmpSplit[0], []byte("\nContent-Length: "+cl+"\n\n"), tmpSplit[1])
-		editedDump := bytes.Join(tmp, nil)
-		editedRequest, err = http.ReadRequest(bufio.NewReader(bytes.NewReader(editedDump)))
-	} else {
-		editedRequest, err = http.ReadRequest(bufio.NewReader(bytes.NewReader(editedRequestDump)))
-	}
+	//TODO fix the last 2 lines? \n\r?
+
+	//tmpSplit := bytes.SplitN(editedRequestDump, []byte("\n"), 2)
+	//if len(tmpSplit) > 1 {
+	//if tmpSplit[1][0] != byte('\r') {
+	//tmpSplit = bytes.SplitN(editedRequestDump, []byte("\n\n"), 2)
+	////Fixing \n\r for headers
+	//tmpSplit[0] = bytes.Replace(tmpSplit[0], []byte("\n"), []byte("\n\r"), -1)
+	//} else {
+	//tmpSplit = bytes.SplitN(editedRequestDump, []byte("\n\r\n\r"), 2)
+	//}
+	//}
+
+	//if len(tmpSplit) > 1 {
+	//cl := strconv.Itoa(len(tmpSplit[1]))
+	//log.Println("Content Length:" + cl)
+	//var tmp [][]byte
+	//tmp = append(tmp, tmpSplit[0], []byte("\n\rContent-Length: "+cl+"\n\r\n\r"), tmpSplit[1])
+	//editedDump := bytes.Join(tmp, nil)
+	//editedRequest, err = http.ReadRequest(bufio.newreader(bytes.newreader(editeddump)))
+	//} else {
+	//editedRequest, err = http.ReadRequest(bufio.NewReader(bytes.NewReader(editedRequestDump)))
+	//}
 
 	//Original, does not work
 	//editedRequest, err = http.ReadRequest(bufio.NewReader(bytes.NewReader(editedRequestDump)))
 
+	rc := bufio.NewReader(bytes.NewReader(editedRequestDump))
+	editedRequest, err = http.ReadRequest(rc)
 	if err != nil {
-		log.Println("Error during edited request parsing, forwarding original request.")
+		log.Println("Error during edited request parsing, dunno wat todo!!!")
 		//TODO Default to bare sockets
+	}
+	body, err := ioutil.ReadAll(rc)
+	if err != nil {
+		log.Println("Error during edited body reading")
+		//TODO
+	}
+	if length := len(body); length != 0 {
+		editedRequest.ContentLength = int64(length)
+		editedRequest.Body = ioutil.NopCloser(bufio.NewReader(bytes.NewReader(body)))
 	}
 	return
 }
