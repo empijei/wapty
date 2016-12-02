@@ -1,14 +1,13 @@
 Stage 1:
-Add Drop Request/Response
 Add Provide Response
-Unit testing
 Limit request duration to servers
-FIXME UI removes \n\r on some browsers
-Move all constant strings to actual constants
+Unit testing
 Add req ID to editor and reject unexpected requests
-Move raw dumping to history methods
-Serve the certificates on a specific path
+Move all constant strings to actual constants
+Serve the certificates on a specific fake host/patht
 Default to bare sockets on error
+Add/Update Doc
+Improve README
 UI fix that mess, use Angular, improve style.
 UI work on problem "problem" of duplicate receives event
 UI tabcontroller
@@ -16,11 +15,7 @@ UI add history tab
 UI Sanitize metadata server-side? Rely on Angular? Cry in a corner?
 UI autodetect changes in proxybuffer and merge the two "forward" buttons
 UI show already pending request/response on connection
-UI disable buttons if no request is present
-UI detect disconnection
 UI error log
-Add/Update Doc
-Add a README
 Publish
 
 Stage 2:

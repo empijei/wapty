@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httputil"
+	"strconv"
 )
 
 //Represents the queue of the response to requests that have been intercepted
@@ -66,12 +67,11 @@ func handleResponse(presp *pendingResponse) {
 		//TODO implement this
 		log.Println("Action not allowed on Responses")
 		res.ContentLength = ContentLength
+		res.Header.Set("Content-Length", strconv.Itoa(int(ContentLength)))
 		editedResponse = res
 	default:
 		//TODO implement this
 		log.Println("Not implemented yet")
-		res.ContentLength = ContentLength
-		editedResponse = res
 	}
 	presp.modifiedResponse <- &mayBeResponse{res: editedResponse, err: err}
 }

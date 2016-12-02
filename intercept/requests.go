@@ -50,9 +50,13 @@ func handleRequest(preq *pendingRequest) {
 	case DROP:
 		providedResp = caseDrop()
 	case PROVIDERESP:
-		//TODO implement this
-		log.Println("Not implemented yet")
-		editedRequest = r
+		providedResponseBuffer := bufio.NewReader(bytes.NewReader(editedRequestDump))
+		providedResp, err = http.ReadResponse(providedResponseBuffer, preq.originalRequest)
+		if err != nil {
+			//TODO check this error and hijack connection to send raw bytes
+			log.Println("Error during provided response parsingh")
+		}
+		status.addRawEditedResponse(preq.id, editedRequestDump)
 	default:
 		//TODO implement this
 		log.Println("Not implemented yet")
@@ -97,45 +101,13 @@ func editRequest(req *http.Request, Id uint) (*http.Request, *http.Response, err
 }
 
 func editCase(editedRequestDump []byte) (editedRequest *http.Request, err error) {
-	//Adjust Content-Length
-	//Whiile Responses default to having a body,
-	//Requests will not unles Transfer-Encoding or Content-Length is specified
-	//http://greenbytes.de/tech/webdav/draft-ietf-httpbis-p1-messaging-26.html#message.body
-	//First attempt, did not work
-	//FIXME not all browsers post removing \r, detect the case!
-	//TODO fix the last 2 lines? \n\r?
-
-	//tmpSplit := bytes.SplitN(editedRequestDump, []byte("\n"), 2)
-	//if len(tmpSplit) > 1 {
-	//if tmpSplit[1][0] != byte('\r') {
-	//tmpSplit = bytes.SplitN(editedRequestDump, []byte("\n\n"), 2)
-	////Fixing \n\r for headers
-	//tmpSplit[0] = bytes.Replace(tmpSplit[0], []byte("\n"), []byte("\n\r"), -1)
-	//} else {
-	//tmpSplit = bytes.SplitN(editedRequestDump, []byte("\n\r\n\r"), 2)
-	//}
-	//}
-
-	//if len(tmpSplit) > 1 {
-	//cl := strconv.Itoa(len(tmpSplit[1]))
-	//log.Println("Content Length:" + cl)
-	//var tmp [][]byte
-	//tmp = append(tmp, tmpSplit[0], []byte("\n\rContent-Length: "+cl+"\n\r\n\r"), tmpSplit[1])
-	//editedDump := bytes.Join(tmp, nil)
-	//editedRequest, err = http.ReadRequest(bufio.newreader(bytes.newreader(editeddump)))
-	//} else {
-	//editedRequest, err = http.ReadRequest(bufio.NewReader(bytes.NewReader(editedRequestDump)))
-	//}
-
-	//Original, does not work
-	//editedRequest, err = http.ReadRequest(bufio.NewReader(bytes.NewReader(editedRequestDump)))
-
 	rc := bufio.NewReader(bytes.NewReader(editedRequestDump))
 	editedRequest, err = http.ReadRequest(rc)
 	if err != nil {
-		log.Println("Error during edited request parsing, dunno wat todo!!!")
+		log.Println("Error during edited request parsing, dunno what to do yet!!!")
 		//TODO Default to bare sockets
 	}
+	//Parsing leftovers, if any, must be the request body
 	body, err := ioutil.ReadAll(rc)
 	if err != nil {
 		log.Println("Error during edited body reading")

@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+//TODO add mimetypes
 var webFiles = map[string]string{}
 
 //This is pretty clever, thanks creack https://stackoverflow.com/a/21596576
