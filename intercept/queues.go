@@ -89,10 +89,8 @@ func MainLoop() {
 		Transport: &modifiedTransport,
 	}
 	//Starts the mitm.Proxy
-	log.Println(http.ListenAndServe(":8080", p)) //TODO parametrize this
-	done <- struct{}{}
-	done <- struct{}{}
-	done <- struct{}{}
+	log.Println(http.ListenAndServe(":8080", p)) //TODO parametrize this and allow for closure
+	close(done)
 }
 
 //This loop will keep reading from the RequestQueue and ResponseQueue for new

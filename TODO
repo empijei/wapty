@@ -1,21 +1,26 @@
 Stage 1:
-Add Provide Response
+Fix the POST hack and use websockets instead
+Make ui channels buffered, don't block on ui tasks
+Fix the mess in ui controller (channels can be used as keys in maps, use them)
+Make ui operations unblocking and detect ui freezes/deaths. If channel is full and not being read, kill the client.
+Provide a better way to close stuff, see §8.9
 Limit request duration to servers
 Unit testing
 Add req ID to editor and reject unexpected requests
 Move all constant strings to actual constants
 Serve the certificates on a specific fake host/patht
 Default to bare sockets on error
+Look for fixmes and todos in the code
 Add/Update Doc
 Improve README
-UI fix that mess, use Angular, improve style.
 UI work on problem "problem" of duplicate receives event
-UI tabcontroller
-UI add history tab
-UI Sanitize metadata server-side? Rely on Angular? Cry in a corner?
+UI improve history tab. Sort and show details.
+UI Sanitize metadata server-side
 UI autodetect changes in proxybuffer and merge the two "forward" buttons
-UI show already pending request/response on connection
+UI show already pending request/response upon connection
 UI error log
+auto-open ui in browser on launch
+profile
 Publish
 
 Stage 2:
@@ -29,7 +34,7 @@ Add AutoEdit
 
 Stage 3:
 UI Add Decoder
-Add Spider
+Add Spider (remember to add timeouts §8.10)
 Add pre-engagement analysis
 Add a Pathfinder feature to spider that allows to backtrace how a certain URL was discovered
 Add Scanner

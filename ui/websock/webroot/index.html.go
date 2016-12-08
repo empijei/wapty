@@ -8,8 +8,10 @@ const indexHtml = `
 <HTML>
 	<HEAD>
 		<link rel="stylesheet" type="text/css" href="/index.css">
-		<!--TODO embed minified version of this too, using it now to test-->
+		<!--TODO embed minified version of these too, using it live just for tests-->
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.js"></script>
+		<script src="/tablesorter.js"></script>
+		<script src="/colResizable.js"></script>
 	</HEAD>
 	<BODY>
 		<ul class="tab">
@@ -30,7 +32,6 @@ const indexHtml = `
 		</div>
 
 		<div id="historyTab" class="tabcontent">
-			<h1> Nothing here yet </h1>
 			<table style="display:none;" border="1" id="historyTable">
 				<tr id="historyHeader">
 				</tr>
@@ -55,6 +56,7 @@ function openTab(evt, tabName) {
 
 // Get the element with id="defaultOpen" and click on it
 document.getElementById("defaultOpen").click();
+
 		</script>
 
 	</BODY>

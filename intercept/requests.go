@@ -67,18 +67,15 @@ func handleRequest(preq *pendingRequest) {
 }
 
 func preProcessRequest(req *http.Request) (autoEdited *http.Request, Id uint, err error) {
+	stripHTHHeaders(&(autoEdited.Header))
 	Id = newReqResp(req)
 	//TODO Add autoedit here
 	autoEdited = req
 	//FIXME Call this in a "decode" function for requests, like the one used for responses
-	//move this to beginning of function
-	stripHTHHeaders(&(autoEdited.Header))
 	//TODO add to status as edited response
 	//TODO Return edited one
 	//TODO Add auto-resolve hostnames here
 	return
-
-	//TODO move this outside
 }
 
 func editRequest(req *http.Request, Id uint) (*http.Request, *http.Response, error) {

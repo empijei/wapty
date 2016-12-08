@@ -20,6 +20,7 @@ type Command struct {
 
 type SubsChannel map[int64]Subscription
 
+//TODO Use a map[chan Command]struct{} if nothing else than the channel is used
 type UI struct {
 	id      int
 	channel chan Command

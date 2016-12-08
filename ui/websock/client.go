@@ -111,7 +111,8 @@ func (c *Client) listenRead() {
 			//that prevents an easy fix for this problem without refactoring
 			//and use a json.NewDecoder(io.Reader) instead of Unmarshal([]byte,...)
 			//
-			//The /edit endpoint will be used until I think of a better workaround
+			//The POST /edit endpoint will be used until I think of a better workaround
+			//TODO use a websocket.Conn (that implements io.Reader) as argument for json.NewDecoder?
 			err := websocket.JSON.Receive(c.ws, &msg)
 			if err == io.EOF {
 				c.doneCh <- true

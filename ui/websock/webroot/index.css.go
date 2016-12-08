@@ -53,5 +53,7 @@ textarea {
 
 table {
 	width:100%;
+	overflow:scroll;
+	border:1;
 }
 `

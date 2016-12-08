@@ -11,13 +11,15 @@ var uiHistory *ui.Subscription
 type HistoryAction int
 
 const (
-	FETCH HistoryAction = iota
+	DUMP HistoryAction = iota
 	FILTER
+	FETCH
 )
 
 var historyActions = [...]string{
-	"fetch",
+	"dump",
 	"filter",
+	"fetch",
 }
 
 func (a HistoryAction) String() string {

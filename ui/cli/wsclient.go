@@ -27,7 +27,7 @@ func init() {
 	suppCommands = make(map[string]dir)
 	suppCommands[intercept.EDIT.String()] = edit
 	suppCommands[intercept.FORWARD.String()] = forward
-	suppCommands[intercept.FETCH.String()] = fetch
+	suppCommands[intercept.DUMP.String()] = dump
 	suppCommands["intercept"] = setIntercept
 }
 
@@ -105,8 +105,8 @@ func forward(commands []string) ui.Command {
 	return ui.Command{Action: intercept.FORWARD.String(), Channel: intercept.EDITORCHANNEL}
 }
 
-func fetch(commands []string) ui.Command {
-	return ui.Command{Action: intercept.FETCH.String(), Channel: intercept.HISTORYCHANNEL}
+func dump(commands []string) ui.Command {
+	return ui.Command{Action: intercept.DUMP.String(), Channel: intercept.HISTORYCHANNEL}
 }
 
 func setIntercept(commands []string) ui.Command {

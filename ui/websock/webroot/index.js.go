@@ -56,6 +56,9 @@ waptyServer.onmessage = function(event){
 						}
 						tmpHistory = {}
 						historyTable.style.display='block';
+						//FIXME this doesn't work. Why?
+						$("#historyTable").colResizable({resizeMode:'overflow'});
+						$("#historyTable").tablesorter(); 
 					}
 					var stringID=""+metaData.id;
 					console.log("Got metaData for id " + stringID);
@@ -100,7 +103,14 @@ waptyServer.onmessage = function(event){
 					//"<td>"+metaData.Host+"</td>"+
 					//"<td>"+metaData.Path+"</td>"+
 					//"</tr>";
-
+					break;
+				case "fetch":
+					var pl = JSON.parse(atob(msg.Payload))
+					console.log(atob(pl.RawReq))
+					console.log(atob(pl.RawRes))
+					console.log(atob(pl.RawEditedReq))
+					console.log(atob(pl.RawEditedRes))
+					break;
 			}
 			break;
 	}
@@ -179,6 +189,14 @@ function toggler(){
 		Action: "intercept",
 		Channel: intercept.SETTINGSCHANNEL,
 		Args: [""+document.getElementById("interceptToggle").checked]
+	}
+	waptyServer.send(JSON.stringify(msg));
+}
+function fetchHistory(id){
+	var msg = {
+		Action: "fetch",
+		Channel: intercept.HISTORYCHANNEL,
+		Args: [""+id]
 	}
 	waptyServer.send(JSON.stringify(msg));
 }

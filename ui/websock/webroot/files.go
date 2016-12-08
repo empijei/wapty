@@ -15,6 +15,9 @@ func LoadRoutes() {
 		log.Println("Loading /" + fileName)
 		contentCpy := content
 		http.HandleFunc("/"+fileName, func(w http.ResponseWriter, r *http.Request) {
+			//if strings.HasSuffix(fileName, ".js") {
+			//w.Header().Set("Content-Type", "application/javascript")
+			//}
 			fmt.Fprintf(w, "%s\n", contentCpy)
 		})
 	}

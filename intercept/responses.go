@@ -50,8 +50,9 @@ func handleResponse(presp *pendingResponse) {
 	switch action {
 	case FORWARD:
 		res.ContentLength = ContentLength
+		res.Header.Set("Content-Length", strconv.Itoa(int(ContentLength)))
 		editedResponse = res
-	case EDIT:
+	case EDIT, PROVIDERESP:
 		editedResponseBuffer := bufio.NewReader(bytes.NewReader(editedResponseDump))
 		editedResponse, err = http.ReadResponse(editedResponseBuffer, presp.originalRequest)
 		if err != nil {
@@ -63,12 +64,6 @@ func handleResponse(presp *pendingResponse) {
 		status.addRawEditedResponse(presp.id, editedResponseDump)
 	case DROP:
 		editedResponse = caseDrop()
-	case PROVIDERESP:
-		//TODO implement this
-		log.Println("Action not allowed on Responses")
-		res.ContentLength = ContentLength
-		res.Header.Set("Content-Length", strconv.Itoa(int(ContentLength)))
-		editedResponse = res
 	default:
 		//TODO implement this
 		log.Println("Not implemented yet")

@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httputil"
+	"strconv"
 	"sync"
 
 	"github.com/empijei/Wapty/ui"
@@ -15,6 +16,7 @@ var status History
 func init() {
 }
 
+//FIXME!!! implement high-level methods!!!
 //This type is used to represent all the req/resp that went through the proxy
 //FIXME make the fields private and create a dummy object to transmit this
 type History struct {
@@ -31,8 +33,9 @@ func (h *History) addRawEditedRequest(Id uint, rawEditedReq []byte) {
 	h.ReqResps[Id].RawEditedReq = rawEditedReq
 	h.RUnlock()
 }
-func (h *History) addEditedRequest(Id uint, req *http.Request) {
-}
+
+//func (h *History) addEditedRequest(Id uint, req *http.Request) {
+//}
 
 //Finds the correct Request based on the ID and adds the original response to it
 //This is thread safe
@@ -43,6 +46,12 @@ func (h *History) addRawResponse(Id uint, rawRes []byte) {
 }
 
 func (h *History) addResponse(Id uint, res *http.Response) {
+	tmp, err := httputil.DumpResponse(res, true)
+	if err != nil {
+		//TODO
+		log.Println(err.Error())
+	}
+	h.addRawResponse(Id, tmp)
 }
 
 //Finds the correct Request based on the ID and adds the modified response to it
@@ -53,7 +62,7 @@ func (h *History) addRawEditedResponse(Id uint, rawEditedRes []byte) {
 	h.RUnlock()
 }
 
-func (h *History) addEditedResponse(Id uint, res *http.Response) {}
+//func (h *History) addEditedResponse(Id uint, res *http.Response) {}
 
 //Dumps the status in the log. This is only meant for debug purposes.
 func StatusDump(status History) {
@@ -66,6 +75,16 @@ func StatusDump(status History) {
 	status.RUnlock()
 }
 
+func (h *History) getItem(Id uint) *ReqResp {
+	h.RLock()
+	defer h.RUnlock()
+	if Id < h.Count {
+		return h.ReqResps[Id]
+	} else {
+		return nil
+	}
+}
+
 //This loop will wait for commands directed to the history control and will
 //execute them
 func historyLoop() {
@@ -73,7 +92,7 @@ func historyLoop() {
 		select {
 		case cmd := <-uiHistory.DataChannel:
 			switch cmd.Action {
-			case FETCH.String():
+			case DUMP.String():
 				status.RLock()
 				dump, err := json.Marshal(status)
 				status.RUnlock()
@@ -82,11 +101,29 @@ func historyLoop() {
 					panic(err)
 				}
 				log.Printf("Dump: %s\n", dump)
-				uiHistory.Send(ui.Command{Action: "Fetch", Payload: dump})
+				uiHistory.Send(ui.Command{Action: "Dump", Payload: dump})
+			case FETCH.String():
+				uiHistory.Send(handleFetch(cmd))
 			}
 		case <-done:
 			return
 		}
+	}
+}
+
+func handleFetch(cmd ui.Command) ui.Command {
+	if len(cmd.Args) >= 1 {
+		log.Println("Requested history entry")
+		Id, err := strconv.ParseUint(cmd.Args[0], 10, 32)
+		if err != nil {
+			return ui.Command{Action: "Error", Args: []string{"Invalid argument to FETCH"}}
+		}
+		rr := status.getItem(uint(Id))
+		buf, err := json.Marshal(rr)
+		return ui.Command{Action: FETCH.String(), Payload: buf}
+	} else {
+		log.Println("Missing argument for FETCH")
+		return ui.Command{Action: "Error", Args: []string{"Missing argument for FETCH"}}
 	}
 }
 
