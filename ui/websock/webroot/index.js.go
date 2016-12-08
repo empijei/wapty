@@ -147,12 +147,11 @@ function clickhandler(){
 			}
 			controls = false;
 			document.getElementById("proxybuffer").value="";
-			//This is not used as golang websocket.JSON.Read() function is bugged
-			//waptyServer.send(JSON.stringify(msg));
-			var xhr = new XMLHttpRequest();
-			xhr.open("POST", "/edit", true);
-			xhr.setRequestHeader('Content-Type', 'application/json');
-			xhr.send(JSON.stringify(msg));
+			waptyServer.send(JSON.stringify(msg));
+			//var xhr = new XMLHttpRequest();
+			//xhr.open("POST", "/edit", true);
+			//xhr.setRequestHeader('Content-Type', 'application/json');
+			//xhr.send(JSON.stringify(msg));
 			break;
 		case "drop":
 			var msg = {
@@ -173,12 +172,11 @@ function clickhandler(){
 			}
 			controls = false;
 			document.getElementById("proxybuffer").value="";
-			//This is not used as golang websocket.JSON.Read() function is bugged
-			//waptyServer.send(JSON.stringify(msg));
-			var xhr = new XMLHttpRequest();
-			xhr.open("POST", "/edit", true);
-			xhr.setRequestHeader('Content-Type', 'application/json');
-			xhr.send(JSON.stringify(msg));
+			waptyServer.send(JSON.stringify(msg));
+			//var xhr = new XMLHttpRequest();
+			//xhr.open("POST", "/edit", true);
+			//xhr.setRequestHeader('Content-Type', 'application/json');
+			//xhr.send(JSON.stringify(msg));
 			break;
 		default:
 			console.log("unknown event")

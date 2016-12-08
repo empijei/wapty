@@ -1,6 +1,7 @@
 package websock
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -92,6 +93,7 @@ func (c *Client) listenWrite() {
 // Listen read request via chanel
 func (c *Client) listenRead() {
 	log.Println("Listening read from client")
+	dec := json.NewDecoder(c.ws)
 	for {
 		select {
 
@@ -112,13 +114,14 @@ func (c *Client) listenRead() {
 			//and use a json.NewDecoder(io.Reader) instead of Unmarshal([]byte,...)
 			//
 			//The POST /edit endpoint will be used until I think of a better workaround
-			//TODO use a websocket.Conn (that implements io.Reader) as argument for json.NewDecoder?
-			err := websocket.JSON.Receive(c.ws, &msg)
+			//err := websocket.JSON.Receive(c.ws, &msg)
+			err := dec.Decode(&msg)
 			if err == io.EOF {
 				c.doneCh <- true
 			} else if err != nil {
 				c.server.Err(err)
 				log.Println(msg)
+				c.doneCh <- true //This is awful, just close the channel!
 			} else {
 				//TODO check if action != nil
 				//log.Println("Received ", msg)

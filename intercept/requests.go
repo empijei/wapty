@@ -67,7 +67,7 @@ func handleRequest(preq *pendingRequest) {
 }
 
 func preProcessRequest(req *http.Request) (autoEdited *http.Request, Id uint, err error) {
-	stripHTHHeaders(&(autoEdited.Header))
+	stripHTHHeaders(&(req.Header))
 	Id = newReqResp(req)
 	//TODO Add autoedit here
 	autoEdited = req
