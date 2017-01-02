@@ -79,6 +79,7 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 	if err != nil {
 		log.Println("Something went wrong trying to contact the server")
 		//TODO return a fake response containing the error message
+		res = GenerateResponse("Error", "Error in performing the request: "+err.Error(), 500)
 		return
 	}
 	res = preProcessResponse(req, res, Id)

@@ -1,5 +1,4 @@
 //websock will handle all clients that are connected using the websocket server.
-//This package is a fork of github.com/golang-samples/websocket/websocket-chat/
 package websock
 
 import (
@@ -57,7 +56,7 @@ func (s *Server) SendAllClients(msg *ui.Command) {
 }
 
 func (s *Server) Done() {
-	s.doneCh <- true
+	close(s.doneCh)
 }
 
 func (s *Server) Err(err error) {

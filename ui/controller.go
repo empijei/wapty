@@ -60,7 +60,7 @@ func Subscribe(channel string) *Subscription {
 	subsCounter++
 	//Unless you are sure the out channel will be constantly read, it is strongly
 	//suggested to create a buffered channel
-	pipe := make(chan Command, 20) //TODO this is arbitrary, give a meaning to this number
+	pipe := make(chan Command, 50) //TODO this is arbitrary, give a meaning to this number
 	out := Subscription{id: subsCounter, dataCh: pipe, channel: channel}
 	if subScriptions[channel] == nil {
 		subScriptions[channel] = make(map[int64]Subscription)

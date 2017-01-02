@@ -15,7 +15,6 @@ const channelBufSize = 100
 
 var maxId int = 0
 
-// Chat client.
 type Client struct {
 	id     int
 	ws     *websocket.Conn
@@ -24,7 +23,6 @@ type Client struct {
 	doneCh chan bool
 }
 
-// Create new chat client.
 func NewClient(ws *websocket.Conn, server *Server) *Client {
 
 	if ws == nil {
@@ -57,16 +55,14 @@ func (c *Client) Write(msg *ui.Command) {
 }
 
 func (c *Client) Done() {
-	c.doneCh <- true
+	close(c.doneCh)
 }
 
-// Listen Write and Read request via chanel
 func (c *Client) Listen() {
 	go c.listenWrite()
 	c.listenRead()
 }
 
-// Listen write request via chanel
 func (c *Client) listenWrite() {
 	log.Println("Listening write to client")
 	for {
@@ -74,17 +70,14 @@ func (c *Client) listenWrite() {
 
 		// send message to the client
 		case msg := <-c.ch:
-			//log.Println("Send:", msg)
 			err := websocket.JSON.Send(c.ws, msg)
 			if err != nil {
 				log.Println("Error while sending message to websocket client.")
-				c.doneCh <- true
+				close(c.doneCh)
 			}
 
-		// receive done request
 		case <-c.doneCh:
 			c.server.DelClient(c)
-			c.doneCh <- true // for listenRead method
 			return
 		}
 	}
@@ -100,7 +93,6 @@ func (c *Client) listenRead() {
 		// receive done request
 		case <-c.doneCh:
 			c.server.DelClient(c)
-			c.doneCh <- true // for listenWrite method
 			return
 
 		// read data from websocket connection
@@ -117,11 +109,11 @@ func (c *Client) listenRead() {
 			//err := websocket.JSON.Receive(c.ws, &msg)
 			err := dec.Decode(&msg)
 			if err == io.EOF {
-				c.doneCh <- true
+				close(c.doneCh)
 			} else if err != nil {
 				c.server.Err(err)
 				log.Println(msg)
-				c.doneCh <- true //This is awful, just close the channel!
+				close(c.doneCh)
 			} else {
 				//TODO check if action != nil
 				//log.Println("Received ", msg)
