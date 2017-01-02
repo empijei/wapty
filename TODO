@@ -1,5 +1,4 @@
 Stage 1:
-Fix the POST hack and use websockets instead
 Make ui channels buffered, don't block on ui tasks
 Fix the mess in ui controller (channels can be used as keys in maps, use them)
 Make ui operations unblocking and detect ui freezes/deaths. If channel is full and not being read, kill the client.
@@ -14,13 +13,14 @@ Look for fixmes and todos in the code
 Add/Update Doc
 Improve README
 UI work on problem "problem" of duplicate receives event
+UI sortable resizable table
 UI improve history tab. Sort and show details.
 UI Sanitize metadata server-side
 UI autodetect changes in proxybuffer and merge the two "forward" buttons
 UI show already pending request/response upon connection
 UI error log
-auto-open ui in browser on launch
-profile
+UI auto-open ui in browser on launch
+profile the code, try to find limit-cases
 Publish
 
 Stage 2:

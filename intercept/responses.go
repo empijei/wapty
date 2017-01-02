@@ -17,18 +17,6 @@ import (
 //Represents the queue of the response to requests that have been intercepted
 var ResponseQueue chan *pendingResponse
 
-const defaultResp = `
-<html>
-<head>
-<title>Nope</title>
-</head>
-<body>
-<!-- TODO WAPTY LOGO -->
-<h1>This is not the page you were looking for</h1>
-</body>
-</html>
-`
-
 func init() {
 	ResponseQueue = make(chan *pendingResponse)
 }
@@ -105,11 +93,5 @@ func decodeResponse(res *http.Response) *http.Response {
 }
 
 func caseDrop() (res *http.Response) {
-	res = &http.Response{}
-	res.ContentLength = int64(len(defaultResp))
-	res.Body = ioutil.NopCloser(bytes.NewBuffer([]byte(defaultResp)))
-	res.StatusCode = 418
-	res.Header = http.Header{}
-	res.Header.Set("X-WAPTY-Status", "Dropped")
-	return
+	return GenerateResponse("Interceptor", "Response was dropped", 418)
 }

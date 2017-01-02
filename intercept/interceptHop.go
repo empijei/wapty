@@ -67,7 +67,7 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 	status.ReqResps[Id].parseRequest(req)
 	status.RUnlock()
 	if res != nil {
-		//TODO Adding dropped responses should be avoided.
+		//TODO Adding dropped responses could be avoided.
 		status.addResponse(Id, res)
 		return
 	}
@@ -78,6 +78,7 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 	res, err = ri.wrappedRT.RoundTrip(req)
 	if err != nil {
 		log.Println("Something went wrong trying to contact the server")
+		//TODO return a fake response containing the error message
 		return
 	}
 	res = preProcessResponse(req, res, Id)
