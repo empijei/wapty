@@ -36,7 +36,7 @@ func TestEditBuffer(t *testing.T) {
 		go func() {
 			mockChan <- tt.in.cmd
 		}()
-		b, e := editBuffer(tt.in.p, tt.in.b)
+		b, e := editBuffer(tt.in.p, tt.in.b, "https://thisisatest.com:443")
 		if bytes.Compare(b, tt.out.b) != 0 || e != tt.out.e {
 			t.Errorf("editBufferTests[%d]", i)
 		}

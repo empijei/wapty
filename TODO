@@ -1,7 +1,8 @@
 Stage 1:
-test the request duration limit to servers
-Unit testing
 Serve the certificates on a specific fake host/patht
+test the request duration limit to servers
+Show host and port for request in Proxy UI
+Unit testing
 Default to bare sockets on error
 Look for fixmes and todos in the code
 Add/Update Doc

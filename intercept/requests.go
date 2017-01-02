@@ -39,7 +39,7 @@ func handleRequest(preq *pendingRequest) {
 	}
 	var editedRequest *http.Request
 	var providedResp *http.Response
-	editedRequestDump, action := editBuffer(REQUEST, req)
+	editedRequestDump, action := editBuffer(REQUEST, req, r.URL.Scheme+"://"+r.Host)
 	switch action {
 	case FORWARD:
 		r.ContentLength = ContentLength

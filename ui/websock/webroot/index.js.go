@@ -33,6 +33,7 @@ waptyServer.onmessage = function(event){
 		case intercept.EDITORCHANNEL:
 			//if ('Payload' in msg){
 			document.getElementById("proxybuffer").value=atob(msg.Payload);
+			document.getElementById("endpointIndicator").innerText=(msg.Args[0][2]==="q"?"Request for: ":"Response from: ")  + msg.Args[1];
 			controls = true;
 			//}
 			break;
@@ -136,6 +137,7 @@ function clickhandler(){
 			}
 			controls = false;
 			document.getElementById("proxybuffer").value="";
+			document.getElementById("endpointIndicator").innerText="";
 			waptyServer.send(JSON.stringify(msg));
 			break;
 		case "forwardModified":
@@ -147,6 +149,7 @@ function clickhandler(){
 			}
 			controls = false;
 			document.getElementById("proxybuffer").value="";
+			document.getElementById("endpointIndicator").innerText="";
 			waptyServer.send(JSON.stringify(msg));
 			//var xhr = new XMLHttpRequest();
 			//xhr.open("POST", "/edit", true);
@@ -160,6 +163,7 @@ function clickhandler(){
 			}
 			controls = false;
 			document.getElementById("proxybuffer").value="";
+			document.getElementById("endpointIndicator").innerText="";
 			waptyServer.send(JSON.stringify(msg));
 			break;
 		case "provideResponse":
@@ -172,6 +176,7 @@ function clickhandler(){
 			}
 			controls = false;
 			document.getElementById("proxybuffer").value="";
+			document.getElementById("endpointIndicator").innerText="";
 			waptyServer.send(JSON.stringify(msg));
 			//var xhr = new XMLHttpRequest();
 			//xhr.open("POST", "/edit", true);

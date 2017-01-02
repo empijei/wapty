@@ -34,7 +34,7 @@ func handleResponse(presp *pendingResponse) {
 		return
 	}
 	var editedResponse *http.Response
-	editedResponseDump, action := editBuffer(RESPONSE, rawRes)
+	editedResponseDump, action := editBuffer(RESPONSE, rawRes, presp.originalRequest.URL.Scheme+"://"+presp.originalRequest.Host)
 	switch action {
 	case FORWARD:
 		res.ContentLength = ContentLength

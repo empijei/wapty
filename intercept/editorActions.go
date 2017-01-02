@@ -64,10 +64,10 @@ func init() {
 	uiHistory = ui.Subscribe(HISTORYCHANNEL)
 }
 
-func editBuffer(p PayloadType, b []byte) ([]byte, EditorAction) {
+func editBuffer(p PayloadType, b []byte, endpoint string) ([]byte, EditorAction) {
 	log.Println("Editing " + p.String())
 	//result := ui.Command{Action: "edit", Payload: b, Channel: EDITORCHANNEL}
-	args := []string{p.String()}
+	args := []string{p.String(), endpoint}
 	uiEditor.Send(ui.Command{Action: "edit", Args: args, Payload: b})
 	log.Println("Waiting for user interaction")
 	result := <-uiEditor.DataChannel

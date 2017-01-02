@@ -26,6 +26,8 @@ const indexHtml = `
 			<label><input type="checkbox" id="interceptToggle" value="Intercept" onclick="toggler();">Intercept</label>
 			<button id="menu" type="button">Action</button>
 			<br>
+			<div id="endpointIndicator"></div>
+			<br>
 			<br>
 
 			<textarea id="proxybuffer" name="proxybuffer" rows="40"></textarea>
