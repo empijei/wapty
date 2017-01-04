@@ -34,7 +34,7 @@ const indexHtml = `
 		</div>
 
 		<div id="historyTab" class="tabcontent">
-			<table id="historyTable" border="0" cellpadding="0" cellspacing="0" class="JPadding JColResizer overflowContainer">
+			<table id="historyTable" border="0" cellpadding="0" cellspacing="0" class="JPadding JColResizer overflowContainer flexscroll">
 				<tr id="historyHeader">
 				</tr>
 			</table>

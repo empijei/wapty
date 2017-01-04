@@ -57,7 +57,11 @@ waptyServer.onmessage = function(event){
 						}
 						tmpHistory = {}
 						historyTable.style.display='block';
-						$("#historyTable").colResizable({resizeMode:'overflow'});
+						$("#historyTable").colResizable({
+							fixed:false,
+							draggingClass:"dragging",
+							liveDrag:true,
+							resizeMode:'overflow'});
 						//$("#historyTable").tablesorter(); 
 					}
 					var stringID=""+metaData.id;

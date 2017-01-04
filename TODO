@@ -1,6 +1,6 @@
 Stage 1:
 Add internal router, fix recursive connect
-Add intercept checker in the right sposts
+Add intercept checker in the right spots
 Serve the certificates on a specific fake host/path
 test the request duration limit to servers
 Unit testing
@@ -13,6 +13,7 @@ Move all constant strings to actual constants
 Fix the mess in ui controller (channels can be used as keys in maps, use them)
 Fix colresizable problems
 Make ui operations unblocking and detect ui freezes/deaths. If channel is full and not being read, kill the client.
+Send the whole status on ui connect
 UI work on problem "problem" of duplicate receives event
 UI sortable resizable table
 UI improve history tab. Sort and show details.

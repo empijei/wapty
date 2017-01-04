@@ -163,9 +163,6 @@ pre{
     background: -webkit-linear-gradient(left,  rgba(250,250,250,0) 0%,rgba(250,250,250,1) 93%,rgba(250,250,250,1) 100%); /* Chrome10-25,Safari5.1-6 */
     background: linear-gradient(to right,  rgba(250,250,250,0) 0%,rgba(250,250,250,1) 93%,rgba(250,250,250,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00fafafa', endColorstr='#fafafa',GradientType=1 ); /* IE6-9 */
-
-
-
 }
 
 .sampleOptions {
