@@ -8,6 +8,7 @@ const indexHtml = `
 <HTML>
 	<HEAD>
 		<link rel="stylesheet" type="text/css" href="/index.css">
+		<link rel="stylesheet" type="text/css" href="/colresizable.css">
 		<!--TODO embed minified version of these too, using it live just for tests-->
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.js"></script>
 		<script src="/tablesorter.js"></script>
@@ -23,18 +24,17 @@ const indexHtml = `
 			<button id="forwardModified" type="button" onclick="clickhandler();">Forward Modified</button>
 			<button id="drop" type="button" onclick="clickhandler();">Drop</button>
 			<button id="provideResponse" type="button" onclick="clickhandler();">Provide Response</button>
-			<label><input type="checkbox" id="interceptToggle" value="Intercept" onclick="toggler();">Intercept</label>
+			<label style="border: 2px solid #eaeaea; padding: 15px 32px;"><input type="checkbox" id="interceptToggle" value="Intercept" onclick="toggler();">Intercept</label>
 			<button id="menu" type="button">Action</button>
 			<br>
 			<div id="endpointIndicator"></div>
-			<br>
 			<br>
 
 			<textarea id="proxybuffer" name="proxybuffer" rows="40"></textarea>
 		</div>
 
 		<div id="historyTab" class="tabcontent">
-			<table style="display:none;" border="1" id="historyTable">
+			<table id="historyTable" border="0" cellpadding="0" cellspacing="0" class="JPadding JColResizer overflowContainer">
 				<tr id="historyHeader">
 				</tr>
 			</table>

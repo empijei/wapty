@@ -57,9 +57,8 @@ waptyServer.onmessage = function(event){
 						}
 						tmpHistory = {}
 						historyTable.style.display='block';
-						//FIXME this doesn't work. Why?
 						$("#historyTable").colResizable({resizeMode:'overflow'});
-						$("#historyTable").tablesorter(); 
+						//$("#historyTable").tablesorter(); 
 					}
 					var stringID=""+metaData.id;
 					console.log("Got metaData for id " + stringID);

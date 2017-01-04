@@ -1,7 +1,8 @@
 Stage 1:
-Serve the certificates on a specific fake host/patht
+Add internal router, fix recursive connect
+Add intercept checker in the right sposts
+Serve the certificates on a specific fake host/path
 test the request duration limit to servers
-Show host and port for request in Proxy UI
 Unit testing
 Default to bare sockets on error
 Look for fixmes and todos in the code
@@ -10,6 +11,7 @@ Improve README
 Add req ID to editor and reject unexpected requests
 Move all constant strings to actual constants
 Fix the mess in ui controller (channels can be used as keys in maps, use them)
+Fix colresizable problems
 Make ui operations unblocking and detect ui freezes/deaths. If channel is full and not being read, kill the client.
 UI work on problem "problem" of duplicate receives event
 UI sortable resizable table
