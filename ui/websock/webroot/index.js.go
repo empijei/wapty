@@ -64,7 +64,7 @@ waptyServer.onmessage = function(event){
 							resizeMode:'overflow'});
 						//$("#historyTable").tablesorter(); 
 					}
-					var stringID=""+metaData.id;
+					var stringID=""+metaData.Id;
 					console.log("Got metaData for id " + stringID);
 					if (stringID in tmpHistory){
 						tmp = tmpHistory[stringID]
@@ -73,7 +73,9 @@ waptyServer.onmessage = function(event){
 								tmp[key].innerText=metaData[key]
 							}
 						}
-						delete tmpHistory[stringID]
+						//FIXME this is commented because it looks like the page
+						//receives the same metadata multiple times.
+						//delete tmpHistory[stringID]
 					}else{
 						var row=historyTable.insertRow(1);
 						var tmp={}

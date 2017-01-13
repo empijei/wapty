@@ -1,22 +1,23 @@
 Stage 1:
+Make plugin behave as package testing, just plug the stuff
 Add internal router, fix recursive connect
 Add intercept checker in the right spots
+Allow the user to change the destination endpoint
 Serve the certificates on a specific fake host/path
 test the request duration limit to servers
-Unit testing
 Default to bare sockets on error
 Look for fixmes and todos in the code
+Unit testing
 Add/Update Doc
 Improve README
 Add req ID to editor and reject unexpected requests
 Move all constant strings to actual constants
-Fix the mess in ui controller (channels can be used as keys in maps, use them)
-Fix colresizable problems
+Fix colResizable problems
 Make ui operations unblocking and detect ui freezes/deaths. If channel is full and not being read, kill the client.
 Send the whole status on ui connect
 UI work on problem "problem" of duplicate receives event
+UI show req/res on click on history row
 UI sortable resizable table
-UI improve history tab. Sort and show details.
 UI Sanitize metadata server-side
 UI autodetect changes in proxybuffer and merge the two "forward" buttons
 UI show already pending request/response upon connection
@@ -28,8 +29,8 @@ Publish
 Stage 2:
 Add Save/Load
 Add Scoping
-Add History filter
 Add Repeater
+Add History filter
 Add cURL converter
 Add Intruder
 Add AutoEdit
