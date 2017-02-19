@@ -1,0 +1,133 @@
+<html lang="en">
+			<head>
+						<title>Wapty</title>
+						<meta charset="utf-8">
+						<meta name="viewport" content="width=device-width, initial-scale=1">
+						<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">-->
+						<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cyborg/bootstrap.min.css">-->
+						<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>-->
+						<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>-->
+						<link rel="stylesheet" href="/bootstrap.min.css">
+						<script src="/jquery.min.js"></script>
+						<script src="/bootstrap.min.js"></script>
+						<style>
+.div-inline{
+			display:inline-block;
+}
+textarea: {
+    color: white;
+    background-color: black;
+}
+						</style>
+						<!--TODO
+.tab-pane {
+    border-left: 1px solid #808080;
+    border-right: 1px solid #808080;
+    border-bottom: 1px solid #808080;
+    border-radius: 0px 0px 5px 5px;
+    padding: 10px;
+				}
+						-->
+			</head>
+			<body>
+						<div class="container-fluid">
+									<br>
+									<ul class="nav nav-tabs">
+												<li><a data-toggle="tab" href="#target">Target</a></li>
+												<li class="active"><a data-toggle="tab" href="#proxy">Proxy</a></li>
+												<li><a data-toggle="tab" href="#repeater">Repeater</a></li>
+									</ul>
+
+									<div class="tab-content">
+												<div id="target" class="tab-pane fade">
+															<h3>Map/scope</h3>
+															<p>Some content.</p>
+												</div>
+												<div id="proxy" class="tab-pane fade in active">
+															<!--Proxy stuff-->
+															<div class="container-fluid">
+																		<br>
+																		<ul class="nav nav-tabs">
+																					<li class="active"><a data-toggle="tab" href="#intercept">Intercept</a></li>
+																					<li><a data-toggle="tab" href="#httphistory">HTTP History</a></li>
+																		</ul>
+																		<div class="tab-content">
+																					<div id="intercept" class="tab-pane fade in active">
+																								<br>
+																								<!--Intercept stuff-->
+																								<button type="button" id="forwardOriginal" onclick="clickhandler();" class="btn btn-default">Forward Original</button>
+																								<button type="button" id="forwardModified" onclick="clickhandler();" class="btn btn-default">Forward Modified</button>
+																								<button type="button" id="drop" onclick="clickhandler();" class="btn btn-default">Drop</button>
+																								<button type="button" id="provideResponse" onclick="clickhandler();" class="btn btn-default">Provide Response</button>
+																								<!--<button type="button" class="btn btn-danger">Intercept is off</button>-->
+																								<button type="button" id="interceptToggle" onclick="toggler();" class="btn btn-danger">Intercept is off</button>
+																								<div class="dropdown div-inline">
+																											<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Action
+																														<span class="caret"></span></button>
+																											<ul class="dropdown-menu">
+																														<li><a href="#">Send to Repeater</a></li>
+																											</ul>
+																								</div>
+																								<div class="form-group">
+																											<br>
+																											<label id="endpointIndicator" for="proxybuffer">From: http://foo.bar</label>
+																											<textarea id="proxybuffer" class="form-control" style="background-color:#272b30; color:#c8c8c8;" rows="35%" id="proxybuf"></textarea>
+																								</div>
+																								<!--/Intercept stuff-->
+																					</div>
+																					<div id="httphistory" class="tab-pane fade">
+																								<!--HTTP History Stuff-->
+
+
+  <table class="table table-hover table-striped">
+    <thead>
+      <tr id="historyHeader">
+									<!--
+									<th> Id     </th>
+									<th> Host   </th>
+									<th> Method </th>
+									<th> Path   </th>
+									<th> Params </th>
+									<th> Edited </th>
+									<th> Status </th>
+									<th> Length </th>
+									<th> Time   </th>
+									-->
+      </tr>
+    </thead>
+    <tbody id="historyTbody">
+    </tbody>
+  </table>
+
+
+																								<!--/HTTP History Stuff-->
+																					</div>
+																		</div>
+															</div>
+															<!--/Proxy stuff-->
+												</div>
+												<div id="repeater" class="tab-pane fade">
+															<h3>Tabs/list</h3>
+															<p>Some content in menu 2.</p>
+
+												</div>
+									</div>
+						</div>
+		<SCRIPT src="/index.js"></SCRIPT>
+			</body>
+</html>
+
+  <!--<table class="table table-striped table-hover">-->
+<!--<thead>-->
+		<!--<tr>-->
+				<!--<th>Firstname</th>-->
+				<!--<th>Lastname</th>-->
+				<!--<th>Email</th>-->
+		<!--</tr>-->
+<!--</thead>-->
+<!--<tbody onclick=console.log(event.target.parentNode.id)>-->
+		<!--<tr id="foo"  >-->
+				<!--<td>John</td>-->
+				<!--<td>Doe</td>-->
+				<!--<td>john@example.com</td>-->
+		<!--</tr>-->

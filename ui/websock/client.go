@@ -100,12 +100,10 @@ func (c *Client) listenRead() {
 			var msg ui.Command
 			//HOLY SMOKES THIS DOES NOT SUPPORT MULTIPLE FRAMES
 			//Are you serious? https://github.com/golang/go/issues/7632
-			//This https://github.com/gorilla/websocket could be a solution
 			//Unmarshal accepts a []byte instead of an io.Reader() so
 			//that prevents an easy fix for this problem without refactoring
 			//and use a json.NewDecoder(io.Reader) instead of Unmarshal([]byte,...)
 			//
-			//The POST /edit endpoint will be used until I think of a better workaround
 			//err := websocket.JSON.Receive(c.ws, &msg)
 			err := dec.Decode(&msg)
 			if err == io.EOF {

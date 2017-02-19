@@ -1,10 +1,3 @@
-package webroot
-
-func init() {
-	webFiles["index.js"] = indexJS
-}
-
-const indexJS = `
 var intercept = {
 	EDITORCHANNEL: "proxy/intercept/editor",
 	SETTINGSCHANNEL: "proxy/intercept/options",
@@ -22,8 +15,9 @@ waptyServer.onopen = function(event){
 }
 
 //scope this
-var tmpHistory = null
-var historyTable = document.getElementById("historyTable");
+var tmpHistory = null;
+var historyTbody = document.getElementById("historyTbody");
+var interceptOn = false;
 
 waptyServer.onmessage = function(event){
 	//	console.log(event.data);
@@ -40,7 +34,17 @@ waptyServer.onmessage = function(event){
 		case intercept.SETTINGSCHANNEL:
 			switch (msg.Action){
 				case "intercept":
-					document.getElementById("interceptToggle").checked = msg.Args[0] === "true";
+					console.log(msg);
+					btn = document.getElementById("interceptToggle");
+					if (msg.Args[0] === "true"){
+						btn.className="btn btn-success";
+						btn.innerText="Intercept is on ";
+						interceptOn = true;
+					}else{
+						btn.className="btn btn-danger";
+						btn.innerText="Intercept is off";
+						interceptOn = false;
+					}
 			}
 			break;
 		case intercept.HISTORYCHANNEL:
@@ -56,13 +60,6 @@ waptyServer.onmessage = function(event){
 							}
 						}
 						tmpHistory = {}
-						historyTable.style.display='block';
-						$("#historyTable").colResizable({
-							fixed:false,
-							draggingClass:"dragging",
-							liveDrag:true,
-							resizeMode:'overflow'});
-						//$("#historyTable").tablesorter(); 
 					}
 					var stringID=""+metaData.Id;
 					console.log("Got metaData for id " + stringID);
@@ -77,7 +74,7 @@ waptyServer.onmessage = function(event){
 						//receives the same metadata multiple times.
 						//delete tmpHistory[stringID]
 					}else{
-						var row=historyTable.insertRow(1);
+						var row=historyTbody.insertRow(-1);
 						var tmp={}
 						for (var key in metaData) {
 							if (metaData.hasOwnProperty(key)) {
@@ -196,7 +193,7 @@ function toggler(){
 	var msg = {
 		Action: "intercept",
 		Channel: intercept.SETTINGSCHANNEL,
-		Args: [""+document.getElementById("interceptToggle").checked]
+		Args: [""+!interceptOn]
 	}
 	waptyServer.send(JSON.stringify(msg));
 }
@@ -208,4 +205,3 @@ function fetchHistory(id){
 	}
 	waptyServer.send(JSON.stringify(msg));
 }
-`

@@ -1,10 +1,3 @@
-package webroot
-
-func init() {
-	webFiles["index.css"] = indexCSS
-}
-
-const indexCSS = `
 body {
 	font-family: "Lato", sans-serif;
 	background-color:#1c1c1c;
@@ -105,4 +98,3 @@ button {
     background: rgba(0,0,0,0.8); 
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
 }
-`

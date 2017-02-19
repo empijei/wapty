@@ -9,10 +9,18 @@ var Plugin PlugHandler
 
 type PlugHandler struct {
 	sync.Mutex
-	used               bool
-	preModifyRequest   RequestModifier
-	postModifyRequest  RequestModifier
-	preModifyResponse  ResponseModifier
+	used bool
+	//Called if request is intercepted and before the buffer is sento to the UI for editing
+	preModifyRequest RequestModifier
+	//called on every request before preModifyRequest
+	alwaysModifyRequest RequestModifier
+	//Called if request is intercepted and after the buffer has been modified
+	postModifyRequest RequestModifier
+	//Called if response is intercepted and before the buffer is sento to the UI for editing
+	preModifyResponse ResponseModifier
+	//called on every response before preModifyRequest
+	alwaysModifyRespone ResponseModifier
+	//Called if response is intercepted and after the buffer has been modified
 	postModifyResponse ResponseModifier
 }
 type RequestModifier func(*http.Request) (*http.Request, error)

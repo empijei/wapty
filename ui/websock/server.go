@@ -2,12 +2,10 @@
 package websock
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 
 	"github.com/empijei/Wapty/ui"
-	"github.com/empijei/Wapty/ui/websock/webroot"
 
 	"golang.org/x/net/websocket"
 )
@@ -139,21 +137,21 @@ func MainLoop() {
 	go server.Listen()
 
 	go writeLoop(server)
-	// static files
 
-	webroot.LoadRoutes()
+	// static files
+	http.Handle("/", http.FileServer(assetFS()))
 
 	//This is a dirty workaround for the websocket package not reensembling frames
-	http.HandleFunc("/edit", func(rw http.ResponseWriter, req *http.Request) {
-		decoder := json.NewDecoder(req.Body)
-		defer func() { _ = req.Body.Close() }()
-		var cmd ui.Command
-		err := decoder.Decode(&cmd)
-		if err != nil {
-			log.Println(err)
-		}
-		server.msgReceived(&cmd)
-	})
+	//http.HandleFunc("/edit", func(rw http.ResponseWriter, req *http.Request) {
+	//decoder := json.NewDecoder(req.Body)
+	//defer func() { _ = req.Body.Close() }()
+	//var cmd ui.Command
+	//err := decoder.Decode(&cmd)
+	//if err != nil {
+	//log.Println(err)
+	//}
+	//server.msgReceived(&cmd)
+	//})
 
 	log.Fatal(http.ListenAndServe(":8081", nil))
 

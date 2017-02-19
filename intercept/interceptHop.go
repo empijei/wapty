@@ -38,6 +38,7 @@ type Interceptor struct {
 
 //This is a mock RoundTrip used to intercept responses before they are forwarded by the proxy
 func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err error) {
+	//This first part is dedicated to the REQUESTS
 	//log.Println("Request read by proxy")
 	intercepted := intercept.Value()
 	//log.Println("Preprocessing...")
@@ -49,7 +50,21 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 		//TODO other errors
 		log.Println(err)
 	}
+	if Plugin.alwaysModifyRequest != nil {
+		req, err = Plugin.alwaysModifyRequest(req)
+		if err != nil {
+			//TODO
+			log.Println(err)
+		}
+	}
 	if intercepted {
+		if Plugin.preModifyRequest != nil {
+			req, err = Plugin.preModifyRequest(req)
+			if err != nil {
+				//TODO
+				log.Println(err)
+			}
+		}
 		var editedReq *http.Request
 		editedReq, res, err = editRequest(req, Id)
 		if err != nil {
@@ -60,6 +75,13 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 			req = editedReq
 			req.URL.Scheme = backUpURL.Scheme
 			req.URL.Host = backUpURL.Host
+		}
+		if Plugin.postModifyRequest != nil {
+			req, err = Plugin.postModifyRequest(req)
+			if err != nil {
+				//TODO
+				log.Println(err)
+			}
 		}
 	}
 
@@ -72,8 +94,9 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 		return
 	}
 
+	//This second part works on the RESPONSES
 	//Perform the request, but disable compressing.
-	//The gzip encoding will be used by the http package
+	//The gzip encoding should be used by the http package
 	req.Header.Del("Accept-Encoding")
 	res, err = ri.wrappedRT.RoundTrip(req)
 	if err != nil {

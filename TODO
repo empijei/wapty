@@ -1,4 +1,5 @@
 Stage 1:
+move inits to declarations where possible
 Make plugin behave as package testing, just plug the stuff
 Add internal router, fix recursive connect
 Add intercept checker in the right spots
