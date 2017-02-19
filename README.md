@@ -11,14 +11,16 @@ on your browser set localhost:8080 as proxy
 
 Then visit localhost:8081
 
+Root certs are in `$HOME/.wapty`
+
 ### Currently available fetaures:
 
 #### Proxy > Intercept
-ATM it is not possible to change the host on the fronted, WIP: showing backend data to frontend
+ATM it is not possible to change the host on the fronted, Working on it.
 ![Intercept Tab](/pics/intercept.png "Intercept")
 
 #### Proxy > HTTP History
-Clicking on a row shows only the original request/response on the frontend. WIP: showing backend data to frontend
+Clicking on a row shows only the original request/response on the frontend. Working on it.
 ![Hist Tab](/pics/history.png "History")
 
 (Yes, I know the page is slightly bigger than the viewport and the layout is not resizable working on that too)

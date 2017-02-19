@@ -1,5 +1,6 @@
 Stage 1:
 move inits to declarations where possible
+releasing the intercept should forward all pending requests
 Make plugin behave as package testing, just plug the stuff
 Add internal router, fix recursive connect
 Add intercept checker in the right spots
@@ -13,11 +14,9 @@ Add/Update Doc
 Improve README
 Add req ID to editor and reject unexpected requests
 Move all constant strings to actual constants
-Fix colResizable problems
 Make ui operations unblocking and detect ui freezes/deaths. If channel is full and not being read, kill the client.
 Send the whole status on ui connect
 UI work on problem "problem" of duplicate receives event
-UI show req/res on click on history row
 UI sortable resizable table
 UI Sanitize metadata server-side
 UI autodetect changes in proxybuffer and merge the two "forward" buttons
@@ -25,7 +24,6 @@ UI show already pending request/response upon connection
 UI error log
 UI auto-open ui in browser on launch
 profile the code, try to find limit-cases
-Publish
 
 Stage 2:
 Add Save/Load
