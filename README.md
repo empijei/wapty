@@ -7,10 +7,23 @@ go run wapty.go
 ```
 on your browser set localhost:8080 as proxy
 
-BEWARE: ignore proxy for localhost
+**_BEWARE_**: ignore proxy for localhost
 
 Then visit localhost:8081
 
-Scroll down for history, open console for metadata. (No UI yet for that sorry)
+### Currently available fetaures:
 
-Enable interceptor, have fun, report bugs.
+#### Proxy > Intercept
+ATM it is not possible to change the host on the fronted, WIP: showing backend data to frontend
+![Intercept Tab](/pics/intercept.png "Intercept")
+
+#### Proxy > HTTP History
+Clicking on a row shows only the original request/response on the frontend. WIP: showing backend data to frontend
+![Hist Tab](/pics/history.png "History")
+
+(Yes, I know the page is slightly bigger than the viewport and the layout is not resizable working on that too)
+
+### Want to contribute?
+If you do please [email me](mailto:empijei@gmail.com), I can provide some insights and planning for what's coming.
+
+=)
