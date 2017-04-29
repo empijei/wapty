@@ -23,6 +23,7 @@ UI autodetect changes in proxybuffer and merge the two "forward" buttons
 UI show already pending request/response upon connection
 UI error log
 UI auto-open ui in browser on launch
+UI monospace textareas
 profile the code, try to find limit-cases
 
 Stage 2:
