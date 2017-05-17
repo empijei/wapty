@@ -54,5 +54,10 @@ func handleGo(cmd *ui.Command) {
 		log.Println(err)
 		return
 	}
+	_ = res
 	//TODO send response
+	//BOOKMARK
+	uiRepeater.Send(
+		ui.Command{},
+	)
 }
