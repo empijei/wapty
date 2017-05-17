@@ -21,8 +21,18 @@ func NewBase16CodecC(in string) *Base16 {
 }
 
 func (b *Base16) nextValid() {
+	//FIXME ignore a single character followed by EOF or invalid
+	validseen := 0
 	for b.pos < len(b.input) &&
-		!b.isValid(rune(b.input[b.pos])) {
+		validseen < 2 {
+		if b.isValid(rune(b.input[b.pos])) {
+			validseen++
+			if validseen == 2 {
+				b.pos -= 2
+			}
+		} else {
+			validseen = 0
+		}
 		b.pos++
 	}
 }
@@ -30,6 +40,9 @@ func (b *Base16) nextValid() {
 func (b *Base16) acceptRun() {
 	for b.pos < len(b.input) && b.isValid(rune(b.input[b.pos])) {
 		b.pos++
+	}
+	if (b.pos-b.cursor)%2 != 0 {
+		b.pos--
 	}
 	//TODO: backup if odd pos-cur
 }
