@@ -47,3 +47,8 @@ func isStringPrintable(s string) bool {
 	}
 	return true
 }
+
+func SmartDecode(input string) (output string, isPrintable bool) {
+	//loop through the available CodecCs and determine which one is the best one
+	panic("Not implemented yet")
+}

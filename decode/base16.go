@@ -99,8 +99,3 @@ func (b *Base16) Check() (acceptability float64) {
 	}
 	return float64(c) / float64(tot)
 }
-
-func SmartDecode(input string) (output string, isPrintable bool) {
-	//loop through the available CodecCs and determine which one is the best one
-	panic("Not implemented yet")
-}
