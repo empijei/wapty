@@ -122,7 +122,7 @@ func Disconnect(u *UI) {
 	delete(oChans.list, u.id)
 }
 
-func MainLoop() {
+func ControllerMainLoop() {
 	for cmd := range iChan {
 		subsMutex.RLock()
 		for _, out := range subScriptions[cmd.Channel] {

@@ -1,11 +1,9 @@
 //websock will handle all clients that are connected using the websocket server.
-package websock
+package ui
 
 import (
 	"log"
 	"net/http"
-
-	"github.com/empijei/Wapty/ui"
 
 	"golang.org/x/net/websocket"
 )
@@ -16,7 +14,7 @@ type Server struct {
 	clients   map[int]*Client
 	addCh     chan *Client
 	delCh     chan *Client
-	sendAllCh chan *ui.Command
+	sendAllCh chan *Command
 	doneCh    chan bool
 	errCh     chan error
 }
@@ -26,7 +24,7 @@ func NewServer(pattern string) *Server {
 	clients := make(map[int]*Client)
 	addCh := make(chan *Client)
 	delCh := make(chan *Client)
-	sendAllCh := make(chan *ui.Command)
+	sendAllCh := make(chan *Command)
 	doneCh := make(chan bool)
 	errCh := make(chan error)
 
@@ -49,7 +47,7 @@ func (s *Server) DelClient(c *Client) {
 	s.delCh <- c
 }
 
-func (s *Server) SendAllClients(msg *ui.Command) {
+func (s *Server) SendAllClients(msg *Command) {
 	s.sendAllCh <- msg
 }
 
@@ -61,14 +59,14 @@ func (s *Server) Err(err error) {
 	s.errCh <- err
 }
 
-func (s *Server) sendAllClients(msg *ui.Command) {
+func (s *Server) sendAllClients(msg *Command) {
 	for _, c := range s.clients {
 		c.Write(msg)
 	}
 }
 
-func (s *Server) msgReceived(msg *ui.Command) {
-	ui.Receive(*msg)
+func (s *Server) msgReceived(msg *Command) {
+	Receive(*msg)
 }
 
 // Listen and serve.
@@ -125,7 +123,7 @@ func (s *Server) Listen() {
 }
 
 func writeLoop(s *Server) {
-	oChan := ui.Connect()
+	oChan := Connect()
 	for msg := range oChan.Channel() {
 		s.SendAllClients(&msg)
 	}
@@ -145,7 +143,7 @@ func MainLoop() {
 	//http.HandleFunc("/edit", func(rw http.ResponseWriter, req *http.Request) {
 	//decoder := json.NewDecoder(req.Body)
 	//defer func() { _ = req.Body.Close() }()
-	//var cmd ui.Command
+	//var cmd Command
 	//err := decoder.Decode(&cmd)
 	//if err != nil {
 	//log.Println(err)

@@ -12,7 +12,7 @@
 // webroot/tablesorter.min.js
 // DO NOT EDIT!
 
-package websock
+package ui
 
 import (
 	"github.com/elazarl/go-bindata-assetfs"
