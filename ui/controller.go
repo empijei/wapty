@@ -71,6 +71,7 @@ func Subscribe(channel string) *Subscription {
 	return &out
 }
 
+//Sends the command and sets the channel with the value set in the subscription
 func (s *Subscription) Send(c Command) {
 	c.Channel = s.channel
 	send(c)

@@ -2,6 +2,7 @@ package repeat
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"log"
 	"strconv"
@@ -9,22 +10,26 @@ import (
 	"github.com/empijei/Wapty/ui"
 )
 
-func RepeaterLoop() {
-	//BOOKMARK
-	select {
-	case cmd := <-uiRepeater.DataChannel:
-		switch action := parseRepeaterAction(cmd.Action); action {
-		case CREATE:
-			r := NewRepeater()
-			status.Add(r)
-		case GO:
-			handleGo(&cmd)
-		case GET:
-		default:
-			log.Println("Unknown repeater action: " + cmd.Action)
-		}
-		//TODO case <-done:
+var done = make(chan struct{})
 
+func RepeaterLoop() {
+	for {
+		select {
+		case cmd := <-uiRepeater.DataChannel:
+			switch action := parseRepeaterAction(cmd.Action); action {
+			case CREATE:
+				r := NewRepeater()
+				status.Add(r)
+			case GO:
+				handleGo(&cmd)
+			case GET:
+				handleGet(&cmd)
+			default:
+				log.Println("Unknown repeater action: " + cmd.Action)
+			}
+		case <-done:
+			return
+		}
 	}
 }
 
@@ -59,5 +64,46 @@ func handleGo(cmd *ui.Command) {
 	//BOOKMARK
 	uiRepeater.Send(
 		ui.Command{},
+	)
+}
+
+func handleGet(cmd *ui.Command) {
+	if len(cmd.Args) != 2 {
+		//TODO
+		log.Println("Wrong number of parameters")
+		return
+	}
+	ri, err := strconv.Atoi(cmd.Args[0])
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	itemn, err := strconv.Atoi(cmd.Args[1])
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	status.RLock()
+	defer status.RUnlock()
+	if len(status.Repeats) <= ri {
+		log.Println("Repeater out of range")
+		return
+	}
+	r := status.Repeats[ri]
+	if len(r.history) <= itemn {
+		log.Println("Repeater item out of range")
+		return
+	}
+	repitem, err := json.Marshal(r.history[itemn])
+	if err != nil {
+		log.Println("Error while marshaling repeat item")
+		return
+	}
+	uiRepeater.Send(
+		ui.Command{
+			Action:  GET.String(),
+			Args:    cmd.Args,
+			Payload: repitem,
+		},
 	)
 }
