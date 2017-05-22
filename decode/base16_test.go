@@ -24,6 +24,16 @@ var Base16Test = []struct {
 		"fooba" + genInvalid(3) + "fooba" + genInvalid(1),
 		false,
 	},
+	{
+		"666F6F62617.!666F6F62617.",
+		"fooba" + genInvalid(3) + "fooba" + genInvalid(2),
+		false,
+	},
+	{
+		"666F6F62617.!666F6F62617.8",
+		"fooba" + genInvalid(3) + "fooba" + genInvalid(3),
+		false,
+	},
 }
 
 func TestB16Decode(t *testing.T) {
