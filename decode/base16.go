@@ -93,8 +93,8 @@ func (b *Base16) Check() (acceptability float64) {
 			c++
 		}
 	}
-	//Heuristic to consider uneven strings as less likely to be velid hex
-	if tot%2 == 0 {
+	//Heuristic to consider uneven strings as less likely to be valid hex
+	if tot%2 != 0 {
 		tot++
 	}
 	return float64(c) / float64(tot)
