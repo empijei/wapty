@@ -4,10 +4,13 @@ import (
 	"bytes"
 	"crypto/tls"
 	"io"
+	"log"
 	"net"
 	"sync"
 	"time"
 )
+
+var defaultTimeout time.Duration = 10 * time.Second
 
 type RepeatItem struct {
 	Host     string
@@ -19,10 +22,13 @@ type RepeatItem struct {
 type Repeater struct {
 	m       sync.Mutex
 	history []RepeatItem
+	timeout time.Duration
 }
 
 func NewRepeater() *Repeater {
-	return &Repeater{}
+	return &Repeater{
+		timeout: defaultTimeout,
+	}
 }
 
 func (r *Repeater) Repeat(buf io.Reader, host string, _tls bool) (res io.Reader, err error) {
@@ -40,21 +46,27 @@ func (r *Repeater) Repeat(buf io.Reader, host string, _tls bool) (res io.Reader,
 	if err != nil {
 		return
 	}
-	//TODO check this works
-	_ = conn.SetDeadline(time.Now().Add(10 * time.Second))
+	defer func() { _ = conn.Close() }()
+	_ = conn.SetDeadline(time.Now().Add(r.timeout))
 	resbuf := bytes.NewBuffer(nil)
 	errWrite := make(chan error)
 
 	go func() {
+		log.Println("Transmitting the request")
 		_, errw := io.Copy(conn, teebuf)
 		errWrite <- errw
+		log.Println("Request transmitted")
 	}()
 
+	log.Println("Reading the response")
 	_, err = io.Copy(resbuf, conn)
+	log.Println("Response read")
 	if tmperr := <-errWrite; tmperr != nil {
 		return nil, tmperr
 	}
-	//TODO add savedreq to repeater history
+	if err != nil {
+		return nil, err
+	}
 	r.history = append(r.history, RepeatItem{Request: savedReq.Bytes(), Response: resbuf.Bytes()})
-	return
+	return resbuf, nil
 }
