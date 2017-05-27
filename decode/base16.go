@@ -6,6 +6,12 @@ import (
 	"strings"
 )
 
+const b16name = "b16"
+
+func init() {
+	addCodecC(b16name, codecConstructor(NewBase16CodecC))
+}
+
 type Base16 struct {
 	input  string
 	cursor int
@@ -13,11 +19,15 @@ type Base16 struct {
 	output *bytes.Buffer
 }
 
-func NewBase16CodecC(in string) *Base16 {
+func NewBase16CodecC(in string) CodecC {
 	return &Base16{
 		input:  in,
 		output: bytes.NewBuffer(make([]byte, 0, hex.DecodedLen(len(in)))),
 	}
+}
+
+func (b *Base16) String() string {
+	return b16name
 }
 
 func (b *Base16) nextValid() {

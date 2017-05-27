@@ -1,0 +1,13 @@
+base32
+gzip
+url
+binary
+octal
+
+html entity https://en.wikipedia.org/wiki/Character_encodings_in_HTML
+A numeric character reference in HTML refers to a character by its Universal Character Set/Unicode code point, and uses the format
+&#nnnn;
+or
+&#xhhhh;
+where nnnn is the code point in decimal form, and hhhh is the code point in hexadecimal form. The x must be lowercase in XML documents. The nnnn or hhhh may be any number of digits and may include leading zeros. The hhhh may mix uppercase and lowercase, though uppercase is the usual style.
+
