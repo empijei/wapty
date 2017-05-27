@@ -73,6 +73,6 @@ func SmartDecode(input string) (c CodecC) {
 			c = tmp
 		}
 	}
-	log.Printf("Smart Decoding, selected: %s", c.String())
+	log.Printf("Smart Decoding, selected: %s with likelyhood==%d%%", c.String(), int(curvalue*100))
 	return
 }

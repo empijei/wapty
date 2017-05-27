@@ -8,28 +8,41 @@ import (
 	"strings"
 )
 
-func MainStandalone(codec string, encode bool) {
+func MainStandalone(codeclist string, encode bool) {
 	buf := takeInput()
-	var c CodecC
-	if codec == "smart" {
-		if encode {
-			fmt.Fprintf(os.Stderr, "Cannot 'smart' encode, please specify a codec")
-			os.Exit(2)
-		}
-		c = SmartDecode(buf)
-	} else {
-		var names []string
-		for name, cc := range codecs {
-			if name == codec {
-				c = cc(buf)
+	sequence := strings.Split(codeclist, ",")
+	for i, codec := range sequence {
+		var c CodecC
+		if codec == "smart" {
+			if encode {
+				fmt.Fprintf(os.Stderr, "Cannot 'smart' encode, please specify a codec")
+				os.Exit(2)
+			}
+			c = SmartDecode(buf)
+		} else {
+			var names []string
+			for name, cc := range codecs {
+				if name == codec {
+					c = cc(buf)
+				}
+			}
+			if c == nil {
+				fmt.Fprintf(os.Stderr, "Codec not found: %s. Supported codec are: %s", codec, strings.Join(names, ", "))
+				os.Exit(2)
 			}
 		}
-		if c == nil {
-			fmt.Fprintf(os.Stderr, "Codec not found: %s. Supported codec are: %s", codec, strings.Join(names, ", "))
-			os.Exit(2)
+		fmt.Fprintf(os.Stderr, "Codec: %s\n", c.String())
+		if encode {
+			buf = c.Encode()
+		} else {
+			buf, _ = c.Decode()
+		}
+		//This is to avoid printing twice the final result
+		if i < len(sequence)-2 {
+			fmt.Fprintln(os.Stderr, buf)
 		}
 	}
-	fmt.Printf(c.Decode())
+	fmt.Printf(buf)
 }
 
 func takeInput() string {
@@ -38,7 +51,7 @@ func takeInput() string {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error while connecting to stdin: %s\n", err.Error())
 	}
-	if err == nil && stdininfo.Mode()&os.ModeNamedPipe == 0 {
+	if err == nil && stdininfo.Mode()&os.ModeCharDevice == 0 {
 		//The input is a pipe, so I assume it is what I'm going to decode/encode
 		fmt.Fprintln(os.Stderr, "Reading from stdin...")
 		buf, err := ioutil.ReadAll(os.Stdin)
@@ -52,6 +65,6 @@ func takeInput() string {
 			fmt.Fprintln(os.Stderr, "Didn't find anything to decode/encode, exiting...")
 			os.Exit(2)
 		}
-		return os.Args[0]
+		return args[0]
 	}
 }
