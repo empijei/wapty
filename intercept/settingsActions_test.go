@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/empijei/Wapty/ui"
+	"github.com/empijei/wapty/ui"
 )
 
 var loopTests = []struct {

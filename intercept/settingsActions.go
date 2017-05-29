@@ -3,7 +3,7 @@ package intercept
 import (
 	"log"
 
-	"github.com/empijei/Wapty/ui"
+	"github.com/empijei/wapty/ui"
 )
 
 //String used to recognize commands directed to this module

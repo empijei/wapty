@@ -6,9 +6,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/empijei/Wapty/decode"
-	"github.com/empijei/Wapty/intercept"
-	"github.com/empijei/Wapty/ui"
+	"github.com/empijei/wapty/decode"
+	"github.com/empijei/wapty/intercept"
+	"github.com/empijei/wapty/ui"
 )
 
 var mode = flag.String("mode", "proxy", "Selects the mode Wapty should be started on, available values are: proxy, decode")

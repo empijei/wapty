@@ -12,8 +12,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/empijei/Wapty/mitm"
-	"github.com/empijei/Wapty/ui"
+	"github.com/empijei/wapty/mitm"
+	"github.com/empijei/wapty/ui"
 )
 
 //Not used yet

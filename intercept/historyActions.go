@@ -1,6 +1,6 @@
 package intercept
 
-import "github.com/empijei/Wapty/ui"
+import "github.com/empijei/wapty/ui"
 
 //String used to recognize commands directed to this module
 const HISTORYCHANNEL = "proxy/httpHistory"

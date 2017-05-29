@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/empijei/Wapty/ui"
+	"github.com/empijei/wapty/ui"
 )
 
 type paramsType struct {

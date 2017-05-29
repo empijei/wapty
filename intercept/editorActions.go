@@ -3,7 +3,7 @@ package intercept
 import (
 	"log"
 
-	"github.com/empijei/Wapty/ui"
+	"github.com/empijei/wapty/ui"
 )
 
 var uiEditor *ui.Subscription

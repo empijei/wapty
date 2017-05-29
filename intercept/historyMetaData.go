@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/empijei/Wapty/ui"
+	"github.com/empijei/wapty/ui"
 )
 
 type ReqRespMetaData struct {

@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/empijei/Wapty/ui"
+	"github.com/empijei/wapty/ui"
 )
 
 var status History

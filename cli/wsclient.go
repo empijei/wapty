@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/empijei/Wapty/intercept"
-	"github.com/empijei/Wapty/ui"
+	"github.com/empijei/wapty/intercept"
+	"github.com/empijei/wapty/ui"
 	"golang.org/x/net/websocket"
 )
 

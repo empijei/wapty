@@ -1,7 +1,7 @@
 package repeat
 
 import (
-	"github.com/empijei/Wapty/ui"
+	"github.com/empijei/wapty/ui"
 )
 
 var uiRepeater *ui.Subscription

@@ -7,7 +7,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/empijei/Wapty/ui"
+	"github.com/empijei/wapty/ui"
 )
 
 var done = make(chan struct{})
