@@ -11,6 +11,11 @@ import (
 	"github.com/empijei/wapty/ui"
 )
 
+var (
+	Version string
+	Build   string
+)
+
 var mode = flag.String("mode", "proxy", "Selects the mode Wapty should be started on, available values are: proxy, decode")
 var encode = flag.Bool("encode", false, "In decode mode sets the decoder to an encoder instead")
 var codec = flag.String("codec", "smart", "In decode mode sets the decoder/encoder codec. \n"+

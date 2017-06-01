@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 
+	rice "github.com/GeertJohan/go.rice"
+
 	"golang.org/x/net/websocket"
 )
 
@@ -137,7 +139,8 @@ func MainLoop() {
 	go writeLoop(server)
 
 	// static files
-	http.Handle("/", http.FileServer(assetFS()))
+	//http.Handle("/", http.FileServer(assetFS()))
+	http.Handle("/", http.FileServer(rice.MustFindBox("webroot").HTTPBox()))
 
 	//This is a dirty workaround for the websocket package not reensembling frames
 	//http.HandleFunc("/edit", func(rw http.ResponseWriter, req *http.Request) {
