@@ -20,6 +20,7 @@ func (h *Repeaters) Add(r *Repeater) {
 	h.Repeats = append(h.Repeats, r)
 }
 
+//FIXME
 func (h *Repeaters) Save() io.Reader {
 	b := bytes.NewBuffer(nil)
 	e := json.NewEncoder(b)

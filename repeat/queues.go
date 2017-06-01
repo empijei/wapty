@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/empijei/wapty/ui"
+	"github.com/empijei/wapty/ui/apis"
 )
 
 var done = make(chan struct{})
@@ -16,13 +17,13 @@ func RepeaterLoop() {
 	for {
 		select {
 		case cmd := <-uiRepeater.DataChannel:
-			switch action := parseRepeaterAction(cmd.Action); action {
-			case CREATE:
+			switch cmd.Action {
+			case apis.CREATE.String():
 				r := NewRepeater()
 				status.Add(r)
-			case GO:
+			case apis.GO.String():
 				handleGo(&cmd)
-			case GET:
+			case apis.GET.String():
 				handleGet(&cmd)
 			default:
 				log.Println("Unknown repeater action: " + cmd.Action)
@@ -101,7 +102,7 @@ func handleGet(cmd *ui.Command) {
 	}
 	uiRepeater.Send(
 		ui.Command{
-			Action:  GET.String(),
+			Action:  apis.GET.String(),
 			Args:    cmd.Args,
 			Payload: repitem,
 		},
