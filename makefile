@@ -11,16 +11,21 @@ LDFLAGS=-ldflags "-X main.Version=${VERSION} -X main.Build=${BUILD}"
 
 # Just build the wapty
 # TODO call gopherjs
-${BINARY}: rebind
+${BINARY}: buildjs rebind
 	# Building the executable.
 	go build ${LDFLAGS} -o ${BINARY}
 
 fast:
 	-rm ui/rice-box.go >& /dev/null #This will make rice use data that is on disk, creates a lighter executable
+	cd ui/gopherjs/ && gopherjs build -o ../webroot/gopherjs.js
 	go run ${LDFLAGS} *.go
 
 test:
 	go test -v ./...
+
+buildjs:
+	cd ui/gopherjs/ && gopherjs build -m -o ../webroot/gopherjs.js 
+	rm ui/webroot/gopherjs.js.map
 
 rebind:
 	# Cleaning and re-embedding assets
@@ -40,6 +45,8 @@ installdeps:
 	go get -u github.com/gopherjs/gopherjs
 
 clean:
+	# Cleaning all generated files
 	-rm ui/rice-box.go
+	-rm ui/webroot/gopherjs.js*
 	go clean
 	if [ -f ${BINARY} ] ; then rm ${BINARY} ; fi
