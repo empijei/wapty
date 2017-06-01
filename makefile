@@ -15,8 +15,10 @@ ${BINARY}: buildjs rebind
 	# Building the executable.
 	go build ${LDFLAGS} -o ${BINARY}
 
-fast:
-	-rm ui/rice-box.go >& /dev/null #This will make rice use data that is on disk, creates a lighter executable
+run:
+	# This will make rice use data that is on disk, creates a lighter executable
+	# and it is faster to build
+	-rm ui/rice-box.go >& /dev/null
 	cd ui/gopherjs/ && gopherjs build -o ../webroot/gopherjs.js
 	go run ${LDFLAGS} *.go
 
@@ -24,14 +26,16 @@ test:
 	go test -v ./...
 
 buildjs:
+	# Regenerating minified js
 	cd ui/gopherjs/ && gopherjs build -m -o ../webroot/gopherjs.js 
+	# Remove mappings
 	rm ui/webroot/gopherjs.js.map
 
 rebind:
 	# Cleaning and re-embedding assets
 	cd ui && rm rice-box.go >& /dev/null; rice embed-go
 
-install: installdeps rebind
+install: installdeps buildjs rebind
 	# Installing the executable
 	go install ${LDFLAGS}
 
