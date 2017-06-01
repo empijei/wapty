@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/empijei/wapty/ui"
+	"github.com/empijei/wapty/ui/apis"
 )
 
 var status History
@@ -92,7 +93,7 @@ func historyLoop() {
 		select {
 		case cmd := <-uiHistory.DataChannel:
 			switch cmd.Action {
-			case DUMP.String():
+			case apis.DUMP.String():
 				status.RLock()
 				dump, err := json.Marshal(status)
 				status.RUnlock()
@@ -102,7 +103,7 @@ func historyLoop() {
 				}
 				log.Printf("Dump: %s\n", dump)
 				uiHistory.Send(ui.Command{Action: "Dump", Payload: dump})
-			case FETCH.String():
+			case apis.FETCH.String():
 				uiHistory.Send(handleFetch(cmd))
 			}
 		case <-done:
@@ -120,7 +121,7 @@ func handleFetch(cmd ui.Command) ui.Command {
 		}
 		rr := status.getItem(uint(Id))
 		buf, err := json.Marshal(rr)
-		return ui.Command{Action: FETCH.String(), Payload: buf}
+		return ui.Command{Action: apis.FETCH.String(), Payload: buf}
 	} else {
 		log.Println("Missing argument for FETCH")
 		return ui.Command{Action: "Error", Args: []string{"Missing argument for FETCH"}}

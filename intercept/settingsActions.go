@@ -4,10 +4,8 @@ import (
 	"log"
 
 	"github.com/empijei/wapty/ui"
+	"github.com/empijei/wapty/ui/apis"
 )
-
-//String used to recognize commands directed to this module
-const SETTINGSCHANNEL = "proxy/intercept/options"
 
 func settingsLoop() {
 	for {
@@ -15,7 +13,7 @@ func settingsLoop() {
 		case cmd := <-uiSettings.DataChannel:
 			log.Println("Settings accessed")
 			switch cmd.Action {
-			case "intercept":
+			case apis.INTERCEPT.String():
 				uiSettings.Send(handleIntercept(cmd))
 			default:
 				//TODO send error?

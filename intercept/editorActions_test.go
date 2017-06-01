@@ -5,17 +5,18 @@ import (
 	"testing"
 
 	"github.com/empijei/wapty/ui"
+	"github.com/empijei/wapty/ui/apis"
 )
 
 type paramsType struct {
-	p   PayloadType
+	p   apis.PayloadType
 	cmd ui.Command
 	b   []byte
 }
 
 type outputType struct {
 	b []byte
-	e EditorAction
+	e apis.EditorAction
 }
 
 var editBufferTests = []struct {
@@ -37,7 +38,7 @@ func TestEditBuffer(t *testing.T) {
 			mockChan <- tt.in.cmd
 		}()
 		b, e := editBuffer(tt.in.p, tt.in.b, "https://thisisatest.com:443")
-		if bytes.Compare(b, tt.out.b) != 0 || e != tt.out.e {
+		if bytes.Compare(b, tt.out.b) != 0 || e != tt.out.e.String() {
 			t.Errorf("editBufferTests[%d]", i)
 		}
 	}

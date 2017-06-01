@@ -12,6 +12,8 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"strconv"
+
+	"github.com/empijei/wapty/ui/apis"
 )
 
 //Represents the queue of the response to requests that have been intercepted
@@ -34,13 +36,13 @@ func handleResponse(presp *pendingResponse) {
 		return
 	}
 	var editedResponse *http.Response
-	editedResponseDump, action := editBuffer(RESPONSE, rawRes, presp.originalRequest.URL.Scheme+"://"+presp.originalRequest.Host)
+	editedResponseDump, action := editBuffer(apis.RESPONSE, rawRes, presp.originalRequest.URL.Scheme+"://"+presp.originalRequest.Host)
 	switch action {
-	case FORWARD:
+	case apis.FORWARD.String():
 		res.ContentLength = ContentLength
 		res.Header.Set("Content-Length", strconv.Itoa(int(ContentLength)))
 		editedResponse = res
-	case EDIT, PROVIDERESP:
+	case apis.EDIT.String(), apis.PROVIDERESP.String():
 		editedResponseBuffer := bufio.NewReader(bytes.NewReader(editedResponseDump))
 		editedResponse, err = http.ReadResponse(editedResponseBuffer, presp.originalRequest)
 		if err != nil {
@@ -50,7 +52,7 @@ func handleResponse(presp *pendingResponse) {
 			editedResponse = res
 		}
 		status.addRawEditedResponse(presp.id, editedResponseDump)
-	case DROP:
+	case apis.DROP.String():
 		editedResponse = caseDrop()
 	default:
 		//TODO implement this
