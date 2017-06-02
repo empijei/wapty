@@ -31,7 +31,6 @@ func (b *Base16) String() string {
 }
 
 func (b *Base16) nextValid() {
-	//FIXME ignore a single character followed by EOF or invalid
 	validseen := 0
 	for b.pos < len(b.input) &&
 		validseen < 2 {
@@ -54,7 +53,6 @@ func (b *Base16) acceptRun() {
 	if (b.pos-b.cursor)%2 != 0 {
 		b.pos--
 	}
-	//TODO: backup if odd pos-cur
 }
 
 func (b *Base16) decodeChunk() {
