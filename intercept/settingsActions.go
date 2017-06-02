@@ -3,7 +3,6 @@ package intercept
 import (
 	"log"
 
-	"github.com/empijei/wapty/ui"
 	"github.com/empijei/wapty/ui/apis"
 )
 
@@ -25,7 +24,7 @@ func settingsLoop() {
 	}
 }
 
-func handleIntercept(cmd ui.Command) ui.Command {
+func handleIntercept(cmd apis.Command) apis.Command {
 	if len(cmd.Args) >= 1 {
 		log.Println("Requested change intercept status")
 		intercept.SetValue(cmd.Args[0] == "true" || cmd.Args[0] == "on")
@@ -33,13 +32,13 @@ func handleIntercept(cmd ui.Command) ui.Command {
 		if intercept.Value() {
 			value = "true"
 		}
-		return ui.Command{Action: "intercept", Args: []string{value}}
+		return apis.Command{Action: "intercept", Args: []string{value}}
 	} else {
 		log.Println("Requested intercept status")
 		value := "false"
 		if intercept.Value() {
 			value = "true"
 		}
-		return ui.Command{Action: "intercept", Args: []string{value}}
+		return apis.Command{Action: "intercept", Args: []string{value}}
 	}
 }

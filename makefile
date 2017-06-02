@@ -19,7 +19,9 @@ run:
 	# This will make rice use data that is on disk, creates a lighter executable
 	# and it is faster to build
 	-rm ui/rice-box.go >& /dev/null
+	# Generating JS
 	cd ui/gopherjs/ && gopherjs build -o ../webroot/gopherjs.js
+	# Done generating JS, launching wapty
 	go run ${LDFLAGS} *.go
 
 test:

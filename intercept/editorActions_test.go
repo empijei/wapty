@@ -10,7 +10,7 @@ import (
 
 type paramsType struct {
 	p   apis.PayloadType
-	cmd ui.Command
+	cmd apis.Command
 	b   []byte
 }
 
@@ -27,7 +27,7 @@ var editBufferTests = []struct {
 }
 
 func TestEditBuffer(t *testing.T) {
-	mockChan := make(chan ui.Command)
+	mockChan := make(chan apis.Command)
 	uiEditor = &ui.Subscription{DataChannel: mockChan}
 	defer func() {
 		uiEditor = nil

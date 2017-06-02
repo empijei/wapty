@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/empijei/wapty/ui"
+	"github.com/empijei/wapty/ui/apis"
 )
 
 type ReqRespMetaData struct {
@@ -104,5 +104,5 @@ func sendMetaData(metaData *ReqRespMetaData) {
 	if err != nil {
 		log.Println(err)
 	}
-	uiHistory.Send(ui.Command{Action: "metaData", Args: []string{string(metaJSON)}})
+	uiHistory.Send(apis.Command{Action: "metaData", Args: []string{string(metaJSON)}})
 }

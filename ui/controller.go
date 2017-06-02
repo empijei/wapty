@@ -6,34 +6,29 @@ package ui
 import (
 	"log"
 	"sync"
+
+	"github.com/empijei/wapty/ui/apis"
 )
 
 //String used to detect the main action within an ui.Args
 const ACTION = "action"
 
-type Command struct {
-	Channel string
-	Action  string
-	Args    []string
-	Payload []byte
-}
-
 type SubsChannel map[int64]Subscription
 
-//TODO Use a map[chan Command]struct{} if nothing else than the channel is used
+//TODO Use a map[chan apis.Command]struct{} if nothing else than the channel is used
 type UI struct {
 	id      int
-	channel chan Command
+	channel chan apis.Command
 }
 
-func (u *UI) Channel() <-chan Command {
+func (u *UI) Channel() <-chan apis.Command {
 	return u.channel
 }
 
 var subScriptions map[string]SubsChannel
 var subsMutex sync.RWMutex
 var subsCounter int64
-var iChan chan Command
+var iChan chan apis.Command
 var oChans uis
 
 type uis struct {
@@ -44,15 +39,15 @@ type uis struct {
 
 func init() {
 	subScriptions = make(map[string]SubsChannel)
-	iChan = make(chan Command)
+	iChan = make(chan apis.Command)
 	oChans.list = make(map[int]*UI)
 }
 
 type Subscription struct {
 	id          int64
 	channel     string
-	dataCh      chan Command
-	DataChannel <-chan Command
+	dataCh      chan apis.Command
+	DataChannel <-chan apis.Command
 }
 
 func Subscribe(channel string) *Subscription {
@@ -60,7 +55,7 @@ func Subscribe(channel string) *Subscription {
 	subsCounter++
 	//Unless you are sure the out channel will be constantly read, it is strongly
 	//suggested to create a buffered channel
-	pipe := make(chan Command, 50) //TODO this is arbitrary, give a meaning to this number
+	pipe := make(chan apis.Command, 50) //TODO this is arbitrary, give a meaning to this number
 	out := Subscription{id: subsCounter, dataCh: pipe, channel: channel}
 	if subScriptions[channel] == nil {
 		subScriptions[channel] = make(map[int64]Subscription)
@@ -72,7 +67,7 @@ func Subscribe(channel string) *Subscription {
 }
 
 //Sends the command and sets the channel with the value set in the subscription
-func (s *Subscription) Send(c Command) {
+func (s *Subscription) Send(c apis.Command) {
 	c.Channel = s.channel
 	send(c)
 }
@@ -94,7 +89,7 @@ func UnSubscribe(s *Subscription) {
 	log.Println("Subscription not found")
 }
 
-func send(c Command) {
+func send(c apis.Command) {
 	oChans.RLock()
 	for _, oChan := range oChans.list {
 		oChan.channel <- c
@@ -103,7 +98,7 @@ func send(c Command) {
 }
 
 //This should be a server's method
-func Receive(c Command) {
+func Receive(c apis.Command) {
 	iChan <- c
 }
 
@@ -111,7 +106,7 @@ func Receive(c Command) {
 func Connect() *UI {
 	oChans.Lock()
 	defer oChans.Unlock()
-	toRet := &UI{channel: make(chan Command), id: oChans.curID}
+	toRet := &UI{channel: make(chan apis.Command), id: oChans.curID}
 	oChans.list[oChans.curID] = toRet
 	oChans.curID++
 	return toRet

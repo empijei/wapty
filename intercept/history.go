@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/empijei/wapty/ui"
 	"github.com/empijei/wapty/ui/apis"
 )
 
@@ -102,7 +101,7 @@ func historyLoop() {
 					panic(err)
 				}
 				log.Printf("Dump: %s\n", dump)
-				uiHistory.Send(ui.Command{Action: "Dump", Payload: dump})
+				uiHistory.Send(apis.Command{Action: "Dump", Payload: dump})
 			case apis.FETCH.String():
 				uiHistory.Send(handleFetch(cmd))
 			}
@@ -112,19 +111,19 @@ func historyLoop() {
 	}
 }
 
-func handleFetch(cmd ui.Command) ui.Command {
+func handleFetch(cmd apis.Command) apis.Command {
 	if len(cmd.Args) >= 1 {
 		log.Println("Requested history entry")
 		Id, err := strconv.ParseUint(cmd.Args[0], 10, 32)
 		if err != nil {
-			return ui.Command{Action: "Error", Args: []string{"Invalid argument to FETCH"}}
+			return apis.Command{Action: "Error", Args: []string{"Invalid argument to FETCH"}}
 		}
 		rr := status.getItem(uint(Id))
 		buf, err := json.Marshal(rr)
-		return ui.Command{Action: apis.FETCH.String(), Payload: buf}
+		return apis.Command{Action: apis.FETCH.String(), Payload: buf}
 	} else {
 		log.Println("Missing argument for FETCH")
-		return ui.Command{Action: "Error", Args: []string{"Missing argument for FETCH"}}
+		return apis.Command{Action: "Error", Args: []string{"Missing argument for FETCH"}}
 	}
 }
 
