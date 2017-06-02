@@ -1,8 +1,5 @@
 package apis
 
-//String used to recognize commands directed to this module
-const REPEATCHANNEL = "repeat"
-
 //Enum for possible user actions
 type RepeaterAction int
 

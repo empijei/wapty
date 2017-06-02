@@ -68,7 +68,7 @@ func handleRequest(preq *pendingRequest) {
 	preq.modifiedRequest <- &mayBeRequest{req: editedRequest, res: providedResp, err: err}
 }
 
-func preProcessRequest(req *http.Request) (autoEdited *http.Request, Id uint, err error) {
+func preProcessRequest(req *http.Request) (autoEdited *http.Request, Id int, err error) {
 	stripHTHHeaders(&(req.Header))
 	Id = newReqResp(req)
 	//TODO Add autoedit here
@@ -80,7 +80,7 @@ func preProcessRequest(req *http.Request) (autoEdited *http.Request, Id uint, er
 	return
 }
 
-func editRequest(req *http.Request, Id uint) (*http.Request, *http.Response, error) {
+func editRequest(req *http.Request, Id int) (*http.Request, *http.Response, error) {
 	//Send request to the dispatchLoop
 	ModifiedRequest := make(chan *mayBeRequest)
 	RequestQueue <- &pendingRequest{id: Id, originalRequest: req, modifiedRequest: ModifiedRequest}

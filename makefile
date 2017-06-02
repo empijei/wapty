@@ -24,6 +24,8 @@ run:
 	# Done generating JS, launching wapty
 	go run ${LDFLAGS} *.go
 
+fast: run
+
 test:
 	go test -v ./...
 
@@ -49,6 +51,7 @@ installdeps:
 	go get -u github.com/gopherjs/jsbuiltin
 	go get -u github.com/gopherjs/websocket/...
 	go get -u github.com/gopherjs/gopherjs
+	go get -u honnef.co/go/js/dom
 
 clean:
 	# Cleaning all generated files

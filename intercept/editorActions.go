@@ -10,7 +10,7 @@ import (
 var uiEditor *ui.Subscription
 
 func init() {
-	uiEditor = ui.Subscribe(apis.EDITORCHANNEL)
+	uiEditor = ui.Subscribe(apis.EDITORCHANNEL.String())
 }
 
 //Invokes the edit action on the proxy ui. When a response is received returns

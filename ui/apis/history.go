@@ -1,8 +1,5 @@
 package apis
 
-//String used to recognize commands directed to this module
-const HISTORYCHANNEL = "proxy/httpHistory"
-
 //Enum for possible user actions
 type HistoryAction int
 
@@ -25,7 +22,7 @@ func (a HistoryAction) String() string {
 }
 
 type ReqRespMetaData struct {
-	Id          uint
+	Id          int
 	Host        string
 	Method      string
 	Path        string
@@ -47,6 +44,23 @@ type ReqRespMetaData struct {
 	*/
 }
 
-func NewReqRespMetaData(Id uint) *ReqRespMetaData {
+func NewReqRespMetaData(Id int) *ReqRespMetaData {
 	return &ReqRespMetaData{Id: Id}
+}
+
+//Represents an item of the proxy history
+//TODO create a test that fails if this is different from intercept.ReqResp
+type ReqResp struct {
+	//Unique Id in the history
+	Id int
+	//Meta Data about both Req and Resp
+	MetaData *ReqRespMetaData
+	//Original Request
+	RawReq []byte
+	//Original Response
+	RawRes []byte
+	//Edited Request
+	RawEditedReq []byte
+	//Edited Response
+	RawEditedRes []byte
 }

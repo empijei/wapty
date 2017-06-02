@@ -60,7 +60,7 @@ func handleResponse(presp *pendingResponse) {
 	}
 	presp.modifiedResponse <- &mayBeResponse{res: editedResponse, err: err}
 }
-func preProcessResponse(req *http.Request, res *http.Response, Id uint) *http.Response {
+func preProcessResponse(req *http.Request, res *http.Response, Id int) *http.Response {
 	res = decodeResponse(res)
 	//Skip intercept if request was not intercepted, just add the response to the Status
 	status.addResponse(Id, res)
@@ -68,7 +68,7 @@ func preProcessResponse(req *http.Request, res *http.Response, Id uint) *http.Re
 	//TODO add to status as edited if autoedited
 	return res
 }
-func editResponse(req *http.Request, res *http.Response, Id uint) (*http.Response, error) {
+func editResponse(req *http.Request, res *http.Response, Id int) (*http.Response, error) {
 	//Request was intercepted, go through the intercept/edit process
 	//TODO use the autoedited one to edit
 	ModifiedResponse := make(chan *mayBeResponse)

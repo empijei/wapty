@@ -10,7 +10,6 @@
 						<link rel="stylesheet" href="/bootstrap.min.css">
 						<script src="/jquery.min.js"></script>
 						<script src="/bootstrap.min.js"></script>
-						<script src="/gopherjs.js"></script>
 						<style>
 .div-inline{
 			display:inline-block;
@@ -68,12 +67,11 @@ td{
 																					<div id="intercept" class="tab-pane fade in active">
 																								<br>
 																								<!--Intercept stuff-->
-																								<button type="button" id="forwardOriginal" onclick="clickhandler();" class="btn btn-default">Forward Original</button>
-																								<button type="button" id="forwardModified" onclick="clickhandler();" class="btn btn-default">Forward Modified</button>
-																								<button type="button" id="drop" onclick="clickhandler();" class="btn btn-default">Drop</button>
-																								<button type="button" id="provideResponse" onclick="clickhandler();" class="btn btn-default">Provide Response</button>
-																								<!--<button type="button" class="btn btn-danger">Intercept is off</button>-->
-																								<button type="button" id="interceptToggle" onclick="toggler();" class="btn btn-danger">Intercept is off</button>
+																								<button type="button" id="forwardOriginal" onclick="proxy.onForwardOriginalClick()" class="btn btn-default">Forward Original</button>
+																								<button type="button" id="forwardModified" onclick="proxy.onForwardModifiedClick()" class="btn btn-default">Forward Modified</button>
+																								<button type="button" id="drop" onclick="proxy.onDropClick()" class="btn btn-default">Drop</button>
+																								<button type="button" id="provideResponse" onclick="proxy.onProvideResponseClick()" class="btn btn-default">Provide Response</button>
+																								<button type="button" id="interceptToggle" onclick="proxy.onToggleInterceptClick()" class="btn btn-danger">Intercept is off</button>
 																								<div class="dropdown div-inline">
 																											<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Action
 																														<span class="caret"></span></button>
@@ -113,7 +111,7 @@ td{
 																																													-->
 																																										</tr>
 																																							</thead>
-																																							<tbody id="historyTbody" onclick=historyTclick()>
+																																							<tbody id="historyTbody" onclick=proxy.onHistoryCellClick()>
 																																							</tbody>
 																																				</table>
 																																				<!--/History Table-->
@@ -149,7 +147,9 @@ td{
 												</div>
 									</div>
 						</div>
-						<SCRIPT src="/index.js"></SCRIPT>
+						<!--<SCRIPT src="/index.js"></SCRIPT>-->
+
+						<script src="/gopherjs.js"></script>
 			</body>
 </html>
 

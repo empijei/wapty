@@ -1,8 +1,5 @@
 package apis
 
-//String used to recognize commands directed to this module
-const EDITORCHANNEL = "proxy/intercept/editor"
-
 //Enum for possible user actions
 type EditorAction int
 

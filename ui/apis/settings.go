@@ -1,8 +1,5 @@
 package apis
 
-//String used to recognize commands directed to this module
-const SETTINGSCHANNEL = "proxy/intercept/options"
-
 //Enum for possible user actions
 type SettingsAction int
 

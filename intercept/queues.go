@@ -45,7 +45,7 @@ func (s *SyncBool) SetValue(v bool) {
 func init() {
 	done = make(chan struct{})
 	//intercept.value = true
-	uiSettings = ui.Subscribe(apis.SETTINGSCHANNEL)
+	uiSettings = ui.Subscribe(apis.SETTINGSCHANNEL.String())
 }
 
 //In order for the program to work this should always be started.
