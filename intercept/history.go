@@ -133,7 +133,7 @@ type ReqResp struct {
 	//Unique Id in the history
 	Id uint
 	//Meta Data about both Req and Resp
-	MetaData *ReqRespMetaData
+	MetaData *apis.ReqRespMetaData
 	//Original Request
 	RawReq []byte
 	//Original Response
@@ -152,7 +152,7 @@ func newRawReqResp(rawReq []byte) uint {
 	status.Lock()
 	//log.Println("Locked")
 	curReq := status.Count
-	tmp := &ReqResp{RawReq: rawReq, Id: curReq, MetaData: newReqRespMetaData(curReq)}
+	tmp := &ReqResp{RawReq: rawReq, Id: curReq, MetaData: apis.NewReqRespMetaData(curReq)}
 	status.ReqResps = append(status.ReqResps, tmp)
 	status.Count += 1
 	//log.Println("UnLocking status")
