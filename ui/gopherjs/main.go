@@ -1,12 +1,26 @@
-// +build js
 package main
 
-import "github.com/gopherjs/websocket"
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/gopherjs/jquery"
+	"github.com/gopherjs/websocket"
+)
+
+var jq = jquery.NewJQuery()
+var dec *json.Decoder
+var enc *json.Encoder
 
 func main() {
-	_, err := websocket.Dial("ws://localhost:8081/ws")
+	waptyServer, err := websocket.Dial("ws://localhost:8081/ws")
 	if err != nil {
 		//FIXME handle error
 		panic(err)
 	}
+
+	fmt.Println("WebSocket connetcted")
+	dec = json.NewDecoder(waptyServer)
+	enc = json.NewEncoder(waptyServer)
+
 }
