@@ -11,15 +11,27 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"runtime"
 )
 
 var (
 	localhostname, _ = os.Hostname()
 
-	dir      = path.Join(os.Getenv("HOME"), ".wapty")
+	dir      = path.Join(getUserHomeDir(), ".wapty")
 	keyFile  = path.Join(dir, "ca-key.pem")
 	certFile = path.Join(dir, "ca-cert.pem")
 )
+
+func getUserHomeDir() string {
+	if runtime.GOOS == "windows" {
+		home := os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
+		if home == "" {
+			home = os.Getenv("USERPROFILE")
+		}
+		return home
+	}
+	return os.Getenv("HOME")
+}
 
 func LoadCA() (cert tls.Certificate, err error) {
 	// TODO(kr): check file permissions
