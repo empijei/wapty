@@ -19,7 +19,7 @@ var (
 
 	dir      = path.Join(getUserHomeDir(), ".wapty")
 	keyFile  = path.Join(dir, "ca-key.pem")
-	certFile = path.Join(dir, "ca-cert.pem")
+	certFile = path.Join(dir, "ca-cert.crt")
 )
 
 func getUserHomeDir() string {
