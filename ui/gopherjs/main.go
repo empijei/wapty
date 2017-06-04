@@ -25,28 +25,27 @@ var (
 
 //DOM elements
 var (
-	jq       = jquery.NewJQuery()
-	document dom.Document
+	jq = jquery.NewJQuery()
 	//TODO modify the dom package to provide https://godoc.org/honnef.co/go/js/dom#HTMLTableElement
 	//with an insertrow method
 	historyTbody      *js.Object
-	historyReqBuffer  dom.Element
-	historyResBuffer  dom.Element
-	proxyBuffer       dom.Element
-	endpointIndicator dom.Element
-	btn               dom.Element
+	historyReqBuffer  *DomElement
+	historyResBuffer  *DomElement
+	proxyBuffer       *DomElement
+	endpointIndicator *DomElement
+	btn               *DomElement
 )
 
 func init() {
-	document = dom.GetWindow().Document()
 	//dom package does not implement table extensions, so we default to bare js
 	historyTbody = js.Global.Get("historyTbody")
-	historyReqBuffer = document.GetElementByID("historyReqBuffer")
-	historyResBuffer = document.GetElementByID("historyResBuffer")
-	proxyBuffer = document.GetElementByID("proxybuffer")
-	endpointIndicator = document.GetElementByID("endpointIndicator")
-	btn = document.GetElementByID("interceptToggle")
+	historyReqBuffer = GetElementByID("historyReqBuffer")
+	historyResBuffer = GetElementByID("historyResBuffer")
+	proxyBuffer = GetElementByID("proxybuffer")
+	endpointIndicator = GetElementByID("endpointIndicator")
+	btn = GetElementByID("interceptToggle")
 
+	//TODO find a way to construct this in the functions declarations
 	js.Global.Set("proxy", map[string]interface{}{
 		"onDropClick":            onDropClick,
 		"onForwardModifiedClick": onForwardModifiedClick,
@@ -113,11 +112,11 @@ func main() {
 			switch msg.Action {
 			case apis.INTERCEPT.String():
 				if msg.Args[0] == "true" {
-					btn.Class().Set([]string{"btn", "btn-success"})
+					btn.ToggleClass("btn-danger", "btn-success")
 					btn.SetTextContent("Intercept is on")
 					interceptOn = true
 				} else {
-					btn.Class().Set([]string{"btn", "btn-danger"})
+					btn.ToggleClass("btn-success", "btn-danger")
 					btn.SetTextContent("Intercept is off")
 					interceptOn = false
 				}
