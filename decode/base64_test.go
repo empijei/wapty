@@ -15,35 +15,51 @@ var Base64Test = []struct {
 		true,
 	},
 	{
+		"Zm9vYm",
+		"foob",
+		true,
+	},
+	{
 		"Zm9vYm==",
 		"foob",
 		true,
 	},
 	{
+		"!Zm!Ym",
+		genInvalid(1) + "f" + genInvalid(1) + "b",
+		false,
+	},
+	{
+		"!Zm9vYm",
+		genInvalid(1) + "foob",
+		false,
+	},
+
+	{
 		"Zm9vYmFy.!Zm9vYmFy",
 		"foobar" + genInvalid(2) + "foobar",
 		false,
 	},
-	//{
-	//"Zm9vYmF.!Zm9vYmF",
-	//"fooba" + genInvalid(3) + "fooba" + genInvalid(1),
-	//false,
-	//},
-	//{
-	//"Zm9vYmF.!Zm9vYmFy.",
-	//"fooba" + genInvalid(3) + "fooba" + genInvalid(2),
-	//false,
-	//},
-	//{
-	//"Zm9vYmF.!Zm9vYmF.8",
-	//"fooba" + genInvalid(3) + "fooba" + genInvalid(3),
-	//false,
-	//},
-	//{
-	//"6",
-	//genInvalid(1),
-	//false,
-	//},
+	{
+		"Zm9vYmF.!Zm9vYmF",
+		"fooba" + genInvalid(2) + "fooba",
+		false,
+	},
+	{
+		"Zm9vYmF.!Zm9vYmFy.",
+		"fooba" + genInvalid(2) + "foobar" + genInvalid(1),
+		false,
+	},
+	{
+		"Zm9vYmF.!Zm9vYmF.8",
+		"fooba" + genInvalid(2) + "fooba" + genInvalid(2),
+		false,
+	},
+	{
+		"6",
+		genInvalid(1),
+		false,
+	},
 }
 
 func TestB64Decode(t *testing.T) {

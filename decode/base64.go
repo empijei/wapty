@@ -3,6 +3,7 @@ package decode
 import (
 	"bytes"
 	"encoding/base64"
+	"fmt"
 	"strings"
 )
 
@@ -16,6 +17,7 @@ type Base64 struct {
 //TODO recognise other encodings
 const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 const variant = "+/"
+const padding = "="
 const urlVariant = "-_"
 
 var encoding = base64.StdEncoding.WithPadding(base64.NoPadding)
@@ -27,36 +29,38 @@ func NewBase64CodecC(in string) *Base64 {
 	}
 }
 
-//TODO modificare in modo che prenda pure senza padding
+//Moves b.cursor to the first valid character of a valid chunk
 func (b *Base64) nextValid() {
 	validseen := 0
-	for b.pos < len(b.input) &&
-		validseen < 4 {
-		if b.isValid(rune(b.input[b.pos])) {
+	for b.cursor < len(b.input) {
+		if b.isValid(rune(b.input[b.cursor])) {
 			validseen++
-			if validseen == 4 {
-				b.pos -= 4
-			}
 		} else {
 			validseen = 0
 		}
-		b.pos++
+		if validseen > 1 {
+			b.cursor--
+			break
+		}
+		b.cursor++
 	}
 }
 
+//Checks if the chunk is decodable
 func (b *Base64) acceptRun() {
 	for b.pos < len(b.input) && b.isValid(rune(b.input[b.pos])) {
 		b.pos++
 	}
-	if delta := (b.pos - b.cursor) % 4; delta != 0 && b.pos < len(b.input) {
-		b.pos -= delta
+	if delta := (b.pos - b.cursor) % 4; delta == 1 && b.pos <= len(b.input) {
+		b.pos--
 	}
 }
 
 func (b *Base64) decodeChunk() {
 	buf, err := encoding.DecodeString(b.input[b.cursor:b.pos])
 	if err != nil {
-		panic("Error when less expected: " + err.Error())
+		fmt.Println(b.cursor, b.pos)
+		panic("Error when less is expected: " + err.Error() + " " + b.input)
 	}
 	_, _ = b.output.Write(buf)
 	b.cursor = b.pos
@@ -70,12 +74,12 @@ func (b *Base64) Decode() (output string, isPrintable bool) {
 	out, err := encoding.DecodeString(b.input)
 	if err != nil {
 		//Decode as much as possible
-		for b.cursor < len(b.input) {
+		for b.pos < len(b.input) {
 			b.acceptRun()
 			b.decodeChunk()
 			b.nextValid()
-			b.output.WriteString(genInvalid(b.pos - b.cursor))
-			b.cursor = b.pos
+			b.output.WriteString(genInvalid(b.cursor - b.pos))
+			b.pos = b.cursor
 		}
 		output = string(b.output.Bytes())
 	} else {
