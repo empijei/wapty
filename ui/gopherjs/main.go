@@ -12,8 +12,6 @@ import (
 	"github.com/gopherjs/gopherjs/js"
 	"github.com/gopherjs/jquery"
 	"github.com/gopherjs/websocket"
-
-	"honnef.co/go/js/dom"
 )
 
 var (
@@ -241,8 +239,6 @@ func onHistoryCellClick() {
 	proxyAction(apis.Command{
 		Action:  apis.FETCH.String(),
 		Channel: apis.HISTORYCHANNEL.String(),
-		Args: []string{dom.WrapEvent(
-			js.Global.Get("event")).Target().ParentNode().ChildNodes()[0].TextContent(),
-		},
+		Args:    []string{js.Global.Get("event").Get("target").Get("parentNode").Get("childNodes").Index(0).Get("textContent").String()},
 	}, true)
 }
