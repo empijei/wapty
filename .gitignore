@@ -1,6 +1,9 @@
 *.pem
 *.swp
 /*.test
+rice-box.go
+gopherjs.js
+gopherjs.js.map
 tmp.request
 tmp.response
 Wapty

@@ -4,75 +4,26 @@ import (
 	"log"
 
 	"github.com/empijei/wapty/ui"
+	"github.com/empijei/wapty/ui/apis"
 )
 
 var uiEditor *ui.Subscription
 
-//String used to recognize commands directed to this module
-const EDITORCHANNEL = "proxy/intercept/editor"
-
-//Enum for possible user actions
-type EditorAction int
-
-const (
-	FORWARD EditorAction = iota
-	EDIT
-	DROP
-	PROVIDERESP
-)
-
-var editorActions = [...]string{
-	"forward",
-	"edit",
-	"drop",
-	"provideResp",
-}
-
-func (a EditorAction) String() string {
-	return editorActions[a]
-}
-
-var invertEditorActions map[string]EditorAction
-
-func parseEditorAction(s string) EditorAction {
-	return invertEditorActions[s]
-}
-
-//Enum for possible payloads types
-type PayloadType int
-
-const (
-	REQUEST PayloadType = iota
-	RESPONSE
-)
-
-var payloads = [...]string{
-	"request",
-	"response",
-}
-
-func (p PayloadType) String() string {
-	return payloads[p]
-}
-
 func init() {
-	invertEditorActions = make(map[string]EditorAction)
-	for i := 0; i <= int(PROVIDERESP); i++ {
-		invertEditorActions[EditorAction(i).String()] = EditorAction(i)
-	}
-	uiEditor = ui.Subscribe(EDITORCHANNEL)
-	uiHistory = ui.Subscribe(HISTORYCHANNEL)
+	uiEditor = ui.Subscribe(apis.EDITORCHANNEL.String())
 }
 
-func editBuffer(p PayloadType, b []byte, endpoint string) ([]byte, EditorAction) {
+//Invokes the edit action on the proxy ui. When a response is received returns
+//the payload and the action in its string form. It does not attempt to validate
+//the action, the caller must take care of it.
+func editBuffer(p apis.PayloadType, b []byte, endpoint string) ([]byte, string) {
 	log.Println("Editing " + p.String())
-	//result := ui.Command{Action: "edit", Payload: b, Channel: EDITORCHANNEL}
+	//result := apis.Command{Action: "edit", Payload: b, Channel: EDITORCHANNEL}
 	args := []string{p.String(), endpoint}
-	uiEditor.Send(ui.Command{Action: "edit", Args: args, Payload: b})
+	uiEditor.Send(apis.Command{Action: "edit", Args: args, Payload: b})
 	log.Println("Waiting for user interaction")
 	result := <-uiEditor.DataChannel
 	log.Println("User interacted")
 	//FIXME do something if action not recognized!
-	action := parseEditorAction(result.Action)
-	return result.Payload, action
+	return result.Payload, result.Action
 }

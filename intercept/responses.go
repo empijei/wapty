@@ -12,6 +12,8 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"strconv"
+
+	"github.com/empijei/wapty/ui/apis"
 )
 
 //Represents the queue of the response to requests that have been intercepted
@@ -34,13 +36,13 @@ func handleResponse(presp *pendingResponse) {
 		return
 	}
 	var editedResponse *http.Response
-	editedResponseDump, action := editBuffer(RESPONSE, rawRes, presp.originalRequest.URL.Scheme+"://"+presp.originalRequest.Host)
+	editedResponseDump, action := editBuffer(apis.RESPONSE, rawRes, presp.originalRequest.URL.Scheme+"://"+presp.originalRequest.Host)
 	switch action {
-	case FORWARD:
+	case apis.FORWARD.String():
 		res.ContentLength = ContentLength
 		res.Header.Set("Content-Length", strconv.Itoa(int(ContentLength)))
 		editedResponse = res
-	case EDIT, PROVIDERESP:
+	case apis.EDIT.String(), apis.PROVIDERESP.String():
 		editedResponseBuffer := bufio.NewReader(bytes.NewReader(editedResponseDump))
 		editedResponse, err = http.ReadResponse(editedResponseBuffer, presp.originalRequest)
 		if err != nil {
@@ -50,7 +52,7 @@ func handleResponse(presp *pendingResponse) {
 			editedResponse = res
 		}
 		status.addRawEditedResponse(presp.id, editedResponseDump)
-	case DROP:
+	case apis.DROP.String():
 		editedResponse = caseDrop()
 	default:
 		//TODO implement this
@@ -58,7 +60,7 @@ func handleResponse(presp *pendingResponse) {
 	}
 	presp.modifiedResponse <- &mayBeResponse{res: editedResponse, err: err}
 }
-func preProcessResponse(req *http.Request, res *http.Response, Id uint) *http.Response {
+func preProcessResponse(req *http.Request, res *http.Response, Id int) *http.Response {
 	res = decodeResponse(res)
 	//Skip intercept if request was not intercepted, just add the response to the Status
 	status.addResponse(Id, res)
@@ -66,7 +68,7 @@ func preProcessResponse(req *http.Request, res *http.Response, Id uint) *http.Re
 	//TODO add to status as edited if autoedited
 	return res
 }
-func editResponse(req *http.Request, res *http.Response, Id uint) (*http.Response, error) {
+func editResponse(req *http.Request, res *http.Response, Id int) (*http.Response, error) {
 	//Request was intercepted, go through the intercept/edit process
 	//TODO use the autoedited one to edit
 	ModifiedResponse := make(chan *mayBeResponse)

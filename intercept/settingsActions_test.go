@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/empijei/wapty/ui"
+	"github.com/empijei/wapty/ui/apis"
 )
 
 var loopTests = []struct {
@@ -12,17 +12,17 @@ var loopTests = []struct {
 }{}
 
 var handleTests = []struct {
-	in  ui.Command
-	out ui.Command
+	in  apis.Command
+	out apis.Command
 }{
-	{ui.Command{Action: "intercept", Args: []string{"false"}},
-		ui.Command{Action: "intercept", Args: []string{"false"}}},
-	{ui.Command{Action: "intercept"},
-		ui.Command{Action: "intercept", Args: []string{"false"}}},
-	{ui.Command{Action: "intercept", Args: []string{"true"}},
-		ui.Command{Action: "intercept", Args: []string{"true"}}},
-	{ui.Command{Action: "intercept"},
-		ui.Command{Action: "intercept", Args: []string{"true"}},
+	{apis.Command{Action: "intercept", Args: []string{"false"}},
+		apis.Command{Action: "intercept", Args: []string{"false"}}},
+	{apis.Command{Action: "intercept"},
+		apis.Command{Action: "intercept", Args: []string{"false"}}},
+	{apis.Command{Action: "intercept", Args: []string{"true"}},
+		apis.Command{Action: "intercept", Args: []string{"true"}}},
+	{apis.Command{Action: "intercept"},
+		apis.Command{Action: "intercept", Args: []string{"true"}},
 	},
 }
 

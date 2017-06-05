@@ -8,35 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/empijei/wapty/ui"
+	"github.com/empijei/wapty/ui/apis"
 )
-
-type ReqRespMetaData struct {
-	Id          uint
-	Host        string
-	Method      string
-	Path        string
-	Params      bool
-	Edited      bool
-	Status      string
-	Length      int64
-	ContentType string
-	Extension   string
-	TLS         bool
-	IP          string
-	Port        string
-	Cookies     string
-	Time        string
-	/*
-		Port!
-		Title (maybe not?)
-		Comment (user-defined)
-	*/
-}
-
-func newReqRespMetaData(Id uint) *ReqRespMetaData {
-	return &ReqRespMetaData{Id: Id}
-}
 
 //DISCLAIMER use original req AFTER editing the new one
 //And use it from a thread that has a readlock on the status
@@ -99,10 +72,10 @@ func (rr *ReqResp) parseResponse(res *http.Response) {
 	sendMetaData(this)
 }
 
-func sendMetaData(metaData *ReqRespMetaData) {
+func sendMetaData(metaData *apis.ReqRespMetaData) {
 	metaJSON, err := json.Marshal(metaData)
 	if err != nil {
 		log.Println(err)
 	}
-	uiHistory.Send(ui.Command{Action: "metaData", Args: []string{string(metaJSON)}})
+	uiHistory.Send(apis.Command{Action: apis.METADATA.String(), Args: []string{string(metaJSON)}})
 }

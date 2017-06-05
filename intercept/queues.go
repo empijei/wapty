@@ -14,6 +14,7 @@ import (
 
 	"github.com/empijei/wapty/mitm"
 	"github.com/empijei/wapty/ui"
+	"github.com/empijei/wapty/ui/apis"
 )
 
 //Not used yet
@@ -44,7 +45,7 @@ func (s *SyncBool) SetValue(v bool) {
 func init() {
 	done = make(chan struct{})
 	//intercept.value = true
-	uiSettings = ui.Subscribe(SETTINGSCHANNEL)
+	uiSettings = ui.Subscribe(apis.SETTINGSCHANNEL.String())
 }
 
 //In order for the program to work this should always be started.

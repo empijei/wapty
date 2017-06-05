@@ -6,6 +6,8 @@ import (
 	"io"
 	"log"
 
+	"github.com/empijei/wapty/ui/apis"
+
 	"golang.org/x/net/websocket"
 )
 
@@ -17,7 +19,7 @@ type Client struct {
 	id     int
 	ws     *websocket.Conn
 	server *Server
-	ch     chan *Command
+	ch     chan *apis.Command
 	doneCh chan bool
 }
 
@@ -32,7 +34,7 @@ func NewClient(ws *websocket.Conn, server *Server) *Client {
 	}
 
 	maxId++
-	ch := make(chan *Command, channelBufSize)
+	ch := make(chan *apis.Command, channelBufSize)
 	doneCh := make(chan bool)
 
 	return &Client{maxId, ws, server, ch, doneCh}
@@ -42,7 +44,7 @@ func (c *Client) Conn() *websocket.Conn {
 	return c.ws
 }
 
-func (c *Client) Write(msg *Command) {
+func (c *Client) Write(msg *apis.Command) {
 	select {
 	case c.ch <- msg:
 	default:
@@ -95,7 +97,7 @@ func (c *Client) listenRead() {
 
 		// read data from websocket connection
 		default:
-			var msg Command
+			var msg apis.Command
 			//HOLY SMOKES THIS DOES NOT SUPPORT MULTIPLE FRAMES
 			//Are you serious? https://github.com/golang/go/issues/7632
 			//Unmarshal accepts a []byte instead of an io.Reader() so

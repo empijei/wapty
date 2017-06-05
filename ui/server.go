@@ -5,6 +5,9 @@ import (
 	"log"
 	"net/http"
 
+	rice "github.com/GeertJohan/go.rice"
+	"github.com/empijei/wapty/ui/apis"
+
 	"golang.org/x/net/websocket"
 )
 
@@ -14,7 +17,7 @@ type Server struct {
 	clients   map[int]*Client
 	addCh     chan *Client
 	delCh     chan *Client
-	sendAllCh chan *Command
+	sendAllCh chan *apis.Command
 	doneCh    chan bool
 	errCh     chan error
 }
@@ -24,7 +27,7 @@ func NewServer(pattern string) *Server {
 	clients := make(map[int]*Client)
 	addCh := make(chan *Client)
 	delCh := make(chan *Client)
-	sendAllCh := make(chan *Command)
+	sendAllCh := make(chan *apis.Command)
 	doneCh := make(chan bool)
 	errCh := make(chan error)
 
@@ -47,7 +50,7 @@ func (s *Server) DelClient(c *Client) {
 	s.delCh <- c
 }
 
-func (s *Server) SendAllClients(msg *Command) {
+func (s *Server) SendAllClients(msg *apis.Command) {
 	s.sendAllCh <- msg
 }
 
@@ -59,13 +62,13 @@ func (s *Server) Err(err error) {
 	s.errCh <- err
 }
 
-func (s *Server) sendAllClients(msg *Command) {
+func (s *Server) sendAllClients(msg *apis.Command) {
 	for _, c := range s.clients {
 		c.Write(msg)
 	}
 }
 
-func (s *Server) msgReceived(msg *Command) {
+func (s *Server) msgReceived(msg *apis.Command) {
 	Receive(*msg)
 }
 
@@ -137,13 +140,14 @@ func MainLoop() {
 	go writeLoop(server)
 
 	// static files
-	http.Handle("/", http.FileServer(assetFS()))
+	//http.Handle("/", http.FileServer(assetFS()))
+	http.Handle("/", http.FileServer(rice.MustFindBox("webroot").HTTPBox()))
 
 	//This is a dirty workaround for the websocket package not reensembling frames
 	//http.HandleFunc("/edit", func(rw http.ResponseWriter, req *http.Request) {
 	//decoder := json.NewDecoder(req.Body)
 	//defer func() { _ = req.Body.Close() }()
-	//var cmd Command
+	//var cmd apis.Command
 	//err := decoder.Decode(&cmd)
 	//if err != nil {
 	//log.Println(err)

@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/empijei/wapty/ui"
+	"github.com/empijei/wapty/ui/apis"
 )
 
 var status History
@@ -22,30 +22,30 @@ func init() {
 type History struct {
 	sync.RWMutex
 	//Remove count, use it only for serialization
-	Count    uint
+	Count    int
 	ReqResps []*ReqResp
 }
 
 //Finds the correct Request based on the ID and adds the modified request to it
 //This is thread safe
-func (h *History) addRawEditedRequest(Id uint, rawEditedReq []byte) {
+func (h *History) addRawEditedRequest(Id int, rawEditedReq []byte) {
 	h.RLock()
 	h.ReqResps[Id].RawEditedReq = rawEditedReq
 	h.RUnlock()
 }
 
-//func (h *History) addEditedRequest(Id uint, req *http.Request) {
+//func (h *History) addEditedRequest(Id int, req *http.Request) {
 //}
 
 //Finds the correct Request based on the ID and adds the original response to it
 //This is thread safe
-func (h *History) addRawResponse(Id uint, rawRes []byte) {
+func (h *History) addRawResponse(Id int, rawRes []byte) {
 	h.RLock()
 	h.ReqResps[Id].RawRes = rawRes
 	h.RUnlock()
 }
 
-func (h *History) addResponse(Id uint, res *http.Response) {
+func (h *History) addResponse(Id int, res *http.Response) {
 	tmp, err := httputil.DumpResponse(res, true)
 	if err != nil {
 		//TODO
@@ -56,13 +56,13 @@ func (h *History) addResponse(Id uint, res *http.Response) {
 
 //Finds the correct Request based on the ID and adds the modified response to it
 //This is thread safe
-func (h *History) addRawEditedResponse(Id uint, rawEditedRes []byte) {
+func (h *History) addRawEditedResponse(Id int, rawEditedRes []byte) {
 	h.RLock()
 	h.ReqResps[Id].RawEditedRes = rawEditedRes
 	h.RUnlock()
 }
 
-//func (h *History) addEditedResponse(Id uint, res *http.Response) {}
+//func (h *History) addEditedResponse(Id int, res *http.Response) {}
 
 //Dumps the status in the log. This is only meant for debug purposes.
 func StatusDump(status History) {
@@ -75,7 +75,7 @@ func StatusDump(status History) {
 	status.RUnlock()
 }
 
-func (h *History) getItem(Id uint) *ReqResp {
+func (h *History) getItem(Id int) *ReqResp {
 	h.RLock()
 	defer h.RUnlock()
 	if Id < h.Count {
@@ -92,7 +92,7 @@ func historyLoop() {
 		select {
 		case cmd := <-uiHistory.DataChannel:
 			switch cmd.Action {
-			case DUMP.String():
+			case apis.DUMP.String():
 				status.RLock()
 				dump, err := json.Marshal(status)
 				status.RUnlock()
@@ -101,8 +101,8 @@ func historyLoop() {
 					panic(err)
 				}
 				log.Printf("Dump: %s\n", dump)
-				uiHistory.Send(ui.Command{Action: "Dump", Payload: dump})
-			case FETCH.String():
+				uiHistory.Send(apis.Command{Action: "Dump", Payload: dump})
+			case apis.FETCH.String():
 				uiHistory.Send(handleFetch(cmd))
 			}
 		case <-done:
@@ -111,29 +111,30 @@ func historyLoop() {
 	}
 }
 
-func handleFetch(cmd ui.Command) ui.Command {
+func handleFetch(cmd apis.Command) apis.Command {
 	if len(cmd.Args) >= 1 {
 		log.Println("Requested history entry")
-		Id, err := strconv.ParseUint(cmd.Args[0], 10, 32)
+		Id, err := strconv.Atoi(cmd.Args[0])
 		if err != nil {
-			return ui.Command{Action: "Error", Args: []string{"Invalid argument to FETCH"}}
+			return apis.Command{Action: "Error", Args: []string{"Invalid argument to FETCH"}}
 		}
-		rr := status.getItem(uint(Id))
+		rr := status.getItem(Id)
 		buf, err := json.Marshal(rr)
-		return ui.Command{Action: FETCH.String(), Payload: buf}
+		return apis.Command{Action: apis.FETCH.String(), Payload: buf}
 	} else {
 		log.Println("Missing argument for FETCH")
-		return ui.Command{Action: "Error", Args: []string{"Missing argument for FETCH"}}
+		return apis.Command{Action: "Error", Args: []string{"Missing argument for FETCH"}}
 	}
 }
 
 //Represents an item of the proxy history
 //TODO methods to parse req-resp
+//TODO create a test that fails if this is different from apis.ReqResp
 type ReqResp struct {
 	//Unique Id in the history
-	Id uint
+	Id int
 	//Meta Data about both Req and Resp
-	MetaData *ReqRespMetaData
+	MetaData *apis.ReqRespMetaData
 	//Original Request
 	RawReq []byte
 	//Original Response
@@ -147,12 +148,12 @@ type ReqResp struct {
 //Creates a new history item and safely adds it to the status, incrementing the
 //current id value
 //Returns the id of the newly created item
-func newRawReqResp(rawReq []byte) uint {
+func newRawReqResp(rawReq []byte) int {
 	//log.Println("Locking status for write")
 	status.Lock()
 	//log.Println("Locked")
 	curReq := status.Count
-	tmp := &ReqResp{RawReq: rawReq, Id: curReq, MetaData: newReqRespMetaData(curReq)}
+	tmp := &ReqResp{RawReq: rawReq, Id: curReq, MetaData: apis.NewReqRespMetaData(curReq)}
 	status.ReqResps = append(status.ReqResps, tmp)
 	status.Count += 1
 	//log.Println("UnLocking status")
@@ -160,7 +161,7 @@ func newRawReqResp(rawReq []byte) uint {
 	return curReq
 }
 
-func newReqResp(req *http.Request) uint {
+func newReqResp(req *http.Request) int {
 	tmp, err := httputil.DumpRequest(req, true)
 	if err != nil {
 		//TODO
@@ -179,7 +180,7 @@ type mayBeRequest struct {
 //a struct used to transmit to the dispatchLoop a requests that waits to be
 //edited or forwarded by the user
 type pendingRequest struct {
-	id              uint
+	id              int
 	intercepted     bool
 	originalRequest *http.Request
 	modifiedRequest chan *mayBeRequest
@@ -194,7 +195,7 @@ type mayBeResponse struct {
 //a struct used to transmit to the dispatchLoop a response that waits to be
 //edited or forwarded by the user
 type pendingResponse struct {
-	id               uint
+	id               int
 	originalResponse *http.Response
 	originalRequest  *http.Request
 	modifiedResponse chan *mayBeResponse

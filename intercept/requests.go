@@ -11,6 +11,8 @@ import (
 	"log"
 	"net/http"
 	"net/http/httputil"
+
+	"github.com/empijei/wapty/ui/apis"
 )
 
 //Represents the queue of requests that have been intercepted
@@ -39,17 +41,17 @@ func handleRequest(preq *pendingRequest) {
 	}
 	var editedRequest *http.Request
 	var providedResp *http.Response
-	editedRequestDump, action := editBuffer(REQUEST, req, r.URL.Scheme+"://"+r.Host)
+	editedRequestDump, action := editBuffer(apis.REQUEST, req, r.URL.Scheme+"://"+r.Host)
 	switch action {
-	case FORWARD:
+	case apis.FORWARD.String():
 		r.ContentLength = ContentLength
 		editedRequest = r
-	case EDIT:
+	case apis.EDIT.String():
 		editedRequest, err = editCase(editedRequestDump)
 		status.addRawEditedRequest(preq.id, editedRequestDump)
-	case DROP:
+	case apis.DROP.String():
 		providedResp = caseDrop()
-	case PROVIDERESP:
+	case apis.PROVIDERESP.String():
 		providedResponseBuffer := bufio.NewReader(bytes.NewReader(editedRequestDump))
 		providedResp, err = http.ReadResponse(providedResponseBuffer, preq.originalRequest)
 		if err != nil {
@@ -66,7 +68,7 @@ func handleRequest(preq *pendingRequest) {
 	preq.modifiedRequest <- &mayBeRequest{req: editedRequest, res: providedResp, err: err}
 }
 
-func preProcessRequest(req *http.Request) (autoEdited *http.Request, Id uint, err error) {
+func preProcessRequest(req *http.Request) (autoEdited *http.Request, Id int, err error) {
 	stripHTHHeaders(&(req.Header))
 	Id = newReqResp(req)
 	//TODO Add autoedit here
@@ -78,7 +80,7 @@ func preProcessRequest(req *http.Request) (autoEdited *http.Request, Id uint, er
 	return
 }
 
-func editRequest(req *http.Request, Id uint) (*http.Request, *http.Response, error) {
+func editRequest(req *http.Request, Id int) (*http.Request, *http.Response, error) {
 	//Send request to the dispatchLoop
 	ModifiedRequest := make(chan *mayBeRequest)
 	RequestQueue <- &pendingRequest{id: Id, originalRequest: req, modifiedRequest: ModifiedRequest}

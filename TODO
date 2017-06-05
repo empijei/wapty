@@ -1,5 +1,7 @@
 create executables for every subpackage
+use https://golang.org/pkg/net/http/httptest/
 
+port html to go templating language
 
 Stage 1:
 move inits to declarations where possible
