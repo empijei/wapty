@@ -90,11 +90,11 @@ func handleGet(cmd *ui.Command) {
 		return
 	}
 	r := status.Repeats[ri]
-	if len(r.history) <= itemn {
+	if len(r.History) <= itemn {
 		log.Println("Repeater item out of range")
 		return
 	}
-	repitem, err := json.Marshal(r.history[itemn])
+	repitem, err := json.Marshal(r.History[itemn])
 	if err != nil {
 		log.Println("Error while marshaling repeat item")
 		return

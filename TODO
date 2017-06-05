@@ -1,3 +1,6 @@
+create executables for every subpackage
+
+
 Stage 1:
 move inits to declarations where possible
 releasing the intercept should forward all pending requests

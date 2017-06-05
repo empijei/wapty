@@ -21,13 +21,13 @@ type RepeatItem struct {
 
 type Repeater struct {
 	m       sync.Mutex
-	history []RepeatItem
-	timeout time.Duration
+	History []RepeatItem
+	Timeout time.Duration
 }
 
 func NewRepeater() *Repeater {
 	return &Repeater{
-		timeout: defaultTimeout,
+		Timeout: defaultTimeout,
 	}
 }
 
@@ -47,7 +47,7 @@ func (r *Repeater) Repeat(buf io.Reader, host string, _tls bool) (res io.Reader,
 		return
 	}
 	defer func() { _ = conn.Close() }()
-	_ = conn.SetDeadline(time.Now().Add(r.timeout))
+	_ = conn.SetDeadline(time.Now().Add(r.Timeout))
 	resbuf := bytes.NewBuffer(nil)
 	errWrite := make(chan error)
 
@@ -67,6 +67,6 @@ func (r *Repeater) Repeat(buf io.Reader, host string, _tls bool) (res io.Reader,
 	if err != nil {
 		return nil, err
 	}
-	r.history = append(r.history, RepeatItem{Request: savedReq.Bytes(), Response: resbuf.Bytes()})
+	r.History = append(r.History, RepeatItem{Request: savedReq.Bytes(), Response: resbuf.Bytes()})
 	return resbuf, nil
 }

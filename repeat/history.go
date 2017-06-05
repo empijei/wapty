@@ -1,7 +1,6 @@
 package repeat
 
 import (
-	"bytes"
 	"encoding/json"
 	"io"
 	"sync"
@@ -20,9 +19,7 @@ func (h *Repeaters) Add(r *Repeater) {
 	h.Repeats = append(h.Repeats, r)
 }
 
-func (h *Repeaters) Save() io.Reader {
-	b := bytes.NewBuffer(nil)
-	e := json.NewEncoder(b)
-	go e.Encode(h)
-	return b
+func (h *Repeaters) Save(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(h)
 }

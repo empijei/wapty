@@ -1,7 +1,7 @@
 package repeat
 
 import (
-	"io/ioutil"
+	"bytes"
 	"testing"
 )
 
@@ -12,12 +12,12 @@ func TestSave(t *testing.T) {
 		Request:  []byte("Request"),
 		Response: []byte("Response"),
 	}
-	rr.history = append(rr.history, ri)
+	rr.History = append(rr.History, ri)
 	status.Add(rr)
-	r := status.Save()
-	buf, err := ioutil.ReadAll(r)
+	b := bytes.NewBuffer(nil)
+	err := status.Save(b)
 	if err != nil {
-		t.Error(err)
+		t.Log(err)
 	}
-	t.Log(string(buf))
+	t.Log(string(b.Bytes()))
 }
