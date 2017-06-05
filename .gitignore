@@ -6,3 +6,5 @@ tmp.response
 Wapty
 wapty
 Wapty.debug
+gopherjs.js
+*.map
