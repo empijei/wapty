@@ -101,7 +101,7 @@ func main() {
 			if msg.Args[0] == apis.REQUEST.String() {
 				text = "Request for: "
 			} else {
-				text = "Response for:"
+				text = "Response for: "
 			}
 			endpointIndicator.SetTextContent(text + msg.Args[1])
 			controls = true
