@@ -20,7 +20,7 @@ func editBuffer(p apis.PayloadType, b []byte, endpoint string) ([]byte, string) 
 	log.Println("Editing " + p.String())
 	//result := apis.Command{Action: "edit", Payload: b, Channel: EDITORCHANNEL}
 	args := []string{p.String(), endpoint}
-	uiEditor.Send(apis.Command{Action: "edit", Args: args, Payload: b})
+	uiEditor.Send(apis.Command{Action: apis.EDIT.String(), Args: args, Payload: b})
 	log.Println("Waiting for user interaction")
 	result := <-uiEditor.DataChannel
 	log.Println("User interacted")
