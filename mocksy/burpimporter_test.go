@@ -75,10 +75,16 @@ func TestBurpImporter(t *testing.T) {
 		t.Fatal(err)
 	}
 	if len(itm.Items) != 2 {
-		t.Fatal(err)
+		t.Fatal(fmt.Errorf("Expected items to have length 2, but have length %d", len(itm.Items)))
 	}
 	//TODO make sure everything was imported
 	fmt.Printf("%#v", itm)
 	fmt.Printf(string(itm.Items[0].Request.Bytes()))
 	fmt.Printf(string(itm.Items[1].Request.Bytes()))
+	if itm.Items[0].Response.Base64 != "false" {
+		t.Fatal("Expected response to not be base64, but have Base64=", itm.Items[0].Response.Base64)
+	}
+	if itm.Items[1].Response.Base64 != "true" {
+		t.Fatal("Expected response to be base64, but have Base64=", itm.Items[1].Response.Base64)
+	}
 }

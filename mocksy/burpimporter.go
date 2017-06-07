@@ -49,19 +49,20 @@ type Host struct {
 }
 
 type Item struct {
-	Time           string  `xml:"time"`
-	Url            string  `xml:"url"`
-	Request        Request `xml:"request"`
-	Host           Host    `xml:"host"`
-	Port           string  `xml:"port"`
-	Protocol       string  `xml:"protocol"`
-	Method         string  `xml:"method"`
-	Path           string  `xml:"path"`
-	Extension      string  `xml:"extension"`
-	Status         string  `xml:"status"`
-	Responselength string  `xml:"responselength"`
-	Mimetype       string  `xml:"mimetype"`
-	Comment        string  `xml:"comment"`
+	Time           string   `xml:"time"`
+	Url            string   `xml:"url"`
+	Request        Request  `xml:"request"`
+	Host           Host     `xml:"host"`
+	Port           string   `xml:"port"`
+	Protocol       string   `xml:"protocol"`
+	Method         string   `xml:"method"`
+	Path           string   `xml:"path"`
+	Extension      string   `xml:"extension"`
+	Status         string   `xml:"status"`
+	ResponseLength string   `xml:"responselength"`
+	Response       Response `xml:"response"`
+	Mimetype       string   `xml:"mimetype"`
+	Comment        string   `xml:"comment"`
 }
 
 type Items struct {
