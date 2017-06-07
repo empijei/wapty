@@ -7,6 +7,20 @@ import (
 	"strings"
 )
 
+//TODO recognise other encodings
+const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+const variant = "+/"
+const padding = "="
+const urlVariant = "-_"
+
+const b64name = "b64"
+
+var encoding = base64.StdEncoding.WithPadding(base64.NoPadding)
+
+func init() {
+	addCodecC(b64name, codecConstructor(NewBase64CodecC))
+}
+
 type Base64 struct {
 	input  string
 	cursor int
@@ -14,35 +28,31 @@ type Base64 struct {
 	output *bytes.Buffer
 }
 
-//TODO recognise other encodings
-const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-const variant = "+/"
-const padding = "="
-const urlVariant = "-_"
-
-var encoding = base64.StdEncoding.WithPadding(base64.NoPadding)
-
-func NewBase64CodecC(in string) *Base64 {
+func NewBase64CodecC(in string) CodecC {
 	return &Base64{
 		input:  in,
 		output: bytes.NewBuffer(make([]byte, 0, encoding.DecodedLen(len(in)))),
 	}
 }
 
+func (b *Base64) String() string {
+	return b64name
+}
+
 //Moves b.cursor to the first valid character of a valid chunk
 func (b *Base64) nextValid() {
 	validseen := 0
-	for b.cursor < len(b.input) {
-		if b.isValid(rune(b.input[b.cursor])) {
+	for b.pos < len(b.input) {
+		if b.isValid(rune(b.input[b.pos])) {
 			validseen++
 		} else {
 			validseen = 0
 		}
 		if validseen > 1 {
-			b.cursor--
+			b.pos--
 			break
 		}
-		b.cursor++
+		b.pos++
 	}
 }
 
@@ -74,12 +84,12 @@ func (b *Base64) Decode() (output string, isPrintable bool) {
 	out, err := encoding.DecodeString(b.input)
 	if err != nil {
 		//Decode as much as possible
-		for b.pos < len(b.input) {
+		for b.cursor < len(b.input) {
 			b.acceptRun()
 			b.decodeChunk()
 			b.nextValid()
-			b.output.WriteString(genInvalid(b.cursor - b.pos))
-			b.pos = b.cursor
+			b.output.WriteString(genInvalid(b.pos - b.cursor))
+			b.cursor = b.pos
 		}
 		output = string(b.output.Bytes())
 	} else {
