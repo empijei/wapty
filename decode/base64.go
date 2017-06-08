@@ -8,10 +8,6 @@ import (
 )
 
 //TODO recognise other encodings
-const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-const variant = "+/"
-const padding = "="
-const urlVariant = "-_"
 
 const b64name = "b64"
 
