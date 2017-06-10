@@ -5,7 +5,7 @@ BINARY=wapty
 VERSION=0.2.0
 BUILD=`git rev-parse HEAD`
 
-LDFLAGS=-ldflags "-X main.Version=${VERSION} -X main.Build=${BUILD}"
+LDFLAGS=-ldflags "-X main.Version=${VERSION} -X main.Commit=${BUILD}"
 
 .DEFAULT_GOAL: ${BINARY}
 
