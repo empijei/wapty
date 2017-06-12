@@ -90,7 +90,7 @@ func (h *History) getItem(Id int) *ReqResp {
 func historyLoop() {
 	for {
 		select {
-		case cmd := <-uiHistory.DataChannel:
+		case cmd := <-uiHistory.RecChannel():
 			switch cmd.Action {
 			case apis.DUMP.String():
 				status.RLock()

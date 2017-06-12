@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/empijei/wapty/ui"
 	"github.com/empijei/wapty/ui/apis"
 )
 
@@ -28,7 +27,10 @@ var editBufferTests = []struct {
 
 func TestEditBuffer(t *testing.T) {
 	mockChan := make(chan apis.Command)
-	uiEditor = &ui.Subscription{DataChannel: mockChan}
+	uiEditor = &MockSubscription{DataCh: mockChan}
+	//uiEditor = &ui.SubscriptionImpl{
+	//dataCh: mockChan,
+	//}
 	defer func() {
 		uiEditor = nil
 		close(mockChan)

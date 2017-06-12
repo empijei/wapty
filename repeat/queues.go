@@ -7,7 +7,6 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/empijei/wapty/ui"
 	"github.com/empijei/wapty/ui/apis"
 )
 
@@ -16,7 +15,7 @@ var done = make(chan struct{})
 func RepeaterLoop() {
 	for {
 		select {
-		case cmd := <-uiRepeater.DataChannel:
+		case cmd := <-uiRepeater.RecChannel():
 			switch cmd.Action {
 			case apis.CREATE.String():
 				r := NewRepeater()
@@ -34,7 +33,7 @@ func RepeaterLoop() {
 	}
 }
 
-func handleGo(cmd *ui.Command) {
+func handleGo(cmd *apis.Command) {
 	if len(cmd.Args) != 3 {
 		//TODO
 		log.Println("Wrong number of parameters")
@@ -64,11 +63,11 @@ func handleGo(cmd *ui.Command) {
 	//TODO send response
 	//BOOKMARK
 	uiRepeater.Send(
-		ui.Command{},
+		apis.Command{},
 	)
 }
 
-func handleGet(cmd *ui.Command) {
+func handleGet(cmd *apis.Command) {
 	if len(cmd.Args) != 2 {
 		//TODO
 		log.Println("Wrong number of parameters")
@@ -101,7 +100,7 @@ func handleGet(cmd *ui.Command) {
 		return
 	}
 	uiRepeater.Send(
-		ui.Command{
+		apis.Command{
 			Action:  apis.GET.String(),
 			Args:    cmd.Args,
 			Payload: repitem,

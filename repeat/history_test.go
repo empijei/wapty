@@ -19,5 +19,6 @@ func TestSave(t *testing.T) {
 	if err != nil {
 		t.Log(err)
 	}
+	//FIXME
 	t.Log(string(b.Bytes()))
 }

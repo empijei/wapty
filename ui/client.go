@@ -11,6 +11,7 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+//TODO this is not good practice
 const channelBufSize = 100
 
 var maxId int = 0

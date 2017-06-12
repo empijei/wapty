@@ -9,7 +9,7 @@ import (
 func settingsLoop() {
 	for {
 		select {
-		case cmd := <-uiSettings.DataChannel:
+		case cmd := <-uiSettings.RecChannel():
 			log.Println("Settings accessed")
 			switch cmd.Action {
 			case apis.INTERCEPT.String():

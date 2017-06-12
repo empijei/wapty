@@ -23,7 +23,7 @@ var done chan struct{}
 //If value is set to true tells the proxy to start the intercept
 var intercept SyncBool
 
-var uiSettings *ui.Subscription
+var uiSettings ui.Subscription
 
 type SyncBool struct {
 	sync.RWMutex
