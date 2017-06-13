@@ -2,20 +2,39 @@
 ## Implemented Features
 
 * [x] Proxy
+	* [x] Backend
+	* [x] UI
 * [x] Proxy History
-* [ ] UI Framework [currently missing templating system] 
-* [ ] Repeater [backend implemented]
-* [ ] Decoder [missing some formats, only supports cli]
+	* [x] Backend
+	* [x] UI
+* [ ] Repeat
+	* [x] Backend
+	* [ ] UI
+* [ ] Decode 
+	* [x] Backend
+	* [x] CLI
+	* [ ] UI
+	* Codecs
+		* [ ] Binary
+		* [x] Base 16 
+		* [ ] Base32
+		* [x] Base64
+		* [ ] URL
+		* [ ] HTML Entities
+		* [ ] Javascript-Escape
+		* [ ] Gzip
 * [ ] Save/Load
-* [ ] Intruder
-* [ ] Spider
-* [ ] Scanner
-* [ ] Mock server
+* [ ] Intrude
+* [ ] Sequence
+* [ ] Compare
+* [ ] Crawl
+* [ ] Scan
+* [ ] Mock
 * [ ] User Documentation
-* [ ] Plugin Manager
+* [ ] Extend
 * [ ] Dashboard
 
-# TODOs
+# Detailed TODOs
 ## Initial stage 
 This stage will be the first stage for wapty, before this is finished wapty will likely have unstable APIs and won't be really usable.
 
@@ -68,6 +87,7 @@ This is meant to be mostly an improvement, adding features that are less used in
 * [ ] Add Spider (remember to add timeouts §8.10)
 * [ ] Add Scanner
 * [ ] Add recursive intruder with flows
+* [ ] Add syntax highlight for relevant buffers
 * [ ] Test transparent proxying
 * [ ] Allow to transparently remap a local port to another one with custom certificate. see [tlsmitm](https://github.com/empijei/tlsmitm) as a reference
 
@@ -82,7 +102,9 @@ This section contains the features that burpsuite lacks but that will make this 
 These features will probably be implemented along with the ones in the other stages.
 
 * [ ] Add Mocksy
-* [ ] Add pre-engagement analysis/recon
+* [ ] Add pre-engagement 
+	* [ ] analysis/recon, 
+	* [ ] detect technologies used/versions
 * [ ] Add a Pathfinder feature to spider that allows to backtrace how a certain URL was discovered
 * [ ] Add a Plugin manager / Make plugin behave as package testing, just plug the stuff
 * [ ] Add a SQLmap invoker
