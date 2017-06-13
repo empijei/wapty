@@ -38,6 +38,8 @@ This stage will be the first stage for wapty, before this is finished wapty will
 * [ ] Serve the certificates on a specific fake host/path
 * [ ] Add req ID to editor and reject unexpected requests
 * [ ] Add Intruder
+* [ ] Allow for creating multiple proxies, change ports. 
+* [ ] Keep track of which proxy intercepted the request in metadata.
 * [ ] [UI] Send the whole status on ui connect
 * [ ] [UI] Sanitize metadata
 * [ ] [UI] show already pending request/response upon connection
@@ -66,6 +68,8 @@ This is meant to be mostly an improvement, adding features that are less used in
 * [ ] Add Spider (remember to add timeouts §8.10)
 * [ ] Add Scanner
 * [ ] Add recursive intruder with flows
+* [ ] Test transparent proxying
+* [ ] Allow to transparently remap a local port to another one with custom certificate. see [tlsmitm](https://github.com/empijei/tlsmitm) as a reference
 
 ## Release
 * [ ] Have penetration testers use wapty for a while, collect feedback
