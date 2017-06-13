@@ -1,6 +1,26 @@
-# Initial stage
+# Roadmap 
+## Implemented Features
+
+* [x] Proxy
+* [x] Proxy History
+* [ ] UI Framework [currently missing templating system] 
+* [ ] Repeater [backend implemented]
+* [ ] Decoder [missing some formats, only supports cli]
+* [ ] Save/Load
+* [ ] Intruder
+* [ ] Spider
+* [ ] Scanner
+* [ ] Mock server
+* [ ] User Documentation
+* [ ] Plugin Manager
+* [ ] Dashboard
+
+# TODOs
+## Initial stage 
 This stage will be the first stage for wapty, before this is finished wapty will likely have unstable APIs and won't be really usable.
 
+* [x] Implement Proxy
+* [x] Implement History
 * [x] Use a formal approach to fuzzy decoding
 * [ ] Refactor Decode package
 * [x] Rewrite UI in gopherjs
@@ -24,6 +44,7 @@ This stage will be the first stage for wapty, before this is finished wapty will
 * [ ] [UI] error log
 * [ ] [UI] auto-open ui in browser on launch
 * [ ] [UI] monospace textareas
+* [ ] [UI] resizable splits
 * [ ] Look for fixmes and todos in the code
 * [ ] Provide a ui to the decoder
 
@@ -35,7 +56,7 @@ The following is just some general polishing before calling this a proper projec
 * [ ] Doc comment should be a complete sentence that starts with the name being declared.
 * [ ] general code polish, doc and and testing
 
-# Moving to Release
+## Moving to Release
 This is meant to be mostly an improvement, adding features that are less used in burpsuite but are still there and should end up in wapty before it is called a proper replacement for burp
 
 * [ ] Add AutoEdit
@@ -46,12 +67,12 @@ This is meant to be mostly an improvement, adding features that are less used in
 * [ ] Add Scanner
 * [ ] Add recursive intruder with flows
 
-# Release
+## Release
 * [ ] Have penetration testers use wapty for a while, collect feedback
 * [ ] Implement fixes, add suggestions to a feature list
 * [ ] Advertise and publish the project on a broader scale
 
-# Improvements
+## Improvements
 This section contains the features that burpsuite lacks but that will make this project different :)
 
 These features will probably be implemented along with the ones in the other stages.
@@ -64,7 +85,7 @@ These features will probably be implemented along with the ones in the other sta
 * [ ] Add SAML, JWT decoder/editor
 * [ ] Add fuzzing payloads generator
 
-# Misc:
+## Misc:
 These are the feature I still don't know if are worth adding
 
 (PRs are welcome :D )
