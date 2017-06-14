@@ -37,7 +37,7 @@ buildjs:
 
 rebind:
 	# Cleaning and re-embedding assets
-	cd ui && rm rice-box.go >& /dev/null; rice embed-go
+	cd ui && rm rice-box.go 1>/dev/null 2>/dev/null; rice embed-go
 
 install: installdeps buildjs rebind
 	# Installing the executable
