@@ -40,7 +40,7 @@ type Encoder interface {
 type Checker interface {
 	//Returns a metric to determine how likely it is for the given string to be
 	//a valid value for the specified Checker Type.
-	//The likelyhood always ranges between 0 and 1
+	//The likelihood always ranges between 0 and 1
 	Check() (acceptability float64)
 }
 
@@ -73,6 +73,6 @@ func SmartDecode(input string) (c CodecC) {
 			c = tmp
 		}
 	}
-	log.Printf("Smart Decoding, selected: %s with likelyhood==%d%%", c.String(), int(curvalue*100))
+	log.Printf("Smart Decoding, selected: %s with likelihood==%d%%", c.String(), int(curvalue*100))
 	return
 }

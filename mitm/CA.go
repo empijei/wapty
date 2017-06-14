@@ -1,4 +1,4 @@
-//Package mitm is the core of this project and is reponsible for creating a proxy that
+//Package mitm is the core of this project and is responsible for creating a proxy that
 //intercepts all the HTTP/HTTPS traffic going through it.
 //The SSL bumping is currently made by using a fake CA whose keys are stored in
 //path.Join(os.Getenv("HOME"), ".mitm")
