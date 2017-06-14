@@ -75,6 +75,7 @@ The following is just some general polishing before calling this a proper projec
 * [ ] Move all constant strings to actual constants
 * [ ] All the deferred closes if err!= nil send that, otherwise propagate the new one
 * [ ] Doc comment should be a complete sentence that starts with the name being declared.
+* [ ] Lint the code, improve score on goreportcard
 * [ ] general code polish, doc and and testing
 
 ## Moving to Release
