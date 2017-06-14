@@ -12,8 +12,12 @@ import (
 )
 
 var (
+	//Version is taken by the build flags, represent current version in
+	//main.sub.patch notation
 	Version string
-	Commit  string
+
+	//Commit is the output of `git rev-parse HEAD` at the moment of the build
+	Commit string
 )
 
 var commands = []struct {

@@ -64,11 +64,10 @@ func takeInput() string {
 			os.Exit(2)
 		}
 		return string(buf)
-	} else {
-		if len(args) == 0 {
-			fmt.Fprintln(os.Stderr, "Didn't find anything to decode/encode, exiting...")
-			os.Exit(2)
-		}
-		return args[0]
 	}
+	if len(args) == 0 {
+		fmt.Fprintln(os.Stderr, "Didn't find anything to decode/encode, exiting...")
+		os.Exit(2)
+	}
+	return args[0]
 }

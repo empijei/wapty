@@ -1,4 +1,3 @@
-//websock will handle all clients that are connected using the websocket server.
 package ui
 
 import (

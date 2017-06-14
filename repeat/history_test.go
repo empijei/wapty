@@ -7,7 +7,7 @@ import (
 
 func TestSave(t *testing.T) {
 	rr := NewRepeater()
-	ri := RepeatItem{
+	ri := Item{
 		Host:     "host:port",
 		Request:  []byte("Request"),
 		Response: []byte("Response"),

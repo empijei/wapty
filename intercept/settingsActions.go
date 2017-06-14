@@ -33,12 +33,11 @@ func handleIntercept(cmd apis.Command) apis.Command {
 			value = "true"
 		}
 		return apis.Command{Action: "intercept", Args: []string{value}}
-	} else {
-		log.Println("Requested intercept status")
-		value := "false"
-		if intercept.Value() {
-			value = "true"
-		}
-		return apis.Command{Action: "intercept", Args: []string{value}}
 	}
+	log.Println("Requested intercept status")
+	value := "false"
+	if intercept.Value() {
+		value = "true"
+	}
+	return apis.Command{Action: "intercept", Args: []string{value}}
 }

@@ -10,9 +10,9 @@ import (
 	"time"
 )
 
-var defaultTimeout time.Duration = 10 * time.Second
+var defaultTimeout = 10 * time.Second
 
-type RepeatItem struct {
+type Item struct {
 	Host     string
 	TLS      bool
 	Request  []byte
@@ -21,7 +21,7 @@ type RepeatItem struct {
 
 type Repeater struct {
 	m       sync.Mutex
-	History []RepeatItem
+	History []Item
 	Timeout time.Duration
 }
 
@@ -67,6 +67,6 @@ func (r *Repeater) Repeat(buf io.Reader, host string, _tls bool) (res io.Reader,
 	if err != nil {
 		return nil, err
 	}
-	r.History = append(r.History, RepeatItem{Request: savedReq.Bytes(), Response: resbuf.Bytes()})
+	r.History = append(r.History, Item{Request: savedReq.Bytes(), Response: resbuf.Bytes()})
 	return resbuf, nil
 }

@@ -1,4 +1,4 @@
-//ui is a general high level representation of all the uis connected to the current
+//Package ui is a general high level representation of all the uis connected to the current
 //instance of Wapty. Use this from other packages to read user input and write
 //output
 package ui

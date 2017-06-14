@@ -1,7 +1,3 @@
-//intercept is meant to handle all the interception of requests and responses,
-//including stopping and waiting for edited payloads.
-//Every request going through the proxy is parsed and added to the Status by this
-//package.
 package intercept
 
 import (

@@ -65,7 +65,7 @@ func (h *History) addRawEditedResponse(Id int, rawEditedRes []byte) {
 //func (h *History) addEditedResponse(Id int, res *http.Response) {}
 
 //Dumps the status in the log. This is only meant for debug purposes.
-func StatusDump(status History) {
+func StatusDump(status *History) {
 	status.RLock()
 	foo, err := json.MarshalIndent(status, " ", " ")
 	if err != nil {
@@ -80,9 +80,8 @@ func (h *History) getItem(Id int) *ReqResp {
 	defer h.RUnlock()
 	if Id < h.Count {
 		return h.ReqResps[Id]
-	} else {
-		return nil
 	}
+	return nil
 }
 
 //This loop will wait for commands directed to the history control and will
@@ -97,7 +96,7 @@ func historyLoop() {
 				dump, err := json.Marshal(status)
 				status.RUnlock()
 				if err != nil {
-					StatusDump(status)
+					StatusDump(&status)
 					panic(err)
 				}
 				log.Printf("Dump: %s\n", dump)
@@ -121,10 +120,9 @@ func handleFetch(cmd apis.Command) apis.Command {
 		rr := status.getItem(Id)
 		buf, err := json.Marshal(rr)
 		return apis.Command{Action: apis.FETCH.String(), Payload: buf}
-	} else {
-		log.Println("Missing argument for FETCH")
-		return apis.Command{Action: "Error", Args: []string{"Missing argument for FETCH"}}
 	}
+	log.Println("Missing argument for FETCH")
+	return apis.Command{Action: "Error", Args: []string{"Missing argument for FETCH"}}
 }
 
 //Represents an item of the proxy history
@@ -155,7 +153,7 @@ func newRawReqResp(rawReq []byte) int {
 	curReq := status.Count
 	tmp := &ReqResp{RawReq: rawReq, Id: curReq, MetaData: apis.NewReqRespMetaData(curReq)}
 	status.ReqResps = append(status.ReqResps, tmp)
-	status.Count += 1
+	status.Count++
 	//log.Println("UnLocking status")
 	status.Unlock()
 	return curReq

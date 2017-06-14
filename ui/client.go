@@ -14,7 +14,7 @@ import (
 //TODO this is not good practice
 const channelBufSize = 100
 
-var maxId int = 0
+var maxId int
 
 type Client struct {
 	id     int
@@ -50,7 +50,7 @@ func (c *Client) Write(msg *apis.Command) {
 	case c.ch <- msg:
 	default:
 		c.server.DelClient(c)
-		err := fmt.Errorf("client %d is disconnected.", c.id)
+		err := fmt.Errorf("client %d is disconnected", c.id)
 		c.server.Err(err)
 	}
 }

@@ -1,21 +1,21 @@
 package apis
 
-type UiChannel int
+type UIChannel int
 
 const (
-	EDITORCHANNEL UiChannel = iota
+	EDITORCHANNEL UIChannel = iota
 	HISTORYCHANNEL
 	REPEATCHANNEL
 	SETTINGSCHANNEL
 )
 
-var UiChannels = [...]string{
+var UIChannels = [...]string{
 	"proxy/intercept/editor",
 	"proxy/httpHistory",
 	"repeat",
 	"proxy/intercept/options",
 }
 
-func (uic UiChannel) String() string {
-	return UiChannels[uic]
+func (uic UIChannel) String() string {
+	return UIChannels[uic]
 }

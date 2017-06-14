@@ -207,7 +207,7 @@ func isWebSocket(req *http.Request) bool {
 // request. According to https://tools.ietf.org/html/rfc6455 the correct form is
 // Sec-WebSocket-*, which header canonicalization breaks (some servers care).
 func fixWebsocketHeaders(req *http.Request) {
-	for header, _ := range req.Header {
+	for header := range req.Header {
 		if strings.Contains(header, "Sec-Websocket") {
 			val := req.Header.Get(header)
 			correctHeader := strings.Replace(header, "Sec-Websocket", "Sec-WebSocket", 1)
