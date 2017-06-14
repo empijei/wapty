@@ -1,5 +1,7 @@
 # Wapty (Web Application Penetration Testing Suite)y
 
+[![Build Status](https://travis-ci.org/empijei/wapty.svg?branch=master)](https://travis-ci.org/empijei/wapty)
+
 This project is meant to become an open source replacement for Burp Suite
 
 # DISCLAIMER
