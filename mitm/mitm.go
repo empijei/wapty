@@ -151,7 +151,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	//empijei: This type assertion is awful
+	//empijei: This type assertion is awful and endangers stability
 	cn, _, err := w.(http.Hijacker).Hijack()
 	if err != nil {
 		log.Println("Hijack:", err)
