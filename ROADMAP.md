@@ -4,7 +4,7 @@
 * [x] Proxy
 	* [x] Backend
 	* [x] UI
-* [x] Proxy History
+* [x] History
 	* [x] Backend
 	* [x] UI
 * [ ] Repeat
@@ -86,6 +86,7 @@ This is meant to be mostly an improvement, adding features that are less used in
 * [ ] profile the code, try to find limit-cases
 * [ ] Add Spider (remember to add timeouts §8.10)
 * [ ] Add Scanner
+* [ ] Add Sequencer
 * [ ] Add recursive intruder with flows
 * [ ] Add syntax highlight for relevant buffers
 * [ ] Test transparent proxying
@@ -110,6 +111,8 @@ These features will probably be implemented along with the ones in the other sta
 * [ ] Add a SQLmap invoker
 * [ ] Add SAML, JWT decoder/editor
 * [ ] Add fuzzing payloads generator
+* [ ] Add TUI
+* [ ] Add scripting engine (JS/Lua)
 
 ## Misc:
 These are the feature I still don't know if are worth adding
