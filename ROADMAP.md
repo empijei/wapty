@@ -43,13 +43,14 @@ This stage will be the first stage for wapty, before this is finished wapty will
 * [x] Use a formal approach to fuzzy decoding
 * [ ] Refactor Decode package
 * [x] Rewrite UI in gopherjs
+* [ ] Simplify server-side code for UI
 * [ ] finish Repeat tests
 * [ ] use templates for UI
 * [ ] Add UI to repeater
 * [ ] Add saving functionality
 * [ ] Add scoping
 * [ ] Add history filtering/sorting
-* [ ] releasing the intercept should forward all pending requests
+* [ ] Add functionality: releasing the intercept should forward all pending requests
 * [ ] Add internal router
 * [ ] ignore recursive connect
 * [ ] Add intercept checker in the right spots
