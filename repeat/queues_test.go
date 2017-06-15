@@ -1,6 +1,8 @@
 package repeat
 
 import (
+	"testing"
+
 	"github.com/empijei/wapty/ui/apis"
 )
 
@@ -22,17 +24,23 @@ func (s *MockSubscription) Send(c apis.Command) {
 	s.SentStuff = append(s.SentStuff, c)
 }
 
-/*
-BOOKMARK
+type MockUI struct {
+	channel chan apis.Command
+}
+
+func (u *MockUI) Channel() <-chan apis.Command {
+	return u.channel
+}
+
 func TestHandleGo(t *testing.T) {
 	uirbak := uiRepeater
 	defer func() {
 		uiRepeater = uirbak
 	}()
-	testSubc := make(chan apis.Command)
+	testSubCh := make(chan apis.Command)
 	testSub := &MockSubscription{
-		DataCh: testSub,
+		DataCh: testSubCh,
 	}
-	testUI := ui.UI{}
+	uiRepeater = testSub
+	//BOOKMARK
 }
-*/
