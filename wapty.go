@@ -12,8 +12,8 @@ import (
 )
 
 var (
-	//Version is taken by the build flags, represent current version in
-	//main.sub.patch notation
+	//Version is taken by the build flags, represent current version as
+	//<major>.<minor>.<patch>
 	Version string
 
 	//Commit is the output of `git rev-parse HEAD` at the moment of the build
