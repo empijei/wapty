@@ -9,7 +9,7 @@ import (
 const b16name = "b16"
 
 func init() {
-	addCodecC(b16name, codecConstructor(NewBase16CodecC))
+	addCodecC(b16name, codecConstructor(NewB16CodecC))
 }
 
 type Base16 struct {
@@ -19,7 +19,7 @@ type Base16 struct {
 	output *bytes.Buffer
 }
 
-func NewBase16CodecC(in string) CodecC {
+func NewB16CodecC(in string) CodecC {
 	return &Base16{
 		input:  in,
 		output: bytes.NewBuffer(make([]byte, 0, hex.DecodedLen(len(in)))),
@@ -68,7 +68,7 @@ func (b *Base16) isValid(r rune) bool {
 	return strings.ContainsAny(string(r), "0123456789abcdefABCDEF")
 }
 
-func (b *Base16) Decode() (output string, isPrintable bool) {
+func (b *Base16) Decode() (output string) {
 	out, err := hex.DecodeString(b.input)
 	if err != nil {
 		//Decode as much as possible
@@ -83,7 +83,6 @@ func (b *Base16) Decode() (output string, isPrintable bool) {
 	} else {
 		output = string(out)
 	}
-	isPrintable = isStringPrintable(output)
 	return
 }
 

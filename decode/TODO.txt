@@ -1,9 +1,3 @@
-base32
-gzip
-url
-binary
-octal
-
 html entity https://en.wikipedia.org/wiki/Character_encodings_in_HTML
 A numeric character reference in HTML refers to a character by its Universal Character Set/Unicode code point, and uses the format
 &#nnnn;

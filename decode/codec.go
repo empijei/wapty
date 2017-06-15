@@ -8,28 +8,22 @@ import (
 	"unicode"
 )
 
-var invalid = '�'
-
 type codecConstructor func(string) CodecC
 
 var codecs = make(map[string]codecConstructor)
-var codecs_m sync.Mutex
+var codecsM sync.Mutex
 
 func addCodecC(name string, c codecConstructor) {
-	codecs_m.Lock()
-	defer codecs_m.Unlock()
+	codecsM.Lock()
+	defer codecsM.Unlock()
 	codecs[name] = c
-}
-
-func genInvalid(n int) (inv string) {
-	return strings.Repeat(string(invalid), n)
 }
 
 type Decoder interface {
 	//Decodes the string and returns a decoded value that tries to skip invalid
 	//input and to decode as much as possible.
 	//Returns if the decoded string can be printed as valid unicode.
-	Decode() (output string, isPrintable bool)
+	Decode() (output string)
 }
 
 type Encoder interface {
@@ -51,18 +45,6 @@ type CodecC interface {
 	fmt.Stringer
 }
 
-func isStringPrintable(s string) bool {
-	if strings.Contains(s, string(invalid)) {
-		return false
-	}
-	for _, r := range s {
-		if !unicode.IsPrint(r) {
-			return false
-		}
-	}
-	return true
-}
-
 func SmartDecode(input string) (c CodecC) {
 	//loop through the available CodecCs and determine which one is the best one
 	var curvalue float64
@@ -75,4 +57,17 @@ func SmartDecode(input string) (c CodecC) {
 	}
 	log.Printf("Smart Decoding, selected: %s with likelihood==%d%%", c.String(), int(curvalue*100))
 	return
+}
+
+// IsPrint checks if a decoded string is a valid utf string
+func IsPrint(decoded string) bool {
+	if strings.Contains(decoded, string(invalid)) {
+		return false
+	}
+	for _, r := range decoded {
+		if !unicode.IsPrint(r) {
+			return false
+		}
+	}
+	return true
 }

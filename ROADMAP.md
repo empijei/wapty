@@ -41,7 +41,7 @@ This stage will be the first stage for wapty, before this is finished wapty will
 * [x] Implement Proxy
 * [x] Implement History
 * [x] Use a formal approach to fuzzy decoding
-* [ ] Refactor Decode package
+* [x] Refactor Decode package
 * [x] Rewrite UI in gopherjs
 * [ ] Simplify server-side code for UI
 * [ ] finish Repeat tests

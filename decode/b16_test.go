@@ -44,13 +44,13 @@ var Base16Test = []struct {
 func TestB16Decode(t *testing.T) {
 	//invalid = '§'
 	for _, tt := range Base16Test {
-		d := NewBase16CodecC(tt.in)
-		out, ip := d.Decode()
+		d := NewB16CodecC(tt.in)
+		out := d.Decode()
 		if out != tt.eOut {
 			t.Errorf("Expected decoded value: '%s' but got '%s'", tt.eOut, out)
 		}
-		if ip != tt.eIsPrint {
-			t.Errorf("Expected printable: %v but got %v", tt.eIsPrint, ip)
+		if IsPrint(out) != tt.eIsPrint {
+			t.Errorf("Expected printable: %v", tt.eIsPrint)
 		}
 	}
 }

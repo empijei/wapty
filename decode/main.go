@@ -39,7 +39,7 @@ func MainStandalone() {
 		if *encode {
 			buf = c.Encode()
 		} else {
-			buf, _ = c.Decode()
+			buf = c.Decode()
 		}
 		//This is to avoid printing twice the final result
 		if i < len(sequence)-2 {
