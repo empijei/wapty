@@ -28,6 +28,7 @@ type Base64 struct {
 	input string
 }
 
+// nolint: gocyclo
 func NewB64CodecC(in string) CodecC {
 	ignorePadding := func(l *decoder, start Pos) {
 		for {
