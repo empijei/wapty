@@ -30,5 +30,9 @@ Root certs are in `$HOME/.wapty`
 # Project Status
 for currently available features and what will be supported please refer to [our roadmap](https://github.com/empijei/wapty/blob/master/ROADMAP.md).
 
+A screenshot:
+
+![intercept](https://github.com/empijei/wapty/raw/master/documentation/screenshot.png)
+
 # Contribute
 Pull Requests are welcome, or if you'd like to actively contribute or become part of the team feel free to shoot me a short email of presentation at [empijei@gmail.com](mailto:empijei@gmail.com) or join our [telegram channel](https://telegram.me/waptysuite)
