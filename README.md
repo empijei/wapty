@@ -6,6 +6,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/empijei/wapty)](https://goreportcard.com/report/github.com/empijei/wapty)
 [![Changelog](https://img.shields.io/github/release/empijei/wapty.svg?maxAge=2592000)](https://github.com/empijei/wapty/releases)
 [![Telegram Chat](https://img.shields.io/badge/discuss-telegram-179cde.svg?maxAge=3600)](https://telegram.me/waptysuite)
+[![Funding](https://img.shields.io/badge/funding-just%20a%20hobby-lightgrey.svg)](https://github.com/empijei/wapty) 
 
 
 This project is meant to become an open source replacement for Burp Suite, but we are [not there yet](https://github.com/empijei/wapty/blob/master/ROADMAP.md).
@@ -26,8 +27,8 @@ Then visit localhost:8081
 
 Root certs are in `$HOME/.wapty`
 
-# Status
+# Project Status
 for currently available features and what will be supported please refer to [our roadmap](https://github.com/empijei/wapty/blob/master/ROADMAP.md).
 
 # Contribute
-Pull Requests are welcome, or if you'd like to actively contribute or become part of the team feel free to shoot me a short email of presentation at [empijei@gmail.com](mailto:empijei@gmail.com)
+Pull Requests are welcome, or if you'd like to actively contribute or become part of the team feel free to shoot me a short email of presentation at [empijei@gmail.com](mailto:empijei@gmail.com) or join our [telegram channel](https://telegram.me/waptysuite)
