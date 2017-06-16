@@ -6,7 +6,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/empijei/wapty)](https://goreportcard.com/report/github.com/empijei/wapty)
 [![Changelog](https://img.shields.io/github/release/empijei/wapty.svg?maxAge=2592000)](https://github.com/empijei/wapty/releases)
 [![Telegram Chat](https://img.shields.io/badge/discuss-telegram-179cde.svg?maxAge=3600)](https://telegram.me/waptysuite)
-[![Funding](https://img.shields.io/badge/funding-not yet-lightgrey.svg?maxAge=2592000)]()
+[![Funding](https://img.shields.io/badge/funding-not yet-lightgrey.svg?maxAge=2592000)](https://not-available-yet.science/)
 
 
 This project is meant to become an open source replacement for Burp Suite, but we are [not there yet](https://github.com/empijei/wapty/blob/master/ROADMAP.md).
