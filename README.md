@@ -1,17 +1,15 @@
 # Wapty (Web Application Penetration Testing Suite)y
 
+[![License](https://img.shields.io/github/license/empijei/wapty.svg?maxAge=360000)](https://raw.githubusercontent.com/empijei/wapty/master/LICENSE)
+
 [![Build Status](https://travis-ci.org/empijei/wapty.svg?branch=master)](https://travis-ci.org/empijei/wapty) 
 [![Go Report Card](https://goreportcard.com/badge/github.com/empijei/wapty)](https://goreportcard.com/report/github.com/empijei/wapty)
+[![Changelog](https://img.shields.io/github/release/empijei/wapty.svg?maxAge=2592000)](https://github.com/empijei/wapty/releases)
+[![Telegram Chat](https://img.shields.io/badge/discuss-telegram-179cde.svg?maxAge=3600)](https://telegram.me/waptysuite)
+[![Funding](https://img.shields.io/badge/funding-not yet-lightgrey.svg?maxAge=2592000)]()
 
-This project is meant to become an open source replacement for Burp Suite
 
-# DISCLAIMER
-VERY EARLY STAGE, Don't use this. 
-
-Really, don't
-
-But if you really do want to use this
-
+This project is meant to become an open source replacement for Burp Suite, but we are [not there yet](https://github.com/empijei/wapty/blob/master/ROADMAP.md).
 # Usage
 ```sh
 go get empijei/wapty

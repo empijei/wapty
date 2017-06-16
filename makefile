@@ -27,7 +27,7 @@ run:
 fast: run
 
 test: buildjs rebind
-	go test -x ${LDFLAGS} ./...
+	go test -i -x ${LDFLAGS} ./...
 
 buildjs:
 	# Regenerating minified js
