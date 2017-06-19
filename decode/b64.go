@@ -105,7 +105,7 @@ func NewB64CodecC(in string) CodecC {
 			return variantState
 		case bytes.ContainsRune([]byte(b64UrlVariant), n):
 			return urlVariantState
-		case n == -1:
+		case n == eof:
 			return nil
 		default:
 			return invalidState
@@ -130,7 +130,7 @@ func NewB64CodecC(in string) CodecC {
 				emit(d, itemInvalid)
 				return urlVariantState
 
-			case n == -1:
+			case n == eof:
 				emit(d, itemInvalid)
 				return nil
 			}
@@ -152,7 +152,7 @@ func NewB64CodecC(in string) CodecC {
 				d.backup()
 				return urlVariantState
 
-			case n == -1:
+			case n == eof:
 				emit(d, itemAlphabet)
 				return nil
 
@@ -173,7 +173,7 @@ func NewB64CodecC(in string) CodecC {
 				d.acceptRun(b64Alphabet + b64Variant)
 				continue
 
-			case n == -1:
+			case n == eof:
 				emit(d, itemVariant)
 				return nil
 
@@ -194,7 +194,7 @@ func NewB64CodecC(in string) CodecC {
 				d.acceptRun(b64Alphabet + b64UrlVariant)
 				continue
 
-			case n == -1:
+			case n == eof:
 				emit(d, itemUrlVariant)
 				return nil
 

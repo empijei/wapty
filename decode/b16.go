@@ -76,7 +76,7 @@ func NewB16CodecC(in string) CodecC {
 		switch n := d.peek(); {
 		case bytes.ContainsRune([]byte(b64Alphabet), n):
 			return alphabetState
-		case n == -1:
+		case n == eof:
 			return nil
 		default:
 			return invalidState
@@ -91,7 +91,7 @@ func NewB16CodecC(in string) CodecC {
 				emit(d, itemInvalid)
 				return alphabetState
 
-			case n == -1:
+			case n == eof:
 				emit(d, itemInvalid)
 				return nil
 			}
@@ -105,7 +105,7 @@ func NewB16CodecC(in string) CodecC {
 				d.acceptRun(b64Alphabet)
 				continue
 
-			case n == -1:
+			case n == eof:
 				emit(d, itemAlphabet)
 				return nil
 
