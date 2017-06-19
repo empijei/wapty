@@ -12,6 +12,7 @@ import (
 
 var defaultTimeout = 10 * time.Second
 
+// Item contains the information for a single "Go" of a Repeater
 type Item struct {
 	Host     string
 	TLS      bool

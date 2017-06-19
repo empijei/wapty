@@ -27,16 +27,16 @@ func settingsLoop() {
 func handleIntercept(cmd apis.Command) apis.Command {
 	if len(cmd.Args) >= 1 {
 		log.Println("Requested change intercept status")
-		intercept.SetValue(cmd.Args[0] == "true" || cmd.Args[0] == "on")
+		intercept.setValue(cmd.Args[0] == "true" || cmd.Args[0] == "on")
 		value := "false"
-		if intercept.Value() {
+		if intercept.value() {
 			value = "true"
 		}
 		return apis.Command{Action: "intercept", Args: []string{value}}
 	}
 	log.Println("Requested intercept status")
 	value := "false"
-	if intercept.Value() {
+	if intercept.value() {
 		value = "true"
 	}
 	return apis.Command{Action: "intercept", Args: []string{value}}

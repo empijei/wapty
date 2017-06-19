@@ -33,6 +33,7 @@ func getUserHomeDir() string {
 	return os.Getenv("HOME")
 }
 
+// LoadCA loads the ca from "HOME/dir"
 func LoadCA() (cert tls.Certificate, err error) {
 	// TODO(kr): check file permissions
 	cert, err = tls.LoadX509KeyPair(certFile, keyFile)

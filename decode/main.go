@@ -8,6 +8,9 @@ import (
 	"strings"
 )
 
+// MainStandalone parses its own flag and it is the funcion to be run when using
+// `wapty decode`. This behaves as a main and expects the "decode" parameter to
+// be removed from os.Args.
 func MainStandalone() {
 	encode := flag.Bool("encode", false, "Sets the decoder to an encoder instead")
 	codeclist := flag.String("codec", "smart", "Sets the decoder/encoder codec. Multiple codecs can be specified and comma separated, they will be applied one on the output of the previous as in a pipeline.")

@@ -11,7 +11,7 @@ import (
 	"github.com/empijei/wapty/ui/apis"
 )
 
-//Represents the queue of requests that have been intercepted
+// RequestQueue represents the queue of requests that have been intercepted
 var RequestQueue chan *pendingRequest
 
 func init() {
@@ -64,9 +64,9 @@ func handleRequest(preq *pendingRequest) {
 	preq.modifiedRequest <- &mayBeRequest{req: editedRequest, res: providedResp, err: err}
 }
 
-func preProcessRequest(req *http.Request) (autoEdited *http.Request, Id int, err error) {
+func preProcessRequest(req *http.Request) (autoEdited *http.Request, ID int, err error) {
 	stripHTHHeaders(&(req.Header))
-	Id = newReqResp(req)
+	ID = newReqResp(req)
 	//TODO Add autoedit here
 	autoEdited = req
 	//FIXME Call this in a "decode" function for requests, like the one used for responses

@@ -12,6 +12,8 @@ import (
 
 var done = make(chan struct{})
 
+// RepeaterLoop is the main loop for the repeater. It listens on apis.REPEATCHANNEL
+// for calls and executes them
 func RepeaterLoop() {
 	for {
 		select {

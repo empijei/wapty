@@ -74,51 +74,54 @@ Upgrade-Insecure-Requests: 1
 	}
 }
 
+func listener(t *testing.T, testChan chan RepTest, input chan []byte, listen *net.Listener) {
+	l := *listen
+	var err error
+	t.Log("Listening on port 12321")
+	l, err = net.Listen("tcp", ":12321")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for c, err := l.Accept(); err == nil; c, err = l.Accept() {
+		t.Log("Got incoming connection")
+		tt := <-testChan
+		buf := make([]byte, len(tt.in))
+		n, err := c.Read(buf)
+		if err != nil {
+			t.Error(err)
+		}
+		t.Logf("Read from connection %d bytes", n)
+		for tmp := 0; n < len(tt.in) && err == nil; {
+			tmp, err = c.Read(buf[n+tmp:])
+			if tmp != 0 {
+				t.Logf("Read from connection %d more bytes", tmp)
+			}
+			n += tmp
+		}
+		if err != nil {
+			t.Error(err)
+		}
+		if n != len(tt.in) {
+			t.Errorf("Expected read of %d but actually read %d bytes.", len(tt.in), n)
+		}
+		input <- buf
+		n, err = c.Write(tt.out)
+		if err != nil {
+			t.Error(err)
+		}
+		if n != len(tt.out) {
+			t.Errorf("Should have written %d bytes but wrote %d", len(tt.out), n)
+		}
+		_ = c.Close()
+	}
+}
+
 func TestRepeatPlain(t *testing.T) {
 	testChan := make(chan RepTest, 2)
 	input := make(chan []byte, 2)
-	var err error
 	var l net.Listener
+	go listener(t, testChan, input, &l)
 	defer func() { _ = l.Close() }()
-	go func() {
-		t.Log("Listening on port 12321")
-		l, err = net.Listen("tcp", ":12321")
-		if err != nil {
-			t.Fatal(err)
-		}
-		for c, err := l.Accept(); err == nil; c, err = l.Accept() {
-			t.Log("Got incoming connection")
-			tt := <-testChan
-			buf := make([]byte, len(tt.in))
-			n, err := c.Read(buf)
-			if err != nil {
-				t.Error(err)
-			}
-			t.Logf("Read from connection %d bytes", n)
-			for tmp := 0; n < len(tt.in) && err == nil; {
-				tmp, err = c.Read(buf[n+tmp:])
-				if tmp != 0 {
-					t.Logf("Read from connection %d more bytes", tmp)
-				}
-				n += tmp
-			}
-			if err != nil {
-				t.Error(err)
-			}
-			if n != len(tt.in) {
-				t.Errorf("Expected read of %d but actually read %d bytes.", len(tt.in), n)
-			}
-			input <- buf
-			n, err = c.Write(tt.out)
-			if err != nil {
-				t.Error(err)
-			}
-			if n != len(tt.out) {
-				t.Errorf("Should have written %d bytes but wrote %d", len(tt.out), n)
-			}
-			_ = c.Close()
-		}
-	}()
 	for _, tt := range RepeatTests {
 		testChan <- tt
 		defaultTimeout = 1 * time.Second

@@ -21,26 +21,9 @@ import (
 var done chan struct{}
 
 //If value is set to true tells the proxy to start the intercept
-var intercept SyncBool
+var intercept syncBool
 
 var uiSettings ui.Subscription
-
-type SyncBool struct {
-	sync.RWMutex
-	val bool
-}
-
-func (s *SyncBool) Value() bool {
-	s.RLock()
-	defer s.RUnlock()
-	return s.val
-}
-
-func (s *SyncBool) SetValue(v bool) {
-	s.Lock()
-	s.val = v
-	s.Unlock()
-}
 
 func init() {
 	done = make(chan struct{})
@@ -48,10 +31,29 @@ func init() {
 	uiSettings = ui.Subscribe(apis.SETTINGSCHANNEL.String())
 }
 
-//In order for the program to work this should always be started.
-//MainLoop is the core of the interceptor. It starts the goroutine that waits
-//for new requests and response that have been intercepted and takes action
-//based on current configuration.
+// syncBool is just used as a thread safe bool. As of 19/06/2017 the sync/atomic
+// package does not provide boolean operations
+type syncBool struct {
+	sync.RWMutex
+	val bool
+}
+
+func (s *syncBool) value() bool {
+	s.RLock()
+	defer s.RUnlock()
+	return s.val
+}
+
+func (s *syncBool) setValue(v bool) {
+	s.Lock()
+	s.val = v
+	s.Unlock()
+}
+
+// MailLoop is the core of the interceptor.
+// In order for the normal lifecycle program to work this should always be started.
+// It starts the goroutine that waits for new requests and response that have
+// been intercepted and takes action based on current configuration.
 func MainLoop() {
 	//Load Certificate authority
 	ca, err := mitm.LoadCA()

@@ -12,7 +12,7 @@ import (
 	"github.com/empijei/wapty/ui/apis"
 )
 
-//Represents the queue of the response to requests that have been intercepted
+//ResponseQueue represents the queue of the response to requests that have been intercepted
 var ResponseQueue chan *pendingResponse
 
 func init() {

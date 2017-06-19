@@ -62,6 +62,7 @@ func init() {
 	}
 }
 
+//FIXME split in more files
 func main() {
 	waptyServer, err := websocket.Dial("ws://localhost:8081/ws")
 	if err != nil {

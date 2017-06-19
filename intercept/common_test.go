@@ -3,7 +3,7 @@ package intercept
 import "github.com/empijei/wapty/ui/apis"
 
 type MockSubscription struct {
-	Id        int64
+	ID        int64
 	Channel   string
 	DataCh    chan apis.Command
 	SentStuff []apis.Command
