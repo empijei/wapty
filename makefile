@@ -22,12 +22,12 @@ run:
 	# Generating JS
 	cd ui/gopherjs/ && gopherjs build -o ../webroot/gopherjs.js
 	# Done generating JS, launching wapty
-	go run ${LDFLAGS} *.go
+	go run ${LDFLAGS} wapty.go
 
 fast: run
 
 test: buildjs rebind
-	go test -x ${LDFLAGS} ./...
+	go test -i -x ${LDFLAGS} ./...
 
 buildjs:
 	# Regenerating minified js
