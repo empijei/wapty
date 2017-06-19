@@ -24,6 +24,9 @@ type pool struct {
 	//cookies
 }
 
+//TODO rethrottle
+//TODO expose info on status and errors
+
 func newPool(nw int, req http.Request, reqps int, cookieName string) *pool {
 	var wg sync.WaitGroup
 	wg.Add(nw)
