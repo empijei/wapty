@@ -48,6 +48,9 @@ type CodecC interface {
 func SmartDecode(input string) (c CodecC) {
 	//loop through the available CodecCs and determine which one is the best one
 	var curvalue float64
+	//FIXME add a null codecC if no codecC is selected
+	//FIXME use a priority list for ambiguous alphabets (b16 should be
+	//prioritized against b64.
 	for _, cc := range codecs {
 		tmp := cc(input)
 		if t := tmp.Check(); t > curvalue {

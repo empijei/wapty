@@ -140,7 +140,7 @@ func (b *Base16) Check() (acceptability float64) {
 	var tot int
 	for _, r := range b.input {
 		tot++
-		if bytes.ContainsRune([]byte(b64Alphabet), r) {
+		if bytes.ContainsRune([]byte(b16Alphabet), r) {
 			c++
 		}
 	}
