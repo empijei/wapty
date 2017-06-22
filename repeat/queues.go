@@ -57,7 +57,7 @@ func handleGo(cmd *apis.Command) *apis.Command {
 	}
 	r := status.Repeats[ri]
 	var res io.Reader
-	if res, err = r.Repeat(body, host, tls); err != nil {
+	if res, err = r.repeat(body, host, tls); err != nil {
 		log.Println(err)
 		return apis.Err(err)
 	}

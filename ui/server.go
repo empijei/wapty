@@ -13,9 +13,9 @@ import (
 // Ui server.
 type Server struct {
 	pattern   string
-	clients   map[int]*Client
-	addCh     chan *Client
-	delCh     chan *Client
+	clients   map[int]*client
+	addCh     chan *client
+	delCh     chan *client
 	sendAllCh chan *apis.Command
 	doneCh    chan bool
 	errCh     chan error
@@ -23,9 +23,9 @@ type Server struct {
 
 // Create new ui server.
 func NewServer(pattern string) *Server {
-	clients := make(map[int]*Client)
-	addCh := make(chan *Client)
-	delCh := make(chan *Client)
+	clients := make(map[int]*client)
+	addCh := make(chan *client)
+	delCh := make(chan *client)
 	sendAllCh := make(chan *apis.Command)
 	doneCh := make(chan bool)
 	errCh := make(chan error)
@@ -41,11 +41,11 @@ func NewServer(pattern string) *Server {
 	}
 }
 
-func (s *Server) AddClient(c *Client) {
+func (s *Server) AddClient(c *client) {
 	s.addCh <- c
 }
 
-func (s *Server) DelClient(c *Client) {
+func (s *Server) DelClient(c *client) {
 	s.delCh <- c
 }
 
@@ -63,7 +63,7 @@ func (s *Server) Err(err error) {
 
 func (s *Server) sendAllClients(msg *apis.Command) {
 	for _, c := range s.clients {
-		c.Write(msg)
+		c.write(msg)
 	}
 }
 
@@ -86,9 +86,9 @@ func (s *Server) Listen() {
 			}
 		}()
 
-		client := NewClient(ws, s)
+		client := newClient(ws, s)
 		s.AddClient(client)
-		client.Listen()
+		client.listen()
 	}
 
 	//TODO only listen for localhost
@@ -131,6 +131,8 @@ func writeLoop(s *Server) {
 	}
 }
 
+// MainLoop is the UI's mainloop. It should be run on wapty's start and it will
+// not return until an error occours.
 func MainLoop() {
 	// websocket server
 	server := NewServer("/ws")

@@ -9,19 +9,16 @@ import (
 	"github.com/empijei/wapty/ui/apis"
 )
 
-//String used to detect the main action within an ui.Args
-const ACTION = "action"
+type subsChannel map[int64]subscriptionImpl
 
-type SubsChannel map[int64]SubscriptionImpl
-
-var subScriptions map[apis.UIChannel]SubsChannel
+var subScriptions map[apis.UIChannel]subsChannel
 var subsMutex sync.RWMutex
 var subsCounter int64
 var iChan chan apis.Command
 var oChans uis
 
 func init() {
-	subScriptions = make(map[apis.UIChannel]SubsChannel)
+	subScriptions = make(map[apis.UIChannel]subsChannel)
 	iChan = make(chan apis.Command)
 	oChans.list = make(map[int]UI)
 }

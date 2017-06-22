@@ -77,7 +77,7 @@ func main() {
 	var msg apis.Command
 
 	msg.Action = apis.INTERCEPT
-	msg.Channel = apis.SETTINGSCHANNEL
+	msg.Channel = apis.INTERCEPTSETTINGSCHANNEL
 
 	err = enc.Encode(msg)
 	if err != nil {
@@ -107,7 +107,7 @@ func main() {
 			endpointIndicator.SetTextContent(text + msg.Args[apis.ENDPOINT])
 			controls = true
 
-		case apis.SETTINGSCHANNEL:
+		case apis.INTERCEPTSETTINGSCHANNEL:
 			switch msg.Action {
 			case apis.INTERCEPT:
 				if msg.Args[apis.ON] == apis.TRUE {
@@ -130,7 +130,7 @@ func main() {
 					panic(err)
 				}
 
-				if rowMap, ok := tmpHistory[md.Id]; !ok {
+				if rowMap, ok := tmpHistory[md.ID]; !ok {
 					row := historyTbody.Call("insertRow", -1)
 					tmp := make(map[string]*js.Object)
 
@@ -142,7 +142,7 @@ func main() {
 						cell.Set("innerText", fmt.Sprintf("%v", valueField))
 						tmp[typeField.Name] = cell
 					}
-					tmpHistory[md.Id] = tmp
+					tmpHistory[md.ID] = tmp
 				} else {
 					val := reflect.Indirect(reflect.ValueOf(md))
 					for i := 0; i < val.Type().NumField(); i++ {
@@ -235,7 +235,7 @@ func onToggleInterceptClick() {
 
 	proxyAction(apis.Command{
 		Action:  apis.INTERCEPT,
-		Channel: apis.SETTINGSCHANNEL,
+		Channel: apis.INTERCEPTSETTINGSCHANNEL,
 		Args:    map[apis.ArgName]string{apis.ON: msg},
 	}, true)
 

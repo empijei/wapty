@@ -16,13 +16,13 @@ func init() {
 //Invokes the edit action on the proxy ui. When a response is received returns
 //the payload and the action in its string form. It does not attempt to validate
 //the action, the caller must take care of it.
-func editBuffer(p apis.Action, b []byte, endpoint string) ([]byte, apis.Action) {
+func editBuffer(p string, b []byte, endpoint string) ([]byte, apis.Action) {
 	if !intercept.value() {
 		return nil, apis.FORWARD
 	}
 	log.Println("Editing " + p)
 	args := map[apis.ArgName]string{
-		apis.PAYLOADTYPE: string(p),
+		apis.PAYLOADTYPE: p,
 		apis.ENDPOINT:    endpoint}
 	uiEditor.Send(apis.Command{Action: apis.EDIT, Args: args, Payload: b})
 	log.Println("Waiting for user interaction")

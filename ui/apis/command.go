@@ -7,6 +7,7 @@ import (
 	"strconv"
 )
 
+// Command represents a packet of information sent or received by or from the server.
 type Command struct {
 	Channel UIChannel
 	Action  Action
@@ -49,7 +50,7 @@ func (cmd *Command) UnpackArgs(names []ArgName, vars ...interface{}) (err error)
 	return nil
 }
 
-// UnpackArgs is used to set the value of the arguments of a command.
+// PackArgs is used to set the value of the arguments of a command.
 //
 // WARNING: this function PANICS if len(names) != len(vars) since that surely
 // means there is a bug in the code.

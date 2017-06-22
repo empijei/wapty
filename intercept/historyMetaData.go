@@ -24,7 +24,7 @@ func (rr *ReqResp) parseRequest(req *http.Request) {
 	//}
 	//this.Params = len(req.Form) > 0
 	//this supposes to alread have a RLock on the status.
-	this.Edited = status.ReqResps[this.Id].RawEditedReq != nil
+	this.Edited = status.ReqResps[this.ID].RawEditedReq != nil
 	tmp := strings.Split(this.Path, ".")
 	if !strings.Contains(tmp[len(tmp)-1], "/") {
 		this.Extension = tmp[len(tmp)-1]
@@ -58,7 +58,7 @@ func (rr *ReqResp) parseResponse(res *http.Response) {
 	this := rr.MetaData
 	if !this.Edited {
 		//this supposes to alread have a RLock on the status.
-		this.Edited = status.ReqResps[this.Id].RawEditedRes != nil
+		this.Edited = status.ReqResps[this.ID].RawEditedRes != nil
 	}
 	this.Status = res.Status
 	//FIXME

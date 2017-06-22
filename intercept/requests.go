@@ -76,10 +76,10 @@ func preProcessRequest(req *http.Request) (autoEdited *http.Request, ID int, err
 	return
 }
 
-func editRequest(req *http.Request, Id int) (*http.Request, *http.Response, error) {
+func editRequest(req *http.Request, ID int) (*http.Request, *http.Response, error) {
 	//Send request to the dispatchLoop
 	ModifiedRequest := make(chan *mayBeRequest)
-	RequestQueue <- &pendingRequest{id: Id, originalRequest: req, modifiedRequest: ModifiedRequest}
+	RequestQueue <- &pendingRequest{id: ID, originalRequest: req, modifiedRequest: ModifiedRequest}
 	log.Println("Request intercepted")
 	//Wait for edited request
 	mayBeReq := <-ModifiedRequest

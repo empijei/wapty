@@ -148,7 +148,7 @@ func newRawReqResp(rawReq []byte) int {
 	status.Lock()
 	//log.Println("Locked")
 	curReq := status.Count
-	tmp := &ReqResp{RawReq: rawReq, ID: curReq, MetaData: apis.NewReqRespMetaData(curReq)}
+	tmp := &ReqResp{RawReq: rawReq, ID: curReq, MetaData: &apis.ReqRespMetaData{ID: curReq}}
 	status.ReqResps = append(status.ReqResps, tmp)
 	status.Count++
 	//log.Println("UnLocking status")

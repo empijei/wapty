@@ -28,7 +28,7 @@ var uiSettings ui.Subscription
 func init() {
 	done = make(chan struct{})
 	//intercept.value = true
-	uiSettings = ui.Subscribe(apis.SETTINGSCHANNEL)
+	uiSettings = ui.Subscribe(apis.INTERCEPTSETTINGSCHANNEL)
 }
 
 // syncBool is just used as a thread safe bool. As of 19/06/2017 the sync/atomic
@@ -50,7 +50,7 @@ func (s *syncBool) setValue(v bool) {
 	s.Unlock()
 }
 
-// MailLoop is the core of the interceptor.
+// MainLoop is the core of the interceptor.
 // In order for the normal lifecycle program to work this should always be started.
 // It starts the goroutine that waits for new requests and response that have
 // been intercepted and takes action based on current configuration.

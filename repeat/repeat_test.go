@@ -53,7 +53,7 @@ Upgrade-Insecure-Requests: 1
 
 `)
 	r := NewRepeater()
-	res, err := r.Repeat(bytes.NewBuffer(buf), "empijei.science:443", true)
+	res, err := r.repeat(bytes.NewBuffer(buf), "empijei.science:443", true)
 	if err != nil {
 		t.Error(err)
 		return
@@ -63,7 +63,7 @@ Upgrade-Insecure-Requests: 1
 		t.Error("Didn't get the correct response from empijei.science")
 	}
 
-	res, err = r.Repeat(bytes.NewBuffer(buf), "empijei.science:80", false)
+	res, err = r.repeat(bytes.NewBuffer(buf), "empijei.science:80", false)
 	if err != nil {
 		t.Error(err)
 		return
@@ -121,10 +121,10 @@ func TestRepeatPlain(t *testing.T) {
 	go listener(t, testChan, input)
 	for _, tt := range RepeatTests {
 		testChan <- tt
-		defaultTimeout = 1 * time.Second
+		DefaultTimeout = 1 * time.Second
 		r := NewRepeater()
 		buf := bytes.NewBuffer(tt.in)
-		res, err := r.Repeat(buf, "localhost:12321", false)
+		res, err := r.repeat(buf, "localhost:12321", false)
 		if err != nil {
 			t.Error(err)
 			return

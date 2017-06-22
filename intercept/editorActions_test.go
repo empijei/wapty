@@ -8,7 +8,7 @@ import (
 )
 
 type paramsType struct {
-	p   apis.Action
+	p   string
 	cmd apis.Command
 	b   []byte
 }

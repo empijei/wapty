@@ -10,7 +10,8 @@ import (
 	"time"
 )
 
-var defaultTimeout = 10 * time.Second
+// DefaultTimeout is the default value for the timeout when creating a new Repeater
+var DefaultTimeout = 10 * time.Second
 
 // Item contains the information for a single "Go" of a Repeater
 type Item struct {
@@ -20,19 +21,26 @@ type Item struct {
 	Response []byte
 }
 
+// Repeater represents a full history of requests and responses
 type Repeater struct {
-	m       sync.Mutex
+	m sync.Mutex
+
+	// The Repeater History
 	History []Item
+
+	// The timeout to wait before assuming the server will not respond.
+	// Default is DefaultTimeout
 	Timeout time.Duration
 }
 
+// NewRepeater creates a new Repeater with Timeout set to DefaultTimeout
 func NewRepeater() *Repeater {
 	return &Repeater{
-		Timeout: defaultTimeout,
+		Timeout: DefaultTimeout,
 	}
 }
 
-func (r *Repeater) Repeat(buf io.Reader, host string, _tls bool) (res io.Reader, err error) {
+func (r *Repeater) repeat(buf io.Reader, host string, _tls bool) (res io.Reader, err error) {
 	r.m.Lock()
 	defer r.m.Unlock()
 	savedReq := bytes.NewBuffer(nil)

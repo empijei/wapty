@@ -14,9 +14,10 @@ import (
 //TODO this is not good practice
 const channelBufSize = 100
 
-var maxId int
+var maxID int
 
-type Client struct {
+// client represents the server-side representation of a connected UI
+type client struct {
 	id     int
 	ws     *websocket.Conn
 	server *Server
@@ -24,7 +25,8 @@ type Client struct {
 	doneCh chan bool
 }
 
-func NewClient(ws *websocket.Conn, server *Server) *Client {
+// newClient instantiates a new Client
+func newClient(ws *websocket.Conn, server *Server) *client {
 
 	if ws == nil {
 		panic("ws cannot be nil")
@@ -34,18 +36,19 @@ func NewClient(ws *websocket.Conn, server *Server) *Client {
 		panic("server cannot be nil")
 	}
 
-	maxId++
+	maxID++
 	ch := make(chan *apis.Command, channelBufSize)
 	doneCh := make(chan bool)
 
-	return &Client{maxId, ws, server, ch, doneCh}
+	return &client{maxID, ws, server, ch, doneCh}
 }
 
-func (c *Client) Conn() *websocket.Conn {
+// Conn returns the Client underlying websocket
+func (c *client) Conn() *websocket.Conn {
 	return c.ws
 }
 
-func (c *Client) Write(msg *apis.Command) {
+func (c *client) write(msg *apis.Command) {
 	select {
 	case c.ch <- msg:
 	default:
@@ -55,16 +58,17 @@ func (c *Client) Write(msg *apis.Command) {
 	}
 }
 
-func (c *Client) Done() {
+// done signals the Client to stop
+func (c *client) done() {
 	close(c.doneCh)
 }
 
-func (c *Client) Listen() {
+func (c *client) listen() {
 	go c.listenWrite()
 	c.listenRead()
 }
 
-func (c *Client) listenWrite() {
+func (c *client) listenWrite() {
 	log.Println("Listening write to client")
 	for {
 		select {
@@ -85,7 +89,7 @@ func (c *Client) listenWrite() {
 }
 
 // Listen read request via chanel
-func (c *Client) listenRead() {
+func (c *client) listenRead() {
 	log.Println("Listening read from client")
 	dec := json.NewDecoder(c.ws)
 	for {
