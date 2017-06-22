@@ -1,5 +1,6 @@
 package apis
 
+// Action is a string representing the action to perform
 type Action string
 
 const (
@@ -32,6 +33,7 @@ const (
 	INTERCEPT = "intercept"
 )
 
+// ArgName is the type of the set of Keys to use in the Args map of a command
 type ArgName string
 
 const (
@@ -46,6 +48,8 @@ const (
 	ON                  = "on"
 )
 
+// UIChannel is a string used to multiplex on the websocket and route commands
+// to the proper packages
 type UIChannel string
 
 const (
