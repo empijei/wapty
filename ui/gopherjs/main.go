@@ -76,8 +76,8 @@ func main() {
 
 	var msg apis.Command
 
-	msg.Action = apis.INTERCEPT.String()
-	msg.Channel = apis.SETTINGSCHANNEL.String()
+	msg.Action = apis.INTERCEPT
+	msg.Channel = apis.SETTINGSCHANNEL
 
 	err = enc.Encode(msg)
 	if err != nil {
@@ -96,20 +96,20 @@ func main() {
 			panic(err)
 		}
 		switch msg.Channel {
-		case apis.EDITORCHANNEL.String():
+		case apis.EDITORCHANNEL:
 			proxyBuffer.SetTextContent(string(msg.Payload))
 			var text string
-			if msg.Args[apis.PAYLOADTYPE] == apis.REQUEST.String() {
+			if msg.Args[apis.PAYLOADTYPE] == apis.REQUEST {
 				text = "Request for: "
 			} else {
-				text = "Response for:"
+				text = "Response from:"
 			}
-			endpointIndicator.SetTextContent(text + msg.Args[apis.HOST])
+			endpointIndicator.SetTextContent(text + msg.Args[apis.ENDPOINT])
 			controls = true
 
-		case apis.SETTINGSCHANNEL.String():
+		case apis.SETTINGSCHANNEL:
 			switch msg.Action {
-			case apis.INTERCEPT.String():
+			case apis.INTERCEPT:
 				if msg.Args[apis.ON] == apis.TRUE {
 					btn.ToggleClass("btn-danger", "btn-success")
 					btn.SetTextContent("Intercept is on")
@@ -121,11 +121,11 @@ func main() {
 				}
 			}
 
-		case apis.HISTORYCHANNEL.String():
+		case apis.HISTORYCHANNEL:
 			switch msg.Action {
-			case apis.METADATA.String():
+			case apis.METADATA:
 				var md apis.ReqRespMetaData
-				err := json.Unmarshal([]byte(msg.Args[apis.METADATA.String()]), &md)
+				err := json.Unmarshal([]byte(msg.Args[apis.METADATA]), &md)
 				if err != nil {
 					panic(err)
 				}
@@ -156,7 +156,7 @@ func main() {
 					//delete(tmpHistory, md.Id)
 				}
 
-			case apis.FETCH.String():
+			case apis.FETCH:
 				var rr apis.ReqResp
 				err := json.Unmarshal(msg.Payload, &rr)
 				if err != nil {
@@ -191,30 +191,30 @@ func proxyAction(msg apis.Command, ignoreControls bool) {
 
 func onForwardOriginalClick() {
 	proxyAction(apis.Command{
-		Action:  apis.FORWARD.String(),
-		Channel: apis.EDITORCHANNEL.String(),
+		Action:  apis.FORWARD,
+		Channel: apis.EDITORCHANNEL,
 	}, false)
 }
 
 func onForwardModifiedClick() {
 	proxyAction(apis.Command{
-		Action:  apis.EDIT.String(),
-		Channel: apis.EDITORCHANNEL.String(),
+		Action:  apis.EDIT,
+		Channel: apis.EDITORCHANNEL,
 		Payload: []byte(proxyBuffer.NodeValue()),
 	}, false)
 }
 
 func onDropClick() {
 	proxyAction(apis.Command{
-		Action:  apis.DROP.String(),
-		Channel: apis.EDITORCHANNEL.String(),
+		Action:  apis.DROP,
+		Channel: apis.EDITORCHANNEL,
 	}, false)
 }
 
 func onProvideResponseClick() {
 	proxyAction(apis.Command{
-		Action:  apis.PROVIDERESP.String(),
-		Channel: apis.EDITORCHANNEL.String(),
+		Action:  apis.PROVIDERESP,
+		Channel: apis.EDITORCHANNEL,
 		Payload: []byte(proxyBuffer.NodeValue()),
 	}, false)
 }
@@ -228,9 +228,9 @@ func onToggleInterceptClick() {
 	}
 
 	proxyAction(apis.Command{
-		Action:  apis.INTERCEPT.String(),
-		Channel: apis.SETTINGSCHANNEL.String(),
-		Args:    map[string]string{apis.ON: msg},
+		Action:  apis.INTERCEPT,
+		Channel: apis.SETTINGSCHANNEL,
+		Args:    map[apis.Param]string{apis.ON: msg},
 	}, true)
 
 	interceptOn = !interceptOn
@@ -238,8 +238,8 @@ func onToggleInterceptClick() {
 
 func onHistoryCellClick() {
 	proxyAction(apis.Command{
-		Action:  apis.FETCH.String(),
-		Channel: apis.HISTORYCHANNEL.String(),
-		Args:    map[string]string{apis.ID: js.Global.Get("event").Get("target").Get("parentNode").Get("childNodes").Index(0).Get("textContent").String()},
+		Action:  apis.FETCH,
+		Channel: apis.HISTORYCHANNEL,
+		Args:    map[apis.Param]string{apis.ID: js.Global.Get("event").Get("target").Get("parentNode").Get("childNodes").Index(0).Get("textContent").String()},
 	}, true)
 }

@@ -33,6 +33,7 @@ func (u *MockUI) Channel() <-chan apis.Command {
 }
 
 func TestHandleGo(t *testing.T) {
+	//BOOKMARK
 	/*
 		uirbak := uiRepeater
 		defer func() {
@@ -49,7 +50,6 @@ func TestHandleGo(t *testing.T) {
 		var l net.Listener
 		go listener(t, testChan, input, &l)
 		defer func() { _ = l.Close() }()
-		//BOOKMARK
 		for _, tt := range RepeatTests {
 			testChan <- tt
 			defaultTimeout = 1 * time.Second

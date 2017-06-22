@@ -91,7 +91,7 @@ func historyLoop() {
 		select {
 		case cmd := <-uiHistory.RecChannel():
 			switch cmd.Action {
-			case apis.DUMP.String():
+			case apis.DUMP:
 				status.RLock()
 				dump, err := json.Marshal(status)
 				status.RUnlock()
@@ -101,7 +101,7 @@ func historyLoop() {
 				}
 				log.Printf("Dump: %s\n", dump)
 				uiHistory.Send(apis.Command{Action: "Dump", Payload: dump})
-			case apis.FETCH.String():
+			case apis.FETCH:
 				uiHistory.Send(handleFetch(cmd))
 			}
 		case <-done:
@@ -119,7 +119,7 @@ func handleFetch(cmd apis.Command) apis.Command {
 		}
 		rr := status.getItem(ID)
 		buf, err := json.Marshal(rr)
-		return apis.Command{Action: apis.FETCH.String(), Payload: buf}
+		return apis.Command{Action: apis.FETCH, Payload: buf}
 	}
 	log.Println("Missing argument for FETCH")
 	return *apis.Err("Missing argument for FETCH")

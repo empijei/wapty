@@ -1,26 +1,5 @@
 package apis
 
-//Enum for possible user actions
-type HistoryAction int
-
-const (
-	DUMP HistoryAction = iota
-	FILTER
-	FETCH
-	METADATA
-)
-
-var historyActions = [...]string{
-	"dump",
-	"filter",
-	"fetch",
-	"metaData",
-}
-
-func (a HistoryAction) String() string {
-	return historyActions[a]
-}
-
 type ReqRespMetaData struct {
 	Id          int
 	Host        string

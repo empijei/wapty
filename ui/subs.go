@@ -10,11 +10,11 @@ type Subscription interface {
 
 type SubscriptionImpl struct {
 	id      int64
-	channel string
+	channel apis.UIChannel
 	dataCh  chan apis.Command
 }
 
-func Subscribe(channel string) Subscription {
+func Subscribe(channel apis.UIChannel) Subscription {
 	subsMutex.Lock()
 	subsCounter++
 	//Unless you are sure the out channel will be constantly read, it is strongly

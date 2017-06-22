@@ -14,14 +14,14 @@ const ACTION = "action"
 
 type SubsChannel map[int64]SubscriptionImpl
 
-var subScriptions map[string]SubsChannel
+var subScriptions map[apis.UIChannel]SubsChannel
 var subsMutex sync.RWMutex
 var subsCounter int64
 var iChan chan apis.Command
 var oChans uis
 
 func init() {
-	subScriptions = make(map[string]SubsChannel)
+	subScriptions = make(map[apis.UIChannel]SubsChannel)
 	iChan = make(chan apis.Command)
 	oChans.list = make(map[int]UI)
 }

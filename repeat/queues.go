@@ -20,12 +20,12 @@ func RepeaterLoop() {
 		select {
 		case cmd := <-uiRepeater.RecChannel():
 			switch cmd.Action {
-			case apis.CREATE.String():
+			case apis.CREATE:
 				r := NewRepeater()
 				status.Add(r)
-			case apis.GO.String():
+			case apis.GO:
 				handleGo(&cmd)
-			case apis.GET.String():
+			case apis.GET:
 				handleGet(&cmd)
 			default:
 				log.Println("Unknown repeater action: " + cmd.Action)
@@ -42,7 +42,7 @@ func handleGo(cmd *apis.Command) {
 		log.Println("Wrong number of parameters")
 		return
 	}
-	host := cmd.Args[apis.HOST]
+	host := cmd.Args[apis.ENDPOINT]
 	tls := cmd.Args[apis.TLS] == apis.TRUE
 	ri, err := strconv.Atoi(cmd.Args[apis.ID])
 	if err != nil {
@@ -105,7 +105,7 @@ func handleGet(cmd *apis.Command) {
 	}
 	uiRepeater.Send(
 		apis.Command{
-			Action:  apis.GET.String(),
+			Action:  apis.GET,
 			Args:    cmd.Args,
 			Payload: repitem,
 		},

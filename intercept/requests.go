@@ -39,15 +39,15 @@ func handleRequest(preq *pendingRequest) {
 	var providedResp *http.Response
 	editedRequestDump, action := editBuffer(apis.REQUEST, req, r.URL.Scheme+"://"+r.Host)
 	switch action {
-	case apis.FORWARD.String():
+	case apis.FORWARD:
 		r.ContentLength = ContentLength
 		editedRequest = r
-	case apis.EDIT.String():
+	case apis.EDIT:
 		editedRequest, err = editCase(editedRequestDump)
 		status.addRawEditedRequest(preq.id, editedRequestDump)
-	case apis.DROP.String():
+	case apis.DROP:
 		providedResp = caseDrop()
-	case apis.PROVIDERESP.String():
+	case apis.PROVIDERESP:
 		providedResponseBuffer := bufio.NewReader(bytes.NewReader(editedRequestDump))
 		providedResp, err = http.ReadResponse(providedResponseBuffer, preq.originalRequest)
 		if err != nil {

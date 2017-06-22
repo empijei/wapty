@@ -28,7 +28,7 @@ var uiSettings ui.Subscription
 func init() {
 	done = make(chan struct{})
 	//intercept.value = true
-	uiSettings = ui.Subscribe(apis.SETTINGSCHANNEL.String())
+	uiSettings = ui.Subscribe(apis.SETTINGSCHANNEL)
 }
 
 // syncBool is just used as a thread safe bool. As of 19/06/2017 the sync/atomic

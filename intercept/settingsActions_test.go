@@ -17,39 +17,39 @@ var handleTests = []struct {
 }{
 	{
 		apis.Command{
-			Action: apis.INTERCEPT.String(),
-			Args:   map[string]string{apis.ON: apis.FALSE},
+			Action: apis.INTERCEPT,
+			Args:   map[apis.Param]string{apis.ON: apis.FALSE},
 		},
 		apis.Command{
-			Action: apis.INTERCEPT.String(),
-			Args:   map[string]string{apis.ON: apis.FALSE},
-		},
-	},
-	{
-		apis.Command{
-			Action: apis.INTERCEPT.String(),
-		},
-		apis.Command{
-			Action: apis.INTERCEPT.String(),
-			Args:   map[string]string{apis.ON: apis.FALSE},
+			Action: apis.INTERCEPT,
+			Args:   map[apis.Param]string{apis.ON: apis.FALSE},
 		},
 	},
 	{
 		apis.Command{
-			Action: apis.INTERCEPT.String(),
-			Args:   map[string]string{apis.ON: apis.TRUE},
+			Action: apis.INTERCEPT,
 		},
 		apis.Command{
-			Action: apis.INTERCEPT.String(),
-			Args:   map[string]string{apis.ON: apis.TRUE},
+			Action: apis.INTERCEPT,
+			Args:   map[apis.Param]string{apis.ON: apis.FALSE},
 		},
 	},
 	{
 		apis.Command{
-			Action: apis.INTERCEPT.String()},
+			Action: apis.INTERCEPT,
+			Args:   map[apis.Param]string{apis.ON: apis.TRUE},
+		},
 		apis.Command{
-			Action: apis.INTERCEPT.String(),
-			Args:   map[string]string{apis.ON: apis.TRUE},
+			Action: apis.INTERCEPT,
+			Args:   map[apis.Param]string{apis.ON: apis.TRUE},
+		},
+	},
+	{
+		apis.Command{
+			Action: apis.INTERCEPT},
+		apis.Command{
+			Action: apis.INTERCEPT,
+			Args:   map[apis.Param]string{apis.ON: apis.TRUE},
 		},
 	},
 }
