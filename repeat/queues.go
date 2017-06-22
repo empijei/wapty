@@ -51,7 +51,7 @@ func handleGo(cmd *apis.Command) {
 	body := bytes.NewBuffer(cmd.Payload)
 	status.RLock()
 	defer status.RUnlock()
-	if len(status.Repeats) <= ri {
+	if len(status.Repeats) <= ri || ri < 0 {
 		log.Println("Repeater out of range")
 		return
 	}
@@ -61,12 +61,8 @@ func handleGo(cmd *apis.Command) {
 		log.Println(err)
 		return
 	}
-	_ = res
-	//TODO send response
-	//BOOKMARK
-	uiRepeater.Send(
-		apis.Command{},
-	)
+	cmd.Payload = res
+	uiRepeater.Send(cmd)
 }
 
 func handleGet(cmd *apis.Command) {
