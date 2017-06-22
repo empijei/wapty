@@ -39,6 +39,6 @@ func handleIntercept(cmd apis.Command) apis.Command {
 	}
 	return apis.Command{
 		Action: apis.INTERCEPT,
-		Args:   map[apis.Param]string{apis.ON: value},
+		Args:   map[apis.ArgName]string{apis.ON: value},
 	}
 }

@@ -32,18 +32,18 @@ const (
 	INTERCEPT = "intercept"
 )
 
-type Param string
+type ArgName string
 
 const (
-	ID          Param = "id"
-	SUBID             = "subId"
-	PAYLOADTYPE       = "payloadType"
-	ENDPOINT          = "endpoint"
-	ERR               = "error"
-	TLS               = "tls"
-	TRUE              = "true"
-	FALSE             = ""
-	ON                = "on"
+	ID          ArgName = "id"
+	SUBID               = "subId"
+	PAYLOADTYPE         = "payloadType"
+	ENDPOINT            = "endpoint"
+	ERR                 = "error"
+	TLS                 = "tls"
+	TRUE                = "true"
+	FALSE               = ""
+	ON                  = "on"
 )
 
 type UIChannel string
@@ -58,13 +58,13 @@ const (
 type Command struct {
 	Channel UIChannel
 	Action  Action
-	Args    map[Param]string
+	Args    map[ArgName]string
 	Payload []byte
 }
 
 func Err(message string) *Command {
 	return &Command{
 		Action: ERR,
-		Args:   map[Param]string{ERR: message},
+		Args:   map[ArgName]string{ERR: message},
 	}
 }

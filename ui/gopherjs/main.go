@@ -230,7 +230,7 @@ func onToggleInterceptClick() {
 	proxyAction(apis.Command{
 		Action:  apis.INTERCEPT,
 		Channel: apis.SETTINGSCHANNEL,
-		Args:    map[apis.Param]string{apis.ON: msg},
+		Args:    map[apis.ArgName]string{apis.ON: msg},
 	}, true)
 
 	interceptOn = !interceptOn
@@ -240,6 +240,6 @@ func onHistoryCellClick() {
 	proxyAction(apis.Command{
 		Action:  apis.FETCH,
 		Channel: apis.HISTORYCHANNEL,
-		Args:    map[apis.Param]string{apis.ID: js.Global.Get("event").Get("target").Get("parentNode").Get("childNodes").Index(0).Get("textContent").String()},
+		Args:    map[apis.ArgName]string{apis.ID: js.Global.Get("event").Get("target").Get("parentNode").Get("childNodes").Index(0).Get("textContent").String()},
 	}, true)
 }
