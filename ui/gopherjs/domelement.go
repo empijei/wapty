@@ -26,8 +26,8 @@ func (de *DomElement) SetTextContent(content string) {
 	de.Set("textContent", content)
 }
 
-func (de *DomElement) NodeValue() string {
-	return toString(de.Get("nodeValue"))
+func (de *DomElement) GetTextContent() string {
+	return toString(de.Get("textContent"))
 }
 
 func (de *DomElement) ToggleClass(old, new string) {

@@ -1,62 +1,10 @@
 package apis
 
-// Action is a string representing the action to perform
-type Action string
-
-const (
-	//Editor possible user actions
-	FORWARD     Action = "forward"
-	EDIT               = "edit"
-	DROP               = "drop"
-	PROVIDERESP        = "provideResp"
-
-	//Possible payloads types
-	REQUEST  = "request"
-	RESPONSE = "response"
-
-	//History actions
-	DUMP     = "dump"
-	FILTER   = "filter"
-	FETCH    = "fetch"
-	METADATA = "metaData"
-
-	//Repeater actions
-	//Creates a new repeater entry
-	CREATE = "create"
-	//Performs the request
-	GO = "go"
-	//Retrieves an history item
-	GET = "get"
-
-	//Settings actions
-	//Gets (no params) or sets (param "ON") the intercept status
-	INTERCEPT = "intercept"
-)
-
-// ArgName is the type of the set of Keys to use in the Args map of a command
-type ArgName string
-
-const (
-	ID          ArgName = "id"
-	SUBID               = "subId"
-	PAYLOADTYPE         = "payloadType"
-	ENDPOINT            = "endpoint"
-	ERR                 = "error"
-	TLS                 = "tls"
-	TRUE                = "true"
-	FALSE               = ""
-	ON                  = "on"
-)
-
-// UIChannel is a string used to multiplex on the websocket and route commands
-// to the proper packages
-type UIChannel string
-
-const (
-	EDITORCHANNEL   UIChannel = "proxy/intercept/editor"
-	HISTORYCHANNEL            = "proxy/httpHistory"
-	REPEATCHANNEL             = "repeat"
-	SETTINGSCHANNEL           = "proxy/intercept/options"
+import (
+	"fmt"
+	"log"
+	"reflect"
+	"strconv"
 )
 
 type Command struct {
@@ -66,9 +14,47 @@ type Command struct {
 	Payload []byte
 }
 
-func Err(message string) *Command {
-	return &Command{
-		Action: ERR,
-		Args:   map[ArgName]string{ERR: message},
+// UnpackArgs is used to extract the value of the arguments from a command.
+// cmd is the command to extract the values from, names is a list of ArgName
+// that is used to access cmd.Args.
+// vars can be pointers to either int, bool or string. This function will attempt
+// to deserialize the arguments with the proper type and operations in order
+// to fit the given vars types.
+//
+// WARNING: this function PANICS if len(names) != len(vars) since that surely
+// means there is a bug in the code.
+func (cmd *Command) UnpackArgs(names []ArgName, vars ...interface{}) (err error) {
+	if nargs, nvars := len(cmd.Args), len(vars); nargs != nvars {
+		return fmt.Errorf("wrong number of parameters, expected %d but got %d", nvars, nargs)
+	}
+	if nnames, nvars := len(names), len(vars); nnames != nvars {
+		log.Fatalf("wrong call to ArgsUnpack: given %d names but got %d variables to store them", nnames, nvars)
+	}
+	for i := 0; i < len(vars); i++ {
+		arg := cmd.Args[names[i]]
+		switch _var := vars[i].(type) {
+		case *int:
+			*_var, err = strconv.Atoi(arg)
+			if err != nil {
+				return fmt.Errorf("cannot read %s as int: %s", arg, err.Error())
+			}
+		case *bool:
+			*_var = arg == TRUE
+		case *string:
+			*_var = arg
+		default:
+			return fmt.Errorf("unsupported type passed to ArgsUnpack: %s, only supports pointers to int, string, bool", reflect.TypeOf(_var))
+		}
+	}
+	return nil
+}
+
+// UnpackArgs is used to set the value of the arguments of a command.
+//
+// WARNING: this function PANICS if len(names) != len(vars) since that surely
+// means there is a bug in the code.
+func (cmd *Command) PackArgs(names []ArgName, vars ...string) {
+	if nnames, nvars := len(names), len(vars); nnames != nvars {
+		log.Fatalf("wrong call to ArgsUnpack: given %d names but got %d variables to store them", nnames, nvars)
 	}
 }

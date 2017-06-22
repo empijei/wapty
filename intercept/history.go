@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"net/http/httputil"
-	"strconv"
 	"sync"
 
 	"github.com/empijei/wapty/ui/apis"
@@ -102,7 +101,7 @@ func historyLoop() {
 				log.Printf("Dump: %s\n", dump)
 				uiHistory.Send(apis.Command{Action: "Dump", Payload: dump})
 			case apis.FETCH:
-				uiHistory.Send(handleFetch(cmd))
+				uiHistory.Send(*handleFetch(cmd))
 			}
 		case <-done:
 			return
@@ -110,19 +109,17 @@ func historyLoop() {
 	}
 }
 
-func handleFetch(cmd apis.Command) apis.Command {
-	if len(cmd.Args) >= 1 {
-		log.Println("Requested history entry")
-		ID, err := strconv.Atoi(cmd.Args[apis.ID])
-		if err != nil {
-			return *apis.Err("Invalid argument to FETCH")
-		}
-		rr := status.getItem(ID)
-		buf, err := json.Marshal(rr)
-		return apis.Command{Action: apis.FETCH, Payload: buf}
+func handleFetch(cmd apis.Command) *apis.Command {
+	var ID int
+	err := cmd.UnpackArgs([]apis.ArgName{apis.ID}, &ID)
+	if err != nil {
+		log.Println(err)
+		return apis.Err(err)
 	}
-	log.Println("Missing argument for FETCH")
-	return *apis.Err("Missing argument for FETCH")
+	log.Println("Requested history entry")
+	rr := status.getItem(ID)
+	buf, err := json.Marshal(rr)
+	return &apis.Command{Action: apis.FETCH, Payload: buf}
 }
 
 //ReqResp represents an item of the proxy history

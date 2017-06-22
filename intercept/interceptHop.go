@@ -43,12 +43,9 @@ type Interceptor struct {
 // before they are forwarded by the proxy.
 func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err error) {
 	//This first part is dedicated to the REQUESTS
-	//log.Println("Request read by proxy")
 	intercepted := intercept.value()
-	//log.Println("Preprocessing...")
 	backUpURL := req.URL
 	req, ID, err := preProcessRequest(req)
-	//log.Println("...done")
 	if err != nil {
 		//TODO handle possible autodrop
 		//TODO other errors
@@ -79,7 +76,7 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 
 	//This second part works on the RESPONSES
 	//Perform the request, but disable compressing.
-	//The gzip encoding should be used by the http package
+	//The gzip encoding should be used by the http package transparently
 	req.Header.Del("Accept-Encoding")
 	res, err = ri.wrappedRT.RoundTrip(req)
 	if err != nil {

@@ -200,7 +200,7 @@ func onForwardModifiedClick() {
 	proxyAction(apis.Command{
 		Action:  apis.EDIT,
 		Channel: apis.EDITORCHANNEL,
-		Payload: []byte(proxyBuffer.NodeValue()),
+		Payload: []byte(proxyBuffer.GetTextContent()),
 	}, false)
 }
 
@@ -215,7 +215,7 @@ func onProvideResponseClick() {
 	proxyAction(apis.Command{
 		Action:  apis.PROVIDERESP,
 		Channel: apis.EDITORCHANNEL,
-		Payload: []byte(proxyBuffer.NodeValue()),
+		Payload: []byte(proxyBuffer.GetTextContent()),
 	}, false)
 }
 
@@ -227,12 +227,28 @@ func onToggleInterceptClick() {
 		msg = apis.TRUE
 	}
 
+	var buf string
+	if controls && interceptOn {
+		buf = proxyBuffer.GetTextContent()
+		log.Printf("there is a buffer that will be forwarded, value: %s", buf)
+	}
+
 	proxyAction(apis.Command{
 		Action:  apis.INTERCEPT,
 		Channel: apis.SETTINGSCHANNEL,
 		Args:    map[apis.ArgName]string{apis.ON: msg},
 	}, true)
 
+	// If the proxy had a payload when intercept was turned off we assume it was
+	// modified
+	if buf != "" {
+		log.Println("forwarding buffer")
+		proxyAction(apis.Command{
+			Action:  apis.EDIT,
+			Channel: apis.EDITORCHANNEL,
+			Payload: []byte(buf),
+		}, false)
+	}
 	interceptOn = !interceptOn
 }
 

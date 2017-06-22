@@ -17,6 +17,9 @@ func init() {
 //the payload and the action in its string form. It does not attempt to validate
 //the action, the caller must take care of it.
 func editBuffer(p apis.Action, b []byte, endpoint string) ([]byte, apis.Action) {
+	if !intercept.value() {
+		return nil, apis.FORWARD
+	}
 	log.Println("Editing " + p)
 	args := map[apis.ArgName]string{
 		apis.PAYLOADTYPE: string(p),
@@ -25,6 +28,5 @@ func editBuffer(p apis.Action, b []byte, endpoint string) ([]byte, apis.Action) 
 	log.Println("Waiting for user interaction")
 	result := uiEditor.Receive()
 	log.Println("User interacted")
-	//FIXME do something if action not recognized!
 	return result.Payload, result.Action
 }
