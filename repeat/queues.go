@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"io/ioutil"
 	"log"
 	"strconv"
 
@@ -41,9 +42,9 @@ func handleGo(cmd *apis.Command) {
 		log.Println("Wrong number of parameters")
 		return
 	}
-	host := cmd.Args[0]
-	tls := cmd.Args[1] == "true"
-	ri, err := strconv.Atoi(cmd.Args[2])
+	host := cmd.Args[apis.HOST]
+	tls := cmd.Args[apis.TLS] == apis.TRUE
+	ri, err := strconv.Atoi(cmd.Args[apis.ID])
 	if err != nil {
 		log.Println(err)
 		return
@@ -61,8 +62,13 @@ func handleGo(cmd *apis.Command) {
 		log.Println(err)
 		return
 	}
-	cmd.Payload = res
-	uiRepeater.Send(cmd)
+	resbuf, err := ioutil.ReadAll(res)
+	if err != nil {
+		uiRepeater.Send(*apis.Err(err.Error()))
+		return
+	}
+	cmd.Payload = resbuf
+	uiRepeater.Send(*cmd)
 }
 
 func handleGet(cmd *apis.Command) {
@@ -71,12 +77,12 @@ func handleGet(cmd *apis.Command) {
 		log.Println("Wrong number of parameters")
 		return
 	}
-	ri, err := strconv.Atoi(cmd.Args[0])
+	ri, err := strconv.Atoi(cmd.Args[apis.ID])
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	itemn, err := strconv.Atoi(cmd.Args[1])
+	itemn, err := strconv.Atoi(cmd.Args[apis.SUBID])
 	if err != nil {
 		log.Println(err)
 		return

@@ -74,14 +74,13 @@ Upgrade-Insecure-Requests: 1
 	}
 }
 
-func listener(t *testing.T, testChan chan RepTest, input chan []byte, listen *net.Listener) {
-	l := *listen
-	var err error
+func listener(t *testing.T, testChan chan RepTest, input chan []byte) {
 	t.Log("Listening on port 12321")
-	l, err = net.Listen("tcp", ":12321")
+	l, err := net.Listen("tcp", ":12321")
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer func() { _ = l.Close() }()
 	for c, err := l.Accept(); err == nil; c, err = l.Accept() {
 		t.Log("Got incoming connection")
 		tt := <-testChan
@@ -119,9 +118,7 @@ func listener(t *testing.T, testChan chan RepTest, input chan []byte, listen *ne
 func TestRepeatPlain(t *testing.T) {
 	testChan := make(chan RepTest, 2)
 	input := make(chan []byte, 2)
-	var l net.Listener
-	go listener(t, testChan, input, &l)
-	defer func() { _ = l.Close() }()
+	go listener(t, testChan, input)
 	for _, tt := range RepeatTests {
 		testChan <- tt
 		defaultTimeout = 1 * time.Second

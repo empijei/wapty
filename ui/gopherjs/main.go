@@ -99,18 +99,18 @@ func main() {
 		case apis.EDITORCHANNEL.String():
 			proxyBuffer.SetTextContent(string(msg.Payload))
 			var text string
-			if msg.Args[0] == apis.REQUEST.String() {
+			if msg.Args[apis.PAYLOADTYPE] == apis.REQUEST.String() {
 				text = "Request for: "
 			} else {
 				text = "Response for:"
 			}
-			endpointIndicator.SetTextContent(text + msg.Args[1])
+			endpointIndicator.SetTextContent(text + msg.Args[apis.HOST])
 			controls = true
 
 		case apis.SETTINGSCHANNEL.String():
 			switch msg.Action {
 			case apis.INTERCEPT.String():
-				if msg.Args[0] == "true" {
+				if msg.Args[apis.ON] == apis.TRUE {
 					btn.ToggleClass("btn-danger", "btn-success")
 					btn.SetTextContent("Intercept is on")
 					interceptOn = true
@@ -125,7 +125,7 @@ func main() {
 			switch msg.Action {
 			case apis.METADATA.String():
 				var md apis.ReqRespMetaData
-				err := json.Unmarshal([]byte(msg.Args[0]), &md)
+				err := json.Unmarshal([]byte(msg.Args[apis.METADATA.String()]), &md)
 				if err != nil {
 					panic(err)
 				}
@@ -222,15 +222,15 @@ func onProvideResponseClick() {
 func onToggleInterceptClick() {
 	var msg string
 	if interceptOn {
-		msg = "false"
+		msg = apis.FALSE
 	} else {
-		msg = "true"
+		msg = apis.TRUE
 	}
 
 	proxyAction(apis.Command{
 		Action:  apis.INTERCEPT.String(),
 		Channel: apis.SETTINGSCHANNEL.String(),
-		Args:    []string{msg},
+		Args:    map[string]string{apis.ON: msg},
 	}, true)
 
 	interceptOn = !interceptOn
@@ -240,6 +240,6 @@ func onHistoryCellClick() {
 	proxyAction(apis.Command{
 		Action:  apis.FETCH.String(),
 		Channel: apis.HISTORYCHANNEL.String(),
-		Args:    []string{js.Global.Get("event").Get("target").Get("parentNode").Get("childNodes").Index(0).Get("textContent").String()},
+		Args:    map[string]string{apis.ID: js.Global.Get("event").Get("target").Get("parentNode").Get("childNodes").Index(0).Get("textContent").String()},
 	}, true)
 }

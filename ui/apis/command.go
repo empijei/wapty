@@ -3,6 +3,6 @@ package apis
 type Command struct {
 	Channel string
 	Action  string
-	Args    []string
+	Args    map[string]string
 	Payload []byte
 }

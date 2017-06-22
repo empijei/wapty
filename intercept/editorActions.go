@@ -18,8 +18,7 @@ func init() {
 //the action, the caller must take care of it.
 func editBuffer(p apis.PayloadType, b []byte, endpoint string) ([]byte, string) {
 	log.Println("Editing " + p.String())
-	//result := apis.Command{Action: "edit", Payload: b, Channel: EDITORCHANNEL}
-	args := []string{p.String(), endpoint}
+	args := map[string]string{apis.PAYLOADTYPE: p.String(), apis.ENDPOINT: endpoint}
 	uiEditor.Send(apis.Command{Action: apis.EDIT.String(), Args: args, Payload: b})
 	log.Println("Waiting for user interaction")
 	result := uiEditor.Receive()

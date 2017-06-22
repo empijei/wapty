@@ -15,14 +15,42 @@ var handleTests = []struct {
 	in  apis.Command
 	out apis.Command
 }{
-	{apis.Command{Action: "intercept", Args: []string{"false"}},
-		apis.Command{Action: "intercept", Args: []string{"false"}}},
-	{apis.Command{Action: "intercept"},
-		apis.Command{Action: "intercept", Args: []string{"false"}}},
-	{apis.Command{Action: "intercept", Args: []string{"true"}},
-		apis.Command{Action: "intercept", Args: []string{"true"}}},
-	{apis.Command{Action: "intercept"},
-		apis.Command{Action: "intercept", Args: []string{"true"}},
+	{
+		apis.Command{
+			Action: apis.INTERCEPT.String(),
+			Args:   map[string]string{apis.ON: apis.FALSE},
+		},
+		apis.Command{
+			Action: apis.INTERCEPT.String(),
+			Args:   map[string]string{apis.ON: apis.FALSE},
+		},
+	},
+	{
+		apis.Command{
+			Action: apis.INTERCEPT.String(),
+		},
+		apis.Command{
+			Action: apis.INTERCEPT.String(),
+			Args:   map[string]string{apis.ON: apis.FALSE},
+		},
+	},
+	{
+		apis.Command{
+			Action: apis.INTERCEPT.String(),
+			Args:   map[string]string{apis.ON: apis.TRUE},
+		},
+		apis.Command{
+			Action: apis.INTERCEPT.String(),
+			Args:   map[string]string{apis.ON: apis.TRUE},
+		},
+	},
+	{
+		apis.Command{
+			Action: apis.INTERCEPT.String()},
+		apis.Command{
+			Action: apis.INTERCEPT.String(),
+			Args:   map[string]string{apis.ON: apis.TRUE},
+		},
 	},
 }
 

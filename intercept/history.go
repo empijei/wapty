@@ -113,16 +113,16 @@ func historyLoop() {
 func handleFetch(cmd apis.Command) apis.Command {
 	if len(cmd.Args) >= 1 {
 		log.Println("Requested history entry")
-		ID, err := strconv.Atoi(cmd.Args[0])
+		ID, err := strconv.Atoi(cmd.Args[apis.ID])
 		if err != nil {
-			return apis.Command{Action: "Error", Args: []string{"Invalid argument to FETCH"}}
+			return *apis.Err("Invalid argument to FETCH")
 		}
 		rr := status.getItem(ID)
 		buf, err := json.Marshal(rr)
 		return apis.Command{Action: apis.FETCH.String(), Payload: buf}
 	}
 	log.Println("Missing argument for FETCH")
-	return apis.Command{Action: "Error", Args: []string{"Missing argument for FETCH"}}
+	return *apis.Err("Missing argument for FETCH")
 }
 
 //ReqResp represents an item of the proxy history
