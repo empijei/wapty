@@ -99,9 +99,9 @@ func historyLoop() {
 					panic(err)
 				}
 				log.Printf("Dump: %s\n", dump)
-				uiHistory.Send(apis.Command{Action: "Dump", Payload: dump})
+				uiHistory.Send(&apis.Command{Action: "Dump", Payload: dump})
 			case apis.FETCH:
-				uiHistory.Send(*handleFetch(cmd))
+				uiHistory.Send(handleFetch(cmd))
 			}
 		case <-done:
 			return

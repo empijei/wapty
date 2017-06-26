@@ -1,17 +1,29 @@
 package ui
 
-import "github.com/empijei/wapty/ui/apis"
+import (
+	"sync"
+
+	"github.com/empijei/wapty/ui/apis"
+)
+
+const SUBBUFFERSIZE = 50
+
+type subsChannel map[int]subscriptionImpl
+
+var subscriptions = make(map[apis.UIChannel]subsChannel)
+var subsMutex sync.RWMutex
+var subsCounter int
 
 // Subscription is the high-level representation of a connection between a wapty
 // component and wapty UI. It will multiplex on apis.UIChannel transparently.
 type Subscription interface {
 	Receive() apis.Command
 	RecChannel() <-chan apis.Command
-	Send(apis.Command)
+	Send(*apis.Command)
 }
 
 type subscriptionImpl struct {
-	id      int64
+	id      int
 	channel apis.UIChannel
 	dataCh  chan apis.Command
 }
@@ -22,12 +34,12 @@ func Subscribe(channel apis.UIChannel) Subscription {
 	subsCounter++
 	//Unless you are sure the out channel will be constantly read, it is strongly
 	//suggested to create a buffered channel
-	pipe := make(chan apis.Command, 50) //TODO this is arbitrary, give a meaning to this number
+	pipe := make(chan apis.Command, SUBBUFFERSIZE)
 	out := subscriptionImpl{id: subsCounter, dataCh: pipe, channel: channel}
-	if subScriptions[channel] == nil {
-		subScriptions[channel] = make(map[int64]subscriptionImpl)
+	if subscriptions[channel] == nil {
+		subscriptions[channel] = make(map[int]subscriptionImpl)
 	}
-	subScriptions[channel][subsCounter] = out
+	subscriptions[channel][subsCounter] = out
 	out.dataCh = pipe
 	subsMutex.Unlock()
 	return &out
@@ -46,7 +58,7 @@ func (s *subscriptionImpl) RecChannel() <-chan apis.Command {
 }
 
 // Send sends the command and sets the channel with the value set in the subscription
-func (s *subscriptionImpl) Send(c apis.Command) {
+func (s *subscriptionImpl) Send(c *apis.Command) {
 	c.Channel = s.channel
 	send(c)
 }

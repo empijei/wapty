@@ -26,6 +26,9 @@ var commands = []struct {
 }{
 	{"decode", decode.MainStandalone},
 	{"proxy", proxyMain},
+	{"version", func() {
+		fmt.Printf("Version: %s\nCommit: %s\n", Version, Commit)
+	}},
 }
 
 func init() {
@@ -50,7 +53,6 @@ func main() {
 
 func proxyMain() {
 	go ui.MainLoop()
-	go ui.ControllerMainLoop()
 	intercept.MainLoop()
 }
 

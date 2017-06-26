@@ -24,7 +24,7 @@ func editBuffer(p string, b []byte, endpoint string) ([]byte, apis.Action) {
 	args := map[apis.ArgName]string{
 		apis.PAYLOADTYPE: p,
 		apis.ENDPOINT:    endpoint}
-	uiEditor.Send(apis.Command{Action: apis.EDIT, Args: args, Payload: b})
+	uiEditor.Send(&apis.Command{Action: apis.EDIT, Args: args, Payload: b})
 	log.Println("Waiting for user interaction")
 	result := uiEditor.Receive()
 	log.Println("User interacted")

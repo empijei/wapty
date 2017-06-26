@@ -23,9 +23,9 @@ func RepeaterLoop() {
 				r := NewRepeater()
 				status.Add(r)
 			case apis.GO:
-				uiRepeater.Send(*handleGo(&cmd))
+				uiRepeater.Send(handleGo(&cmd))
 			case apis.GET:
-				uiRepeater.Send(*handleGet(&cmd))
+				uiRepeater.Send(handleGet(&cmd))
 			default:
 				log.Println("Unknown repeater action: " + cmd.Action)
 			}

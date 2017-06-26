@@ -24,7 +24,7 @@ func settingsLoop() {
 	}
 }
 
-func handleIntercept(cmd apis.Command) apis.Command {
+func handleIntercept(cmd apis.Command) *apis.Command {
 	value := apis.FALSE
 	if len(cmd.Args) >= 1 {
 		log.Println("Requested change intercept status")
@@ -37,7 +37,7 @@ func handleIntercept(cmd apis.Command) apis.Command {
 	if intercept.value() {
 		value = apis.TRUE
 	}
-	return apis.Command{
+	return &apis.Command{
 		Action: apis.INTERCEPT,
 		Args:   map[apis.ArgName]string{apis.ON: value},
 	}

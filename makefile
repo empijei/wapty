@@ -20,7 +20,7 @@ run:
 	# and it is faster to build
 	-rm ui/rice-box.go >& /dev/null
 	# Generating JS
-	cd ui/gopherjs/ && gopherjs build -o ../webroot/gopherjs.js
+	cd ui/gopherjs/ && gopherjs build -o ../static/gopherjs.js
 	# Done generating JS, launching wapty
 	go run ${LDFLAGS} wapty.go
 
@@ -31,9 +31,9 @@ test: buildjs rebind
 
 buildjs:
 	# Regenerating minified js
-	cd ui/gopherjs/ && gopherjs build -m -o ../webroot/gopherjs.js 
+	cd ui/gopherjs/ && gopherjs build -m -o ../static/gopherjs.js 
 	# Remove mappings
-	rm ui/webroot/gopherjs.js.map
+	rm ui/static/gopherjs.js.map
 
 rebind:
 	# Cleaning and re-embedding assets
@@ -56,6 +56,6 @@ installdeps:
 clean:
 	# Cleaning all generated files
 	-rm ui/rice-box.go
-	-rm ui/webroot/gopherjs.js*
+	-rm ui/static/gopherjs.js*
 	go clean
 	if [ -f ${BINARY} ] ; then rm ${BINARY} ; fi

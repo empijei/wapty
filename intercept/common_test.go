@@ -6,7 +6,7 @@ type MockSubscription struct {
 	ID        int64
 	Channel   string
 	DataCh    chan apis.Command
-	SentStuff []apis.Command
+	SentStuff []*apis.Command
 }
 
 func (s *MockSubscription) Receive() apis.Command {
@@ -17,6 +17,6 @@ func (s *MockSubscription) RecChannel() <-chan apis.Command {
 }
 
 //Sends the command and sets the channel with the value set in the subscription
-func (s *MockSubscription) Send(c apis.Command) {
+func (s *MockSubscription) Send(c *apis.Command) {
 	s.SentStuff = append(s.SentStuff, c)
 }

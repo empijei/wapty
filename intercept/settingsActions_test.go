@@ -57,7 +57,7 @@ var handleTests = []struct {
 func TestHandleIntercept(t *testing.T) {
 	for _, tt := range handleTests {
 		out := handleIntercept(tt.in)
-		if !reflect.DeepEqual(out, tt.out) {
+		if !reflect.DeepEqual(*out, tt.out) {
 			t.Errorf("handleIntercept(%v) => %v, want %v", tt.in, out, tt.out)
 		}
 	}

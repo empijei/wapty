@@ -26,7 +26,7 @@ type Command struct {
 // means there is a bug in the code.
 func (cmd *Command) UnpackArgs(names []ArgName, vars ...interface{}) (err error) {
 	if nargs, nvars := len(cmd.Args), len(vars); nargs != nvars {
-		return fmt.Errorf("wrong number of parameters, expected %d but got %d", nvars, nargs)
+		return fmt.Errorf("wrong number of parameters, expected %d but got %d. Args: <%#v>", nvars, nargs, cmd.Args)
 	}
 	if nnames, nvars := len(names), len(vars); nnames != nvars {
 		log.Fatalf("wrong call to ArgsUnpack: given %d names but got %d variables to store them", nnames, nvars)

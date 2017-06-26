@@ -100,9 +100,9 @@ func main() {
 			proxyBuffer.SetTextContent(string(msg.Payload))
 			var text string
 			if msg.Args[apis.PAYLOADTYPE] == apis.REQUEST {
-				text = "Request for: "
+				text = "Request for:   "
 			} else {
-				text = "Response from:"
+				text = "Response from: "
 			}
 			endpointIndicator.SetTextContent(text + msg.Args[apis.ENDPOINT])
 			controls = true

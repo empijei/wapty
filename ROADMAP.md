@@ -110,10 +110,11 @@ These features will probably be implemented along with the ones in the other sta
 * [ ] Add pre-engagement 
 	* [ ] analysis/recon, 
 	* [ ] detect technologies used/versions
+* [ ] Deserializer of java/flash/php serialized objects (maybe editor?)
+* [ ] Add SAML, JWT decoder/editor
 * [ ] Add a Pathfinder feature to spider that allows to backtrace how a certain URL was discovered
 * [ ] Add a Plugin manager / Make plugin behave as package testing, just plug the stuff
 * [ ] Add a SQLmap invoker
-* [ ] Add SAML, JWT decoder/editor
 * [ ] Add fuzzing payloads generator
 * [ ] Add TUI
 * [ ] Add scripting engine (JS/Lua)

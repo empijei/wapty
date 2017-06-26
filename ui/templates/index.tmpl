@@ -1,0 +1,44 @@
+<html lang="en">
+			<head>
+						<title>Wapty</title>
+						<meta charset="utf-8">
+						<meta name="viewport" content="width=device-width, initial-scale=1">
+
+						<!--bootstrap-->
+						<link rel="stylesheet" href="/static/bootstrap.min.css">
+						<script src="/static/jquery.min.js"></script>
+						<script src="/static/bootstrap.min.js"></script>
+
+						<!--custom css-->
+						<link rel="stylesheet" href="/static/index.css">
+
+			</head>
+			<body>
+						<div class="container-fluid">
+									<br>
+									<ul class="nav nav-tabs">
+
+												{{range .Tabs}}
+															<li>
+																		<a data-toggle="tab" {{if .Active}} class="active" {{end}} href="#{{.ID}}">
+																					{{.Title}}
+																		</a>
+															</li>
+												{{end}}
+									</ul>
+
+									<div class="tab-content">
+												{{range .Tabs}}
+															<!--{{.Title}} section -->
+															<div id="{{.ID}}" class="tab-pane fade {{if .Active}} in active {{end}}">
+																		{{.Content}}
+															</div>
+															<!--/{{.Title}} section -->
+												{{end}}
+
+									</div>
+
+									<!--gopherjs compiled javascript-->
+									<script src="/static/gopherjs.js"></script>
+			</body>
+</html>

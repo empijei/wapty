@@ -1,8 +1,14 @@
+//Package ui is a general high level representation of all the uis connected to the current
+//instance of Wapty. Use this from other packages to read user input and write
+//output
 package ui
 
 import (
+	"encoding/json"
+	"io"
 	"log"
 	"net/http"
+	"sync"
 
 	rice "github.com/GeertJohan/go.rice"
 	"github.com/empijei/wapty/ui/apis"
@@ -10,151 +16,98 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-// Ui server.
-type Server struct {
-	pattern   string
-	clients   map[int]*client
-	addCh     chan *client
-	delCh     chan *client
-	sendAllCh chan *apis.Command
-	doneCh    chan bool
-	errCh     chan error
-}
+const BUFSIZE = 1024
 
-// Create new ui server.
-func NewServer(pattern string) *Server {
-	clients := make(map[int]*client)
-	addCh := make(chan *client)
-	delCh := make(chan *client)
-	sendAllCh := make(chan *apis.Command)
-	doneCh := make(chan bool)
-	errCh := make(chan error)
+var inc = make(chan apis.Command, BUFSIZE)
+var outg = make(chan apis.Command, BUFSIZE)
 
-	return &Server{
-		pattern,
-		clients,
-		addCh,
-		delCh,
-		sendAllCh,
-		doneCh,
-		errCh,
-	}
-}
+var connMut sync.Mutex
+var uiconn io.ReadWriteCloser
 
-func (s *Server) AddClient(c *client) {
-	s.addCh <- c
-}
-
-func (s *Server) DelClient(c *client) {
-	s.delCh <- c
-}
-
-func (s *Server) SendAllClients(msg *apis.Command) {
-	s.sendAllCh <- msg
-}
-
-func (s *Server) Done() {
-	close(s.doneCh)
-}
-
-func (s *Server) Err(err error) {
-	s.errCh <- err
-}
-
-func (s *Server) sendAllClients(msg *apis.Command) {
-	for _, c := range s.clients {
-		c.write(msg)
-	}
-}
-
-func (s *Server) msgReceived(msg *apis.Command) {
-	Receive(*msg)
-}
-
-// Listen and serve.
-// It serves client connection and broadcast request.
-func (s *Server) Listen() {
-
-	log.Println("Listening server...")
-
+func serve(pattern string) {
 	// websocket handler
 	onConnected := func(ws *websocket.Conn) {
+		log.Println("A client has connected")
 		defer func() {
-			err := ws.Close()
-			if err != nil {
-				s.errCh <- err
-			}
+			_ = ws.Close()
 		}()
 
-		client := newClient(ws, s)
-		s.AddClient(client)
-		client.listen()
-	}
-
-	//TODO only listen for localhost
-	http.Handle(s.pattern, websocket.Handler(onConnected))
-	log.Println("Created handler")
-
-	for {
-		select {
-
-		// Add new a client
-		case c := <-s.addCh:
-			log.Println("Added new client")
-			s.clients[c.id] = c
-			log.Println("Now", len(s.clients), "clients connected.")
-			//TODO do something, send status?
-
-		// del a client
-		case c := <-s.delCh:
-			log.Println("Delete client")
-			delete(s.clients, c.id)
-
-		// broadcast message for all clients
-		case msg := <-s.sendAllCh:
-			//log.Println("Send all:", msg)
-			s.sendAllClients(msg)
-
-		case err := <-s.errCh:
-			log.Println("Error:", err.Error())
-
-		case <-s.doneCh:
+		connMut.Lock()
+		if uiconn != nil {
+			//TODO tell the new UI to GTFO
 			return
 		}
+		uiconn = ws
+		connMut.Unlock()
+		handleClient()
+		log.Println("A client has disconnected")
+	}
+
+	http.Handle(pattern, websocket.Handler(onConnected))
+	for cmd := range inc {
+		subsMutex.RLock()
+		for _, out := range subscriptions[cmd.Channel] {
+			out.dataCh <- cmd
+		}
+		subsMutex.RUnlock()
 	}
 }
 
-func writeLoop(s *Server) {
-	oChan := Connect()
-	for msg := range oChan.Channel() {
-		s.SendAllClients(&msg)
+func handleClient() {
+	go func() {
+		enc := json.NewEncoder(uiconn)
+		for cmd := range outg {
+			err := enc.Encode(cmd)
+			if err != nil {
+				connMut.Lock()
+				defer connMut.Unlock()
+				if uiconn != nil {
+					_ = uiconn.Close()
+					uiconn = nil
+				}
+				log.Println(err)
+				return
+			}
+		}
+	}()
+	dec := json.NewDecoder(uiconn)
+	var cmd apis.Command
+	for {
+		err := dec.Decode(&cmd)
+		if err != nil {
+			connMut.Lock()
+			defer connMut.Unlock()
+			if uiconn != nil {
+				_ = uiconn.Close()
+				uiconn = nil
+			}
+			log.Println(err)
+			return
+		}
+		inc <- cmd
 	}
+}
+
+func send(cmd *apis.Command) {
+	outg <- *cmd
 }
 
 // MainLoop is the UI's mainloop. It should be run on wapty's start and it will
 // not return until an error occours.
 func MainLoop() {
 	// websocket server
-	server := NewServer("/ws")
-	go server.Listen()
-
-	go writeLoop(server)
+	go serve("/ws")
 
 	// static files
-	//http.Handle("/", http.FileServer(assetFS()))
-	http.Handle("/", http.FileServer(rice.MustFindBox("webroot").HTTPBox()))
+	http.Handle("/static/",
+		http.StripPrefix("/static/",
+			http.FileServer(rice.MustFindBox("static").HTTPBox())))
+	// TODO setup templates
 
-	//This is a dirty workaround for the websocket package not reensembling frames
-	//http.HandleFunc("/edit", func(rw http.ResponseWriter, req *http.Request) {
-	//decoder := json.NewDecoder(req.Body)
-	//defer func() { _ = req.Body.Close() }()
-	//var cmd apis.Command
-	//err := decoder.Decode(&cmd)
-	//if err != nil {
-	//log.Println(err)
-	//}
-	//server.msgReceived(&cmd)
-	//})
+	loadTemplates()
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write(appPage)
+	})
 
 	log.Fatal(http.ListenAndServe(":8081", nil))
 
