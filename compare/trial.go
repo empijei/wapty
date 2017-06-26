@@ -9,8 +9,10 @@ import (
 )
 
 func main() {
-	sa := "aaaa fooo bbbb cc jkj"
-	sb := "aaaa bar bar bbbb  ./ cc kjk"
+	//sa := "aaaa fooo bbbb cc jkj"
+	//sb := "aaaa bar bar bbbb  ./ cc kjk"
+	sa := "14:36:02"
+	sb := "14:46:02"
 	a, ia := wordsplit(sa)
 	b, ib := wordsplit(sb)
 	s := difflib.NewMatcher(a, b)
@@ -79,16 +81,16 @@ func wordsplit(s string) ([]string, []int) {
 	//dummy[i] = i
 	//}
 	//return strings.Split(s, ""), dummy
-	isNotWord := func(r rune) bool {
+	isWord := func(r rune) bool {
 		switch {
 		case r == '_':
 			fallthrough
 		case unicode.IsLetter(r):
 			fallthrough
 		case unicode.IsDigit(r):
-			return false
-		default:
 			return true
+		default:
+			return false
 		}
 	}
 
@@ -100,15 +102,17 @@ func wordsplit(s string) ([]string, []int) {
 	var indexes []int
 	fieldStart := -1 // Set to -1 when looking for start of field.
 	for i, r := range s {
-		if isNotWord(r) {
+		if isWord(r) {
+			if fieldStart == -1 {
+				fieldStart = i
+				indexes = append(indexes, i)
+			}
+		} else {
 			if fieldStart >= 0 {
 				a = append(a, s[fieldStart:i])
 				fieldStart = -1
 			}
 			a = append(a, s[i:i+1])
-			indexes = append(indexes, i)
-		} else if fieldStart == -1 {
-			fieldStart = i
 			indexes = append(indexes, i)
 		}
 	}

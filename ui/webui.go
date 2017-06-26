@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"strings"
 	"text/template"
 
 	rice "github.com/GeertJohan/go.rice"
@@ -14,12 +15,14 @@ var tabs = []struct {
 	Title string
 }{
 	{
-		"proxy",
-		"Proxy",
+		Name: "proxy",
 	},
 	{
-		"history",
-		"HTTP History",
+		Name:  "history",
+		Title: "HTTP History",
+	},
+	{
+		Name: "repeat",
 	},
 }
 
@@ -62,7 +65,9 @@ func loadTab(name string, title string, active bool) *Tab {
 		panic(fmt.Errorf("name %s already in use!", name))
 	}
 	names[name] = struct{}{}
-
+	if title == "" {
+		title = strings.Title(name)
+	}
 	return &Tab{
 		Title:   title,
 		Active:  active,

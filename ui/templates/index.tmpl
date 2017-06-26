@@ -19,8 +19,8 @@
 									<ul class="nav nav-tabs">
 
 												{{range .Tabs}}
-															<li>
-																		<a data-toggle="tab" {{if .Active}} class="active" {{end}} href="#{{.ID}}">
+															<li {{if .Active}} class="active" {{end}} >
+																		<a data-toggle="tab"href="#{{.ID}}">
 																					{{.Title}}
 																		</a>
 															</li>

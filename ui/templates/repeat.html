@@ -1,0 +1,56 @@
+<style>
+#tab-list .close {
+			margin-left: 7px;
+}
+</style>
+
+<p>
+<button id="btn-add-tab" type="button" class="btn btn-primary pull-right">Add Tab</button>
+</p>
+<ul id="tab-list" class="nav nav-tabs" role="tablist">
+			<li class="active"><a href="#tab1" role="tab" data-toggle="tab">Tab 1</a></li>
+</ul>
+
+<div id="tab-content" class="tab-content">
+			<div class="tab-pane fade in active" id="tab1">Tab 1 content</div>
+</div>
+
+<script>
+
+//TODO select the tab immediately on the right on tab removal
+
+var tabID = 1;
+
+$(document).ready(function() {
+			$('#btn-add-tab').click(function() {
+						tabID++;
+						$('#tab-list').append($(`
+									<li>
+									<a href="#tab${tabID}" role="tab" data-toggle="tab">
+									Tab ${tabID}
+									<button class="close" type="button" title="Remove this page">
+									✗
+									</button>
+									</a>
+									</li>
+									`));
+						$('#tab-content').append($(`
+									<div class="tab-pane fade" id="tab${tabID}">
+									Tab ${tabID} content
+									</div>
+									`));
+			});
+			$('#tab-list').on('click', '.close', function() {
+						var tabID = $(this).parents('a').attr('href');
+						$(this).parents('li').remove();
+						$(tabID).remove();
+
+						//display first tab
+						var tabFirst = $('#tab-list a:first');
+						tabFirst.tab('show');
+			});
+
+			var list = document.getElementById("tab-list");
+});
+</script>
+
