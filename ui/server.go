@@ -35,12 +35,19 @@ func serve(pattern string) {
 		connMut.Lock()
 		if uiconn != nil {
 			//TODO tell the new UI to GTFO
+			log.Println("A UI is already connected")
 			return
 		}
 		uiconn = ws
 		connMut.Unlock()
-		handleClient()
-		log.Println("A client has disconnected")
+
+		//This is a blocking call
+		handleClient(uiconn)
+
+		connMut.Lock()
+		uiconn = nil
+		connMut.Unlock()
+
 	}
 
 	http.Handle(pattern, websocket.Handler(onConnected))
@@ -53,39 +60,56 @@ func serve(pattern string) {
 	}
 }
 
-func handleClient() {
+func handleClient(uiconn io.ReadWriteCloser) {
+	dedicatedchan := make(chan apis.Command)
+
+	//This copyes the commands from the backend to a channel read by the sender goroutine.
+	//when the channel is closed it gracefully handles the panic and prevent the last message from being lost.
 	go func() {
-		enc := json.NewEncoder(uiconn)
-		for cmd := range outg {
-			err := enc.Encode(cmd)
-			if err != nil {
-				connMut.Lock()
-				defer connMut.Unlock()
-				if uiconn != nil {
-					_ = uiconn.Close()
-					uiconn = nil
-				}
-				log.Println(err)
-				return
+		var cmd apis.Command
+		defer func() {
+			if r := recover(); r != nil {
+				//cmd was not sent successfully, let's save it
+				outg <- cmd
 			}
+			log.Println("Copyer terminated")
+		}()
+		for cmd = range outg {
+			dedicatedchan <- cmd
 		}
 	}()
+
+	//Sender goroutine, transmits data from the dedicadedchan to the ui
+	go func() {
+		enc := json.NewEncoder(uiconn)
+		for cmd := range dedicatedchan {
+			err := enc.Encode(cmd)
+			if err != nil {
+				log.Println(err)
+				break
+			}
+		}
+		err := uiconn.Close()
+		log.Println(err)
+		log.Println("Sender terminated")
+	}()
+
+	//Takes commands from the ui and sends them to the backend.
+	//When the connection is closed this exits and signals the sender to stop.
 	dec := json.NewDecoder(uiconn)
 	var cmd apis.Command
 	for {
 		err := dec.Decode(&cmd)
 		if err != nil {
-			connMut.Lock()
-			defer connMut.Unlock()
-			if uiconn != nil {
-				_ = uiconn.Close()
-				uiconn = nil
-			}
+			err2 := uiconn.Close()
+			log.Println(err2)
 			log.Println(err)
-			return
+			break
 		}
 		inc <- cmd
 	}
+	close(dedicatedchan)
+	log.Println("A client has disconnected")
 }
 
 func send(cmd *apis.Command) {
@@ -106,7 +130,7 @@ func MainLoop() {
 
 	loadTemplates()
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write(appPage)
+		_, _ = w.Write(appPage)
 	})
 
 	log.Fatal(http.ListenAndServe(":8081", nil))
