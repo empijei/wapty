@@ -62,6 +62,9 @@ func main() {
 		case apis.HISTORYCHANNEL:
 			handleHistory(msg)
 
+		case apis.REPEATCHANNEL:
+			handleRepeat(msg)
+
 		default:
 			log.Println("Unrecognized message")
 		}
