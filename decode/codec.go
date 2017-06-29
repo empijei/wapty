@@ -19,25 +19,26 @@ func addCodecC(name string, c codecConstructor) {
 	codecs[name] = c
 }
 
+//Decoder decodes the string and returns a decoded value that tries to skip
+//invalid input and to decode as much as possible.
+//Returns if the decoded string can be printed as valid unicode.
 type Decoder interface {
-	//Decodes the string and returns a decoded value that tries to skip invalid
-	//input and to decode as much as possible.
-	//Returns if the decoded string can be printed as valid unicode.
 	Decode() (output string)
 }
 
+//Encoder encodes the string
 type Encoder interface {
-	//Encodes the string
 	Encode() (output string)
 }
 
+//Checkers returns a metric to determine how likely it is for the given string
+//to be a valid value for the specified Checker Type.
+//The likelihood always ranges between 0 and 1
 type Checker interface {
-	//Returns a metric to determine how likely it is for the given string to be
-	//a valid value for the specified Checker Type.
-	//The likelihood always ranges between 0 and 1
 	Check() (acceptability float64)
 }
 
+//CodecC creates an interface of interfaces usable by other codecs
 type CodecC interface {
 	Decoder
 	Encoder
@@ -45,8 +46,9 @@ type CodecC interface {
 	fmt.Stringer
 }
 
+//SmartDecode loops through the available CodecCs
+//and determine which one is the best one to use
 func SmartDecode(input string) (c CodecC) {
-	//loop through the available CodecCs and determine which one is the best one
 	var curvalue float64
 	//FIXME add a null codecC if no codecC is selected
 	//FIXME use a priority list for ambiguous alphabets (b16 should be

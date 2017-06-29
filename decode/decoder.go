@@ -10,6 +10,7 @@ const eof = -1
 
 var invalid = '�'
 
+// Pos is an integer that define a position inside a string
 type Pos int
 type itemType int
 
@@ -86,7 +87,7 @@ func (l *decoder) acceptRun(valid string) {
 	l.backup()
 }
 
-// decode runs the decode untill EOF
+// decode runs the decode until EOF
 func (l *decoder) decode() []byte {
 	for l.state != nil {
 		l.state = l.state(l)

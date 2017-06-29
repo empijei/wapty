@@ -16,11 +16,14 @@ func init() {
 	addCodecC(b64name, codecConstructor(NewB64CodecC))
 }
 
+// Base64 takes a decoder and an input string
 type Base64 struct {
 	dec   *decoder
 	input string
 }
 
+// NewB64CodecC state machine to smartly decode a string with invalid chars
+// and different variants
 // nolint: gocyclo
 func NewB64CodecC(in string) CodecC {
 	const (
@@ -218,15 +221,18 @@ func (b *Base64) String() string {
 	return b64name
 }
 
+// Decode a valid b64 string
 func (b *Base64) Decode() (output string) {
 	return string(b.dec.decode())
 }
 
+// Encode a string into b64 with StdEncodig set
 func (b *Base64) Encode() (output string) {
 	//TODO allow user to decide which encoder
 	return base64.StdEncoding.EncodeToString([]byte(b.input))
 }
 
+// Check returns the percentage of valid b16 characters in the input string
 func (b *Base64) Check() (acceptability float64) {
 	var c int
 	var tot int

@@ -13,11 +13,13 @@ func init() {
 	addCodecC(b16name, codecConstructor(NewB16CodecC))
 }
 
+// Base16 takes a decoder and an input string
 type Base16 struct {
 	dec   *decoder
 	input string
 }
 
+// NewB16CodecC state machine to smartly decode a string with invalid chars
 // nolint: gocyclo
 func NewB16CodecC(in string) CodecC {
 	const (
@@ -127,14 +129,17 @@ func (b *Base16) String() string {
 	return b16name
 }
 
+// Decode a valid b16 string
 func (b *Base16) Decode() (output string) {
 	return string(b.dec.decode())
 }
 
+// Encode a string into b16
 func (b *Base16) Encode() (output string) {
 	return hex.EncodeToString([]byte(b.input))
 }
 
+// Check returns the percentage of valid b16 characters in the input string
 func (b *Base16) Check() (acceptability float64) {
 	var c int
 	var tot int
