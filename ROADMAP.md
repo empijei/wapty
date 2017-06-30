@@ -57,15 +57,15 @@ This stage will be the first stage for wapty, before this is finished wapty will
 * [x] Use a formal approach to fuzzy decoding
 * [x] Refactor Decode package
 * [x] Rewrite UI in gopherjs
-* [ ] Simplify server-side code for UI
+* [x] Simplify server-side code for UI
 * [ ] finish Repeat tests
-* [ ] use templates for UI
+* [x] use templates for UI
 * [ ] Add UI to repeater
-* [ ] Use https://coveralls.io to compute coverage
+* [x] Use https://gocover.io to compute coverage
 * [ ] Add saving functionality
 * [ ] Add scoping
 * [ ] Add history filtering/sorting
-* [ ] Add functionality: releasing the intercept should forward all pending requests
+* [x] Add functionality: releasing the intercept should forward all pending requests
 * [ ] Add internal router
 * [ ] ignore recursive connect
 * [ ] Add intercept checker in the right spots

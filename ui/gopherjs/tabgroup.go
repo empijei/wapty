@@ -56,5 +56,6 @@ func (tg *TabGroup) addTab(title string, content string) (tabID int) {
 	js.Global.Get("document").Call("createElement")
 	//tg.tabHeaders.Call("appendChild", th)
 	//tg.tabBodies.Call("appendChild", tb)
+	//BOOKMARK
 	return 0
 }
