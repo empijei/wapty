@@ -2,6 +2,7 @@ package intercept
 
 import (
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -194,4 +195,42 @@ type pendingResponse struct {
 	originalResponse *http.Response
 	originalRequest  *http.Request
 	modifiedResponse chan *mayBeResponse
+}
+
+// Save saves the status in a json formatted stream
+func (h *History) Save(out io.Writer) error {
+	h.RLock()
+	defer h.RUnlock()
+
+	enc := json.NewEncoder(out)
+	err := enc.Encode(h)
+	return err
+}
+
+// Load loads the status from a json formatted stream
+func (h *History) Load(in io.Reader) error {
+	var tmp History
+	dec := json.NewDecoder(in)
+	err := dec.Decode(&tmp)
+
+	if err != nil {
+		return err
+	}
+
+	h.Lock()
+	defer h.Unlock()
+
+	h.ReqResps = tmp.ReqResps
+	h.Count = tmp.Count
+	return nil
+}
+
+// String returns the name of the current package/project
+func (h *History) String() string {
+	return "Intercept"
+}
+
+// GetStatus returns the current status
+func GetStatus() *History {
+	return &status
 }
