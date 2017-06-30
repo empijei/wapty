@@ -47,12 +47,11 @@ installdeps:
 	# Installing dependencies to embed assets
 	go get -u github.com/GeertJohan/go.rice/...
 	# Installing dependencies to build JS
-	go get -u github.com/gopherjs/jquery
-	go get -u github.com/gopherjs/jsbuiltin
-	go get -u github.com/gopherjs/websocket/...
 	go get -u github.com/gopherjs/gopherjs
-	go get -u honnef.co/go/js/dom
+	go get -u github.com/gopherjs/websocket/...
+	# Installing Decode dependencies
 	go get -u github.com/fatih/color
+	go get -u github.com/pmezard/go-difflib/difflib
 
 clean:
 	# Cleaning all generated files
