@@ -52,6 +52,7 @@ installdeps:
 	go get -u github.com/gopherjs/websocket/...
 	go get -u github.com/gopherjs/gopherjs
 	go get -u honnef.co/go/js/dom
+	go get -u github.com/fatih/color
 
 clean:
 	# Cleaning all generated files

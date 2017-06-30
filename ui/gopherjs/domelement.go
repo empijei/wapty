@@ -52,7 +52,3 @@ func (de *DomElement) ToggleClass(old, new string) {
 	log.Printf("New classes: %v", newclasses)
 	de.Set("classList", strings.Join(newclasses, " "))
 }
-
-type HTMLTableBody struct {
-	*DomElement
-}
