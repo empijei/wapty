@@ -31,7 +31,7 @@ type Encoder interface {
 	Encode() (output string)
 }
 
-//Checkers returns a metric to determine how likely it is for the given string
+//Checker returns a metric to determine how likely it is for the given string
 //to be a valid value for the specified Checker Type.
 //The likelihood always ranges between 0 and 1
 type Checker interface {
