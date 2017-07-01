@@ -31,14 +31,19 @@ func HistoryLength() int {
 
 // FindMatching takes an http request and returns the closest match to it
 // based on the response history.
-
-func FindMatching(req *http.Request) string {
+func FindMatching(req *http.Request) Response {
 	host := findHost(req)
 	// Take only requests matching our filter criteria and sort them by best match
 	viableReqs := filterByHost(responseHistory, host)
-	fuzzySort(viableReqs, host, req)
-
-	return ""
+	fmt.Printf("Found %d viable reqs.\n", len(viableReqs))
+	if len(viableReqs) > 0 {
+		fuzzySort(viableReqs, host, req)
+		for i, e := range viableReqs {
+			fmt.Printf("%d: %+v\n", i, e)
+		}
+		return viableReqs[0].Response
+	}
+	return Response{}
 }
 
 // findHost tries to retreive host information from `req`.
@@ -47,15 +52,10 @@ func FindMatching(req *http.Request) string {
 func findHost(req *http.Request) Host {
 	host := Host{
 		Value: req.Host,
-		Ip:    "",
+		Ip:    "", // TODO
 	}
-	if ip := req.Header.Get("X-Forwarded-For"); len(ip) > 0 {
-		host.Ip = ip
-	} else {
-		host.Ip = req.RemoteAddr
-		if id := strings.Index(host.Ip, ":"); id > -1 {
-			host.Ip = host.Ip[:id]
-		}
+	if id := strings.Index(host.Value, ":"); id > -1 {
+		host.Value = host.Value[:id]
 	}
 	return host
 }
@@ -82,21 +82,26 @@ type compareArgs struct {
 	Path     string
 }
 
-// fuzzySort sorts the requests from the "best matching" with `req` to the least.
+// fuzzySort sorts the requests by "best matching" with `req`.
 // Sort is done in place, so the given `reqs` is modified by this call.
 func fuzzySort(reqs []Item, host Host, req *http.Request) {
-	if len(reqs) == 0 {
-		return
-	}
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "mocksy: error reading body of request while sorting: %s\n", err.Error())
 		return
 	}
+	// TODO: retreive port
+	port := "80"
+	if req.Proto == "https" {
+		port = "443"
+	}
+	if id := strings.Index(req.Host, ":"); id > -1 {
+		port = req.Host[id+1:]
+	}
 	less := fuzzyComparer(reqs, compareArgs{
 		Request:  body,
 		Host:     host,
-		Port:     req.URL.Port(),
+		Port:     port,
 		Protocol: req.Proto,
 		Method:   req.Method,
 		Path:     req.URL.EscapedPath(),
@@ -112,8 +117,8 @@ func fuzzyComparer(reqs []Item, args compareArgs) func(int, int) bool {
 	// longestPrefix returns the number of common runes at the beginning of
 	// strings `a` and `b`. For convenience, it also returns whether the strings
 	// are the same or not.
-	longestPrefix := func(a, b string) (pfx int, perfectMatch bool) {
-		if perfectMatch = a == b; perfectMatch {
+	longestPrefix := func(a, b string) (pfx int, pathExact bool) {
+		if pathExact = a == b; pathExact {
 			return
 		}
 		for i := 0; i < len(a) && i < len(b); i++ {
@@ -126,15 +131,17 @@ func fuzzyComparer(reqs []Item, args compareArgs) func(int, int) bool {
 	}
 	return func(i, j int) bool {
 		ra, rb := reqs[i], reqs[j]
+		fmt.Printf("matching %+v with %+v\n", ra, rb)
 		// First, check path. If one of the paths is the same as the original one
 		// and the other's not, it's the best candidate.
-		_, perfectMatchA := longestPrefix(ra.Path, args.Path)
-		_, perfectMatchB := longestPrefix(rb.Path, args.Path)
-		if perfectMatchA != perfectMatchB {
-			// Here, the boolean value of `perfectMatchA` means "ra matches exactly, and rb does not".
+		_, pathExactA := longestPrefix(ra.Path, args.Path)
+		_, pathExactB := longestPrefix(rb.Path, args.Path)
+		if pathExactA != pathExactB {
+			// Here, the boolean value of `pathExactA` means "ra matches exactly, and rb does not".
 			// In that case, ra is a better candidate and should be considered "less" than rb
 			// (since we order best-first). Else, rb is the better candidate.
-			return perfectMatchA
+			println("perfect match path")
+			return pathExactA
 		}
 
 		// Here, either both paths match exactly, or neither does.
@@ -143,6 +150,7 @@ func fuzzyComparer(reqs []Item, args compareArgs) func(int, int) bool {
 		reqBExact := bytes.Equal(rb.Request.Value, args.Request)
 		if reqAExact != reqBExact {
 			// If one of the requests matches exactly and the other does not, we have our decision.
+			println("perfect match request")
 			return reqAExact
 		}
 
@@ -179,10 +187,12 @@ func fuzzyComparer(reqs []Item, args compareArgs) func(int, int) bool {
 				// a request body which matches more the original one.
 				// For now, we just prefer the method over the request, but here we may use
 				// heuristics (like `minReqLenDiff`) to have better control over this choice.
+				println("same method 1")
 				return ra.Method == args.Method
 			} else {
 				// Here, a request matches the actual method _and_ its request body is
 				// closer to the original one. Return that request without further investigation.
+				println("same method 2")
 				return ra.Method == args.Method
 			}
 		}
@@ -193,16 +203,20 @@ func fuzzyComparer(reqs []Item, args compareArgs) func(int, int) bool {
 			// One of the protocol matches, the other does not.
 			// Like before, we may use heuristics on the request bodies to determine our choice,
 			// but for now just return the request whose protocol matches.
+			println("same protocol")
 			return ra.Protocol == args.Protocol
 		}
 
 		// Finally, check port.
+		fmt.Printf("portA = %d, portB = %d, actual = %d\n", ra.Port, rb.Port, args.Port)
 		if (ra.Port == args.Port) != (rb.Port == args.Port) {
+			println("same port")
 			return ra.Port == args.Port
 		}
 
 		// If we got here, all previous criteria failed and the requests are almost the same.
 		// In this case, return the one whose request body is closer to the original.
+		println("none: ", aMatchesMost)
 		return aMatchesMost
 	}
 }

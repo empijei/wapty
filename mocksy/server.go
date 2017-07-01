@@ -16,7 +16,7 @@ func mocksyHandler(rw http.ResponseWriter, req *http.Request) {
 	//return
 	//}
 	rw.WriteHeader(http.StatusOK)
-	fmt.Fprintln(rw, resp)
+	fmt.Fprintln(rw, string(resp.Value))
 }
 
 func StartServer(port string) error {
@@ -30,9 +30,10 @@ func StartServer(port string) error {
 
 func loadResponseHistory() error {
 	// Import data (TODO: should not be hardcoded here, also should check errors)
-	file, err := os.Open("burp_b64.xml")
+	fname := "test.xml"
+	file, err := os.Open(fname)
 	if err != nil {
-		return fmt.Errorf("File not found: burp_b64.xml")
+		return fmt.Errorf("File not found: %s", fname)
 	}
 	items, err := BurpImport(file)
 	if err != nil {

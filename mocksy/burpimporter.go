@@ -45,7 +45,7 @@ func (r b64Able) Bytes() []byte {
 
 type Host struct {
 	Ip    string `xml:"ip,attr"`
-	Value string
+	Value string `xml:",chardata"`
 }
 
 type Item struct {

@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!DOCTYPE items [
+<!ELEMENT items (item*)>
+<!ATTLIST items burpVersion CDATA "">
+<!ATTLIST items exportTime CDATA "">
+<!ELEMENT item (time, url, host, port, protocol, method, path, extension, request, status, responselength, mimetype, response, comment)>
+<!ELEMENT time (#PCDATA)>
+<!ELEMENT url (#PCDATA)>
+<!ELEMENT host (#PCDATA)>
+<!ATTLIST host ip CDATA "">
+<!ELEMENT port (#PCDATA)>
+<!ELEMENT protocol (#PCDATA)>
+<!ELEMENT method (#PCDATA)>
+<!ELEMENT path (#PCDATA)>
+<!ELEMENT extension (#PCDATA)>
+<!ELEMENT request (#PCDATA)>
+<!ATTLIST request base64 (true|false) "false">
+<!ELEMENT status (#PCDATA)>
+<!ELEMENT responselength (#PCDATA)>
+<!ELEMENT mimetype (#PCDATA)>
+<!ELEMENT response (#PCDATA)>
+<!ATTLIST response base64 (true|false) "false">
+<!ELEMENT comment (#PCDATA)>
+]>
+<items burpVersion="1.7.23" exportTime="Tue Jun 06 22:35:27 CEST 2017">
+  <item>
+    <time>Tue Jun 06 22:34:15 CEST 2017</time>
+    <url><![CDATA[https://localhost/]]></url>
+    <host ip="0.0.0.0">localhost</host>
+    <port>443</port>
+    <protocol>http</protocol>
+    <method><![CDATA[POST]]></method>
+    <path><![CDATA[/]]></path>
+    <extension>null</extension>
+    <request base64="false"><![CDATA[PING]]></request>
+    <status>200</status>
+    <responselength>4</responselength>
+    <mimetype></mimetype>
+    <response base64="false"><![CDATA[PONG]]></response>
+    <comment></comment>
+  </item>
+  <item>
+    <time>Tue Jun 06 22:34:15 CEST 2017</time>
+    <url><![CDATA[https://localhost/]]></url>
+    <host ip="0.0.0.0">localhost</host>
+    <port>443</port>
+    <protocol>http</protocol>
+    <method><![CDATA[GET]]></method>
+    <path><![CDATA[/]]></path>
+    <extension>null</extension>
+    <request base64="false"></request>
+    <status>200</status>
+    <responselength>4</responselength>
+    <mimetype></mimetype>
+    <response base64="false"><![CDATA[GET]]></response>
+    <comment></comment>
+  </item>
+  <item>
+    <time>Tue Jun 06 22:34:15 CEST 2017</time>
+    <url><![CDATA[https://localhost:8082/asd]]></url>
+    <host ip="0.0.0.0">localhost</host>
+    <port>8082</port>
+    <protocol>http</protocol>
+    <method><![CDATA[POST]]></method>
+    <path><![CDATA[/asd]]></path>
+    <extension>null</extension>
+    <request base64="false"><![CDATA[PING]]></request>
+    <status>200</status>
+    <responselength>4</responselength>
+    <mimetype></mimetype>
+    <response base64="false"><![CDATA[8082]]></response>
+    <comment></comment>
+  </item>
+</items>
