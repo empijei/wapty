@@ -30,11 +30,12 @@ func StartServer(port string) error {
 
 func loadResponseHistory() error {
 	// Import data (TODO: should not be hardcoded here, also should check errors)
-	fname := "burp.xml"
+	fname := "test.xml"
 	file, err := os.Open(fname)
 	if err != nil {
 		return fmt.Errorf("File not found: %s", fname)
 	}
+
 	// Go refuses to parse any XML whose version is != "1.0". Burp sometimes
 	// declares XML 1.1, albeit it uses no 1.1-only features, so we trick
 	// the XML parser into parsing our "invalid" XML by skipping the XML header.
@@ -43,13 +44,16 @@ func loadResponseHistory() error {
 	} else {
 		return fmt.Errorf("mocksy: error importing data: header skip failed.\n")
 	}
+
 	items, err := BurpImport(file)
 	if err != nil {
 		return fmt.Errorf("mocksy: error importing data:\n\t%s", err.Error())
 	}
+
 	for _, item := range items.Items {
 		AddToHistory(item)
 	}
 	log.Printf("Loaded %d Request-Response pairs.\n", HistoryLength())
+
 	return nil
 }

@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"sort"
 	"strings"
 )
 
@@ -20,8 +19,19 @@ func init() {
 	responseHistory = make([]Item, 0)
 }
 
+func equivalent(a, b Item) bool {
+	return a.Host == b.Host && a.Port == b.Port && a.Protocol == b.Protocol && a.Method == b.Method &&
+		a.Path == b.Path && bytes.Equal(a.Request.Value, b.Request.Value)
+}
+
 // AddToHistory inserts a pair request-response in the responseHistory.
 func AddToHistory(itm Item) {
+	// Don't add duplicate entries
+	for _, r := range responseHistory {
+		if equivalent(r, itm) {
+			return
+		}
+	}
 	responseHistory = append(responseHistory, itm)
 }
 
@@ -37,11 +47,8 @@ func FindMatching(req *http.Request) Response {
 	viableReqs := filterByHost(responseHistory, host)
 	fmt.Printf("Found %d viable reqs.\n", len(viableReqs))
 	if len(viableReqs) > 0 {
-		fuzzySort(viableReqs, host, req)
-		for i, e := range viableReqs {
-			fmt.Printf("%d: %+v\n", i, e)
-		}
-		return viableReqs[0].Response
+		best := findBestMatching(viableReqs, host, req)
+		return best.Response
 	}
 	return Response{}
 }
@@ -71,10 +78,9 @@ func filterByHost(lst []Item, host Host) []Item {
 	return newlst
 }
 
-// compareArgs is a struct containing the information that we use to match
-// two requests.
+// compareArgs is a struct containing the information that we use to match two requests.
 type compareArgs struct {
-	Request  []byte // XXX: []byte or Request?
+	Request  []byte
 	Host     Host
 	Port     string
 	Protocol string
@@ -82,13 +88,12 @@ type compareArgs struct {
 	Path     string
 }
 
-// fuzzySort sorts the requests by "best matching" with `req`.
-// Sort is done in place, so the given `reqs` is modified by this call.
-func fuzzySort(reqs []Item, host Host, req *http.Request) {
+// findBestMatching returns the request that is the "best matching" with `req`.
+func findBestMatching(reqs []Item, host Host, req *http.Request) Item {
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "mocksy: error reading body of request while sorting: %s\n", err.Error())
-		return
+		return Item{}
 	}
 	// TODO: retreive port
 	port := "80"
@@ -98,6 +103,7 @@ func fuzzySort(reqs []Item, host Host, req *http.Request) {
 	if id := strings.Index(req.Host, ":"); id > -1 {
 		port = req.Host[id+1:]
 	}
+
 	less := fuzzyComparer(reqs, compareArgs{
 		Request:  body,
 		Host:     host,
@@ -106,14 +112,22 @@ func fuzzySort(reqs []Item, host Host, req *http.Request) {
 		Method:   req.Method,
 		Path:     req.URL.EscapedPath(),
 	})
-	sort.Slice(reqs, less)
+
+	// Find best matching
+	var best Item
+	for _, r := range reqs {
+		if len(best.Url) == 0 || less(r, best) {
+			best = r
+		}
+	}
+	return best
 }
 
 // fuzzyComparer returns a `Less` function which, given requests i and j,
 // tells which one matches the given `args` the most.
 // This is the most important part of Mocksy, as the quality of the matches
 // depends on the returned comparer.
-func fuzzyComparer(reqs []Item, args compareArgs) func(int, int) bool {
+func fuzzyComparer(reqs []Item, args compareArgs) func(Item, Item) bool {
 	// longestPrefix returns the number of common runes at the beginning of
 	// strings `a` and `b`. For convenience, it also returns whether the strings
 	// are the same or not.
@@ -129,8 +143,7 @@ func fuzzyComparer(reqs []Item, args compareArgs) func(int, int) bool {
 		}
 		return
 	}
-	return func(i, j int) bool {
-		ra, rb := reqs[i], reqs[j]
+	return func(ra, rb Item) bool {
 		fmt.Printf("matching %+v with %+v\n", ra, rb)
 		// First, check path. If one of the paths is the same as the original one
 		// and the other's not, it's the best candidate.

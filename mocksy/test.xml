@@ -71,4 +71,20 @@
     <response base64="false"><![CDATA[8082]]></response>
     <comment></comment>
   </item>
+  <item>
+    <time>Tue Jun 06 22:34:15 CEST 2017</time>
+    <url><![CDATA[https://localhost:8082/asd]]></url>
+    <host ip="0.0.0.0">localhost</host>
+    <port>8083</port>
+    <protocol>http</protocol>
+    <method><![CDATA[POST]]></method>
+    <path><![CDATA[/asd]]></path>
+    <extension>null</extension>
+    <request base64="false"><![CDATA[PINGA]]></request>
+    <status>200</status>
+    <responselength>4</responselength>
+    <mimetype></mimetype>
+    <response base64="false"><![CDATA[PONGA]]></response>
+    <comment></comment>
+  </item>
 </items>
