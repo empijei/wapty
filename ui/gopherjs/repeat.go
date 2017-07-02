@@ -1,3 +1,5 @@
+// +build js
+
 package main
 
 import "github.com/empijei/wapty/ui/apis"

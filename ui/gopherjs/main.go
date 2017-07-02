@@ -1,3 +1,5 @@
+// +build js
+
 package main
 
 //FIXME ui does not respond while receiving big amounts of metadata
