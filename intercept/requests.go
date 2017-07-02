@@ -1,7 +1,3 @@
-//intercept is meant to handle all the interception of requests and responses,
-//including stopping and waiting for edited payloads.
-//Every request going through the proxy is parsed and added to the Status by this
-//package.
 package intercept
 
 import (
@@ -15,7 +11,7 @@ import (
 	"github.com/empijei/wapty/ui/apis"
 )
 
-//Represents the queue of requests that have been intercepted
+// RequestQueue represents the queue of requests that have been intercepted
 var RequestQueue chan *pendingRequest
 
 func init() {
@@ -43,15 +39,15 @@ func handleRequest(preq *pendingRequest) {
 	var providedResp *http.Response
 	editedRequestDump, action := editBuffer(apis.REQUEST, req, r.URL.Scheme+"://"+r.Host)
 	switch action {
-	case apis.FORWARD.String():
+	case apis.FORWARD:
 		r.ContentLength = ContentLength
 		editedRequest = r
-	case apis.EDIT.String():
+	case apis.EDIT:
 		editedRequest, err = editCase(editedRequestDump)
 		status.addRawEditedRequest(preq.id, editedRequestDump)
-	case apis.DROP.String():
+	case apis.DROP:
 		providedResp = caseDrop()
-	case apis.PROVIDERESP.String():
+	case apis.PROVIDERESP:
 		providedResponseBuffer := bufio.NewReader(bytes.NewReader(editedRequestDump))
 		providedResp, err = http.ReadResponse(providedResponseBuffer, preq.originalRequest)
 		if err != nil {
@@ -68,9 +64,9 @@ func handleRequest(preq *pendingRequest) {
 	preq.modifiedRequest <- &mayBeRequest{req: editedRequest, res: providedResp, err: err}
 }
 
-func preProcessRequest(req *http.Request) (autoEdited *http.Request, Id int, err error) {
+func preProcessRequest(req *http.Request) (autoEdited *http.Request, ID int, err error) {
 	stripHTHHeaders(&(req.Header))
-	Id = newReqResp(req)
+	ID = newReqResp(req)
 	//TODO Add autoedit here
 	autoEdited = req
 	//FIXME Call this in a "decode" function for requests, like the one used for responses
@@ -80,10 +76,10 @@ func preProcessRequest(req *http.Request) (autoEdited *http.Request, Id int, err
 	return
 }
 
-func editRequest(req *http.Request, Id int) (*http.Request, *http.Response, error) {
+func editRequest(req *http.Request, ID int) (*http.Request, *http.Response, error) {
 	//Send request to the dispatchLoop
 	ModifiedRequest := make(chan *mayBeRequest)
-	RequestQueue <- &pendingRequest{id: Id, originalRequest: req, modifiedRequest: ModifiedRequest}
+	RequestQueue <- &pendingRequest{id: ID, originalRequest: req, modifiedRequest: ModifiedRequest}
 	log.Println("Request intercepted")
 	//Wait for edited request
 	mayBeReq := <-ModifiedRequest

@@ -1,10 +1,6 @@
 package intercept
 
-import (
-	"net/http"
-	"testing"
-)
-
+/*
 func a(req *http.Request, in *http.Response) (*http.Response, error) {
 	in.Header.Set("X-Wapty-Test", in.Header.Get("X-Wapty-Test")+"FuncA")
 	return in, nil
@@ -47,3 +43,4 @@ func TestPlug(t *testing.T) {
 		t.Errorf("PreProcessRequest did not work, expected FuncDFuncC, got " + actual)
 	}
 }
+*/

@@ -8,13 +8,20 @@ import (
 	"strings"
 )
 
-func MainStandalone(codeclist string, encode bool) {
+// MainStandalone parses its own flag and it is the funcion to be run when using
+// `wapty decode`. This behaves as a main and expects the "decode" parameter to
+// be removed from os.Args.
+func MainStandalone() {
+	encode := flag.Bool("encode", false, "Sets the decoder to an encoder instead")
+	codeclist := flag.String("codec", "smart", "Sets the decoder/encoder codec. Multiple codecs can be specified and comma separated, they will be applied one on the output of the previous as in a pipeline.")
+	flag.Parse()
+
 	buf := takeInput()
-	sequence := strings.Split(codeclist, ",")
+	sequence := strings.Split(*codeclist, ",")
 	for i, codec := range sequence {
 		var c CodecC
 		if codec == "smart" {
-			if encode {
+			if *encode {
 				fmt.Fprintf(os.Stderr, "Cannot 'smart' encode, please specify a codec")
 				os.Exit(2)
 			}
@@ -32,10 +39,10 @@ func MainStandalone(codeclist string, encode bool) {
 			}
 		}
 		fmt.Fprintf(os.Stderr, "Codec: %s\n", c.String())
-		if encode {
+		if *encode {
 			buf = c.Encode()
 		} else {
-			buf, _ = c.Decode()
+			buf = c.Decode()
 		}
 		//This is to avoid printing twice the final result
 		if i < len(sequence)-2 {
@@ -60,11 +67,10 @@ func takeInput() string {
 			os.Exit(2)
 		}
 		return string(buf)
-	} else {
-		if len(args) == 0 {
-			fmt.Fprintln(os.Stderr, "Didn't find anything to decode/encode, exiting...")
-			os.Exit(2)
-		}
-		return args[0]
 	}
+	if len(args) == 0 {
+		fmt.Fprintln(os.Stderr, "Didn't find anything to decode/encode, exiting...")
+		os.Exit(2)
+	}
+	return args[0]
 }

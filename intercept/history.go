@@ -2,10 +2,10 @@ package intercept
 
 import (
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httputil"
-	"strconv"
 	"sync"
 
 	"github.com/empijei/wapty/ui/apis"
@@ -16,11 +16,11 @@ var status History
 func init() {
 }
 
+//History is used to represent all the req/resp that went through the proxy
 //FIXME!!! implement high-level methods!!!
-//This type is used to represent all the req/resp that went through the proxy
 //FIXME make the fields private and create a dummy object to transmit this
 type History struct {
-	sync.RWMutex
+	sync.RWMutex `json:"-"`
 	//Remove count, use it only for serialization
 	Count    int
 	ReqResps []*ReqResp
@@ -28,44 +28,44 @@ type History struct {
 
 //Finds the correct Request based on the ID and adds the modified request to it
 //This is thread safe
-func (h *History) addRawEditedRequest(Id int, rawEditedReq []byte) {
+func (h *History) addRawEditedRequest(ID int, rawEditedReq []byte) {
 	h.RLock()
-	h.ReqResps[Id].RawEditedReq = rawEditedReq
+	h.ReqResps[ID].RawEditedReq = rawEditedReq
 	h.RUnlock()
 }
 
-//func (h *History) addEditedRequest(Id int, req *http.Request) {
+//func (h *History) addEditedRequest(ID int, req *http.Request) {
 //}
 
 //Finds the correct Request based on the ID and adds the original response to it
 //This is thread safe
-func (h *History) addRawResponse(Id int, rawRes []byte) {
+func (h *History) addRawResponse(ID int, rawRes []byte) {
 	h.RLock()
-	h.ReqResps[Id].RawRes = rawRes
+	h.ReqResps[ID].RawRes = rawRes
 	h.RUnlock()
 }
 
-func (h *History) addResponse(Id int, res *http.Response) {
+func (h *History) addResponse(ID int, res *http.Response) {
 	tmp, err := httputil.DumpResponse(res, true)
 	if err != nil {
 		//TODO
 		log.Println(err.Error())
 	}
-	h.addRawResponse(Id, tmp)
+	h.addRawResponse(ID, tmp)
 }
 
-//Finds the correct Request based on the ID and adds the modified response to it
-//This is thread safe
-func (h *History) addRawEditedResponse(Id int, rawEditedRes []byte) {
+// Finds the correct Request based on the ID and adds the modified response to it
+// This is thread safe
+func (h *History) addRawEditedResponse(ID int, rawEditedRes []byte) {
 	h.RLock()
-	h.ReqResps[Id].RawEditedRes = rawEditedRes
+	h.ReqResps[ID].RawEditedRes = rawEditedRes
 	h.RUnlock()
 }
 
-//func (h *History) addEditedResponse(Id int, res *http.Response) {}
+//func (h *History) addEditedResponse(ID int, res *http.Response) {}
 
-//Dumps the status in the log. This is only meant for debug purposes.
-func StatusDump(status History) {
+// StatusDump dumps the status in the log. This is only meant for debug purposes.
+func StatusDump(status *History) {
 	status.RLock()
 	foo, err := json.MarshalIndent(status, " ", " ")
 	if err != nil {
@@ -75,14 +75,13 @@ func StatusDump(status History) {
 	status.RUnlock()
 }
 
-func (h *History) getItem(Id int) *ReqResp {
+func (h *History) getItem(ID int) *ReqResp {
 	h.RLock()
 	defer h.RUnlock()
-	if Id < h.Count {
-		return h.ReqResps[Id]
-	} else {
-		return nil
+	if ID < h.Count {
+		return h.ReqResps[ID]
 	}
+	return nil
 }
 
 //This loop will wait for commands directed to the history control and will
@@ -90,19 +89,19 @@ func (h *History) getItem(Id int) *ReqResp {
 func historyLoop() {
 	for {
 		select {
-		case cmd := <-uiHistory.DataChannel:
+		case cmd := <-uiHistory.RecChannel():
 			switch cmd.Action {
-			case apis.DUMP.String():
+			case apis.DUMP:
 				status.RLock()
 				dump, err := json.Marshal(status)
 				status.RUnlock()
 				if err != nil {
-					StatusDump(status)
+					StatusDump(&status)
 					panic(err)
 				}
 				log.Printf("Dump: %s\n", dump)
-				uiHistory.Send(apis.Command{Action: "Dump", Payload: dump})
-			case apis.FETCH.String():
+				uiHistory.Send(&apis.Command{Action: "Dump", Payload: dump})
+			case apis.FETCH:
 				uiHistory.Send(handleFetch(cmd))
 			}
 		case <-done:
@@ -111,28 +110,25 @@ func historyLoop() {
 	}
 }
 
-func handleFetch(cmd apis.Command) apis.Command {
-	if len(cmd.Args) >= 1 {
-		log.Println("Requested history entry")
-		Id, err := strconv.Atoi(cmd.Args[0])
-		if err != nil {
-			return apis.Command{Action: "Error", Args: []string{"Invalid argument to FETCH"}}
-		}
-		rr := status.getItem(Id)
-		buf, err := json.Marshal(rr)
-		return apis.Command{Action: apis.FETCH.String(), Payload: buf}
-	} else {
-		log.Println("Missing argument for FETCH")
-		return apis.Command{Action: "Error", Args: []string{"Missing argument for FETCH"}}
+func handleFetch(cmd apis.Command) *apis.Command {
+	var ID int
+	err := cmd.UnpackArgs([]apis.ArgName{apis.ID}, &ID)
+	if err != nil {
+		log.Println(err)
+		return apis.Err(err)
 	}
+	log.Println("Requested history entry")
+	rr := status.getItem(ID)
+	buf, err := json.Marshal(rr)
+	return &apis.Command{Action: apis.FETCH, Payload: buf}
 }
 
-//Represents an item of the proxy history
+//ReqResp represents an item of the proxy history
 //TODO methods to parse req-resp
 //TODO create a test that fails if this is different from apis.ReqResp
 type ReqResp struct {
-	//Unique Id in the history
-	Id int
+	//Unique ID in the history
+	ID int
 	//Meta Data about both Req and Resp
 	MetaData *apis.ReqRespMetaData
 	//Original Request
@@ -153,9 +149,9 @@ func newRawReqResp(rawReq []byte) int {
 	status.Lock()
 	//log.Println("Locked")
 	curReq := status.Count
-	tmp := &ReqResp{RawReq: rawReq, Id: curReq, MetaData: apis.NewReqRespMetaData(curReq)}
+	tmp := &ReqResp{RawReq: rawReq, ID: curReq, MetaData: &apis.ReqRespMetaData{ID: curReq}}
 	status.ReqResps = append(status.ReqResps, tmp)
-	status.Count += 1
+	status.Count++
 	//log.Println("UnLocking status")
 	status.Unlock()
 	return curReq
@@ -199,4 +195,42 @@ type pendingResponse struct {
 	originalResponse *http.Response
 	originalRequest  *http.Request
 	modifiedResponse chan *mayBeResponse
+}
+
+// Save saves the status in a json formatted stream
+func (h *History) Save(out io.Writer) error {
+	h.RLock()
+	defer h.RUnlock()
+
+	enc := json.NewEncoder(out)
+	err := enc.Encode(h)
+	return err
+}
+
+// Load loads the status from a json formatted stream
+func (h *History) Load(in io.Reader) error {
+	var tmp History
+	dec := json.NewDecoder(in)
+	err := dec.Decode(&tmp)
+
+	if err != nil {
+		return err
+	}
+
+	h.Lock()
+	defer h.Unlock()
+
+	h.ReqResps = tmp.ReqResps
+	h.Count = tmp.Count
+	return nil
+}
+
+// String returns the name of the current package/project
+func (h *History) String() string {
+	return "Intercept"
+}
+
+// GetStatus returns the current status
+func GetStatus() *History {
+	return &status
 }

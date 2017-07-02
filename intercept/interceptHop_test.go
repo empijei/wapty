@@ -53,8 +53,8 @@ func TestRoundTrip(t *testing.T) {
 	defer afterHopTest()
 	for i, tt := range rtTests {
 		ri := &Interceptor{wrappedRT: &tt.subj}
-		intercept.SetValue(tt.interceptStatus)
-		if intercept.Value() {
+		intercept.setValue(tt.interceptStatus)
+		if intercept.value() {
 			if tt.reqModifier != nil {
 				go tt.reqModifier(<-RequestQueue)
 			} else {

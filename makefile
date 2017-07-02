@@ -5,7 +5,7 @@ BINARY=wapty
 VERSION=0.2.0
 BUILD=`git rev-parse HEAD`
 
-LDFLAGS=-ldflags "-X main.Version=${VERSION} -X main.Build=${BUILD}"
+LDFLAGS=-ldflags "-X main.Version=${VERSION} -X main.Commit=${BUILD}"
 
 .DEFAULT_GOAL: ${BINARY}
 
@@ -20,24 +20,27 @@ run:
 	# and it is faster to build
 	-rm ui/rice-box.go >& /dev/null
 	# Generating JS
-	cd ui/gopherjs/ && gopherjs build -o ../webroot/gopherjs.js
+	cd ui/gopherjs/ && gopherjs build -o ../static/gopherjs.js
 	# Done generating JS, launching wapty
-	go run ${LDFLAGS} *.go
+	go run ${LDFLAGS} wapty.go
 
 fast: run
 
-test:
-	go test -v ./...
+test: buildjs rebind
+	go test -x ${LDFLAGS} ./...
+
+testv: buildjs rebind
+	go test -v -x ${LDFLAGS} ./...
 
 buildjs:
 	# Regenerating minified js
-	cd ui/gopherjs/ && gopherjs build -m -o ../webroot/gopherjs.js 
+	cd ui/gopherjs/ && gopherjs build -m -o ../static/gopherjs.js 
 	# Remove mappings
-	rm ui/webroot/gopherjs.js.map
+	rm ui/static/gopherjs.js.map
 
 rebind:
 	# Cleaning and re-embedding assets
-	cd ui && rm rice-box.go >& /dev/null; rice embed-go
+	cd ui && rm rice-box.go 1>/dev/null 2>/dev/null; rice embed-go
 
 install: installdeps buildjs rebind
 	# Installing the executable
@@ -47,15 +50,15 @@ installdeps:
 	# Installing dependencies to embed assets
 	go get -u github.com/GeertJohan/go.rice/...
 	# Installing dependencies to build JS
-	go get -u github.com/gopherjs/jquery
-	go get -u github.com/gopherjs/jsbuiltin
-	go get -u github.com/gopherjs/websocket/...
 	go get -u github.com/gopherjs/gopherjs
-	go get -u honnef.co/go/js/dom
+	go get -u github.com/gopherjs/websocket/...
+	# Installing Decode dependencies
+	go get -u github.com/fatih/color
+	go get -u github.com/pmezard/go-difflib/difflib
 
 clean:
 	# Cleaning all generated files
 	-rm ui/rice-box.go
-	-rm ui/webroot/gopherjs.js*
+	-rm ui/static/gopherjs.js*
 	go clean
 	if [ -f ${BINARY} ] ; then rm ${BINARY} ; fi

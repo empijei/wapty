@@ -4,27 +4,28 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"io/ioutil"
 	"log"
-	"strconv"
 
-	"github.com/empijei/wapty/ui"
 	"github.com/empijei/wapty/ui/apis"
 )
 
 var done = make(chan struct{})
 
+// RepeaterLoop is the main loop for the repeater. It listens on apis.REPEATCHANNEL
+// for calls and executes them
 func RepeaterLoop() {
 	for {
 		select {
-		case cmd := <-uiRepeater.DataChannel:
+		case cmd := <-uiRepeater.RecChannel():
 			switch cmd.Action {
-			case apis.CREATE.String():
+			case apis.CREATE:
 				r := NewRepeater()
 				status.Add(r)
-			case apis.GO.String():
-				handleGo(&cmd)
-			case apis.GET.String():
-				handleGet(&cmd)
+			case apis.GO:
+				uiRepeater.Send(handleGo(&cmd))
+			case apis.GET:
+				uiRepeater.Send(handleGet(&cmd))
 			default:
 				log.Println("Unknown repeater action: " + cmd.Action)
 			}
@@ -34,77 +35,64 @@ func RepeaterLoop() {
 	}
 }
 
-func handleGo(cmd *ui.Command) {
-	if len(cmd.Args) != 3 {
-		//TODO
-		log.Println("Wrong number of parameters")
-		return
-	}
-	host := cmd.Args[0]
-	tls := cmd.Args[1] == "true"
-	ri, err := strconv.Atoi(cmd.Args[2])
+func handleGo(cmd *apis.Command) *apis.Command {
+	var host string
+	var tls bool
+	var ri int
+	err := cmd.UnpackArgs(
+		[]apis.ArgName{apis.ENDPOINT, apis.TLS, apis.ID},
+		&host, &tls, &ri,
+	)
 	if err != nil {
 		log.Println(err)
-		return
+		return apis.Err(err)
 	}
 	body := bytes.NewBuffer(cmd.Payload)
 	status.RLock()
 	defer status.RUnlock()
-	if len(status.Repeats) <= ri {
-		log.Println("Repeater out of range")
-		return
+	if len(status.Repeats) <= ri || ri < 0 {
+		err := "Repeater out of range"
+		log.Println(err)
+		return apis.Err(err)
 	}
 	r := status.Repeats[ri]
 	var res io.Reader
-	if res, err = r.Repeat(body, host, tls); err != nil {
+	if res, err = r.repeat(body, host, tls); err != nil {
 		log.Println(err)
-		return
+		return apis.Err(err)
 	}
-	_ = res
-	//TODO send response
-	//BOOKMARK
-	uiRepeater.Send(
-		ui.Command{},
-	)
+	resbuf, err := ioutil.ReadAll(res)
+	if err != nil {
+		return apis.Err(err)
+	}
+	cmd.Payload = resbuf
+	return cmd
 }
 
-func handleGet(cmd *ui.Command) {
-	if len(cmd.Args) != 2 {
-		//TODO
-		log.Println("Wrong number of parameters")
-		return
-	}
-	ri, err := strconv.Atoi(cmd.Args[0])
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	itemn, err := strconv.Atoi(cmd.Args[1])
-	if err != nil {
-		log.Println(err)
-		return
-	}
+func handleGet(cmd *apis.Command) *apis.Command {
+	var ri, itemn int
+	err := cmd.UnpackArgs(
+		[]apis.ArgName{apis.ID, apis.SUBID},
+		&ri, &itemn,
+	)
 	status.RLock()
 	defer status.RUnlock()
 	if len(status.Repeats) <= ri {
 		log.Println("Repeater out of range")
-		return
+		return apis.Err(err)
 	}
 	r := status.Repeats[ri]
 	if len(r.History) <= itemn {
-		log.Println("Repeater item out of range")
-		return
+		err := "Repeater item out of range"
+		log.Println(err)
+		return apis.Err(err)
 	}
 	repitem, err := json.Marshal(r.History[itemn])
 	if err != nil {
-		log.Println("Error while marshaling repeat item")
-		return
+		err := "Error while marshaling repeat item"
+		log.Println(err)
+		return apis.Err(err)
 	}
-	uiRepeater.Send(
-		ui.Command{
-			Action:  apis.GET.String(),
-			Args:    cmd.Args,
-			Payload: repitem,
-		},
-	)
+	cmd.Payload = repitem
+	return cmd
 }

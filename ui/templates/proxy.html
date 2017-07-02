@@ -1,0 +1,19 @@
+<br>
+<button type="button" id="forwardOriginal" onclick="proxy.onForwardOriginalClick()" class="btn btn-default">Forward Original</button>
+<button type="button" id="forwardModified" onclick="proxy.onForwardModifiedClick()" class="btn btn-default">Forward Modified</button>
+<button type="button" id="drop" onclick="proxy.onDropClick()" class="btn btn-default">Drop</button>
+<button type="button" id="provideResponse" onclick="proxy.onProvideResponseClick()" class="btn btn-default">Provide Response</button>
+<button type="button" id="interceptToggle" onclick="proxy.onToggleInterceptClick()" class="btn btn-danger">Intercept is off</button>
+<div class="dropdown div-inline">
+			<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Action
+						<span class="caret"></span></button>
+			<ul class="dropdown-menu">
+						<li><a href="#">Send to Repeater</a></li>
+			</ul>
+</div>
+<div class="form-group">
+			<br>
+			<label id="endpointIndicator" for="proxybuffer"></label>
+			<textarea id="proxybuffer" class="form-control" height="100%" id="proxybuf"></textarea>
+</div>
+

@@ -1,11 +1,25 @@
 # Wapty (Web Application Penetration Testing Suite)y
-# VERY EARLY STAGE, Don't use this. 
-## Really, don't
-### But if you really do want to use this
-no dependencies, no need to install, just
+
+[![License](https://img.shields.io/github/license/empijei/wapty.svg?maxAge=360000)](https://raw.githubusercontent.com/empijei/wapty/master/LICENSE)
+[![Build Status](https://travis-ci.org/empijei/wapty.svg?branch=master)](https://travis-ci.org/empijei/wapty) 
+[![Go Report Card](https://goreportcard.com/badge/github.com/empijei/wapty)](https://goreportcard.com/report/github.com/empijei/wapty)
+[![codebeat](https://codebeat.co/badges/9a62559f-ebf7-4097-8023-c8745e73ace8)](https://codebeat.co/projects/github-com-empijei-wapty-master)
+[![Changelog](https://img.shields.io/github/release/empijei/wapty.svg?maxAge=2592000)](https://github.com/empijei/wapty/releases)
+[![Telegram Chat](https://img.shields.io/badge/discuss-telegram-179cde.svg?maxAge=3600)](https://telegram.me/waptysuite)
+[![Funding](https://img.shields.io/badge/funding-just%20a%20hobby-lightgrey.svg)](https://github.com/empijei/wapty) 
+
+An Open Source alternative to Burp Suite.
+
+We are working to make wapty a worthy replacement for Burp, but we are [not there yet](https://github.com/empijei/wapty/blob/master/ROADMAP.md).
+# Usage
+```sh
+go get empijei/wapty
+cd $GOPATH/src/github.com/empijei/wapty
+make installdeps
+make
+make install
 ```
-go run wapty.go
-```
+
 on your browser set localhost:8080 as proxy
 
 **_BEWARE_**: ignore proxy for localhost
@@ -14,19 +28,12 @@ Then visit localhost:8081
 
 Root certs are in `$HOME/.wapty`
 
-### Currently available fetaures:
+# Project Status
+for currently available features and what will be supported please refer to [our roadmap](https://github.com/empijei/wapty/blob/master/ROADMAP.md).
 
-#### Proxy > Intercept
-ATM it is not possible to change the host on the fronted, Working on it.
-![Intercept Tab](/pics/intercept.png "Intercept")
+A screenshot:
 
-#### Proxy > HTTP History
-Clicking on a row shows only the original request/response on the frontend. Working on it.
-![Hist Tab](/pics/history.png "History")
+![intercept](https://github.com/empijei/wapty/raw/master/documentation/screenshot.png)
 
-(Yes, I know the page is slightly bigger than the viewport and the layout is not resizable working on that too)
-
-### Want to contribute?
-If you do please [email me](mailto:empijei@gmail.com), I can provide some insights and planning for what's coming.
-
-=)
+# Contribute
+Pull Requests are welcome, or if you'd like to actively contribute or become part of the team feel free to shoot me a short email of presentation at [empijei@gmail.com](mailto:empijei@gmail.com) or join our [telegram channel](https://telegram.me/waptysuite)

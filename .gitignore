@@ -1,5 +1,7 @@
 *.pem
 *.swp
+*.log
+*.cf
 /*.test
 rice-box.go
 gopherjs.js

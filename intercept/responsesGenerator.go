@@ -19,6 +19,9 @@ const templateResponse = `
 </html>
 `
 
+// GenerateResponse creates a response with a given title, content and status
+// code. This can be used for example to provide responses when a request is
+// dropped and do not leave the client hanging.
 func GenerateResponse(title, content string, status int) *http.Response {
 	t, _ := template.New("Generated Response").Parse(templateResponse)
 	data := struct {

@@ -37,7 +37,8 @@ type ServerConn struct {
 func Server(cn net.Conn, p ServerParam) *ServerConn {
 	conf := new(tls.Config)
 	if p.TLSConfig != nil {
-		*conf = *p.TLSConfig
+		//empijei (19/06/2017): used Clone instead of copying the config value
+		conf = p.TLSConfig.Clone()
 	}
 	sc := new(ServerConn)
 	conf.GetCertificate = func(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
@@ -151,7 +152,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	//empijei: This type assertion is awful
+	//empijei: This type assertion is awful and endangers stability
 	cn, _, err := w.(http.Hijacker).Hijack()
 	if err != nil {
 		log.Println("Hijack:", err)
@@ -207,7 +208,7 @@ func isWebSocket(req *http.Request) bool {
 // request. According to https://tools.ietf.org/html/rfc6455 the correct form is
 // Sec-WebSocket-*, which header canonicalization breaks (some servers care).
 func fixWebsocketHeaders(req *http.Request) {
-	for header, _ := range req.Header {
+	for header := range req.Header {
 		if strings.Contains(header, "Sec-Websocket") {
 			val := req.Header.Get(header)
 			correctHeader := strings.Replace(header, "Sec-Websocket", "Sec-WebSocket", 1)
@@ -276,7 +277,8 @@ func (p *Proxy) forwardRequest(w http.ResponseWriter, req *http.Request) {
 func (p *Proxy) tlsDial(addr, serverName string) (net.Conn, error) {
 	conf := new(tls.Config)
 	if p.TLSClientConfig != nil {
-		*conf = *p.TLSClientConfig
+		//empijei (19/06/2017): used Clone instead of copying the config value
+		conf = p.TLSClientConfig.Clone()
 	}
 	conf.ServerName = serverName
 	return tls.Dial("tcp", addr, conf)

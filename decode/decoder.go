@@ -1,4 +1,4 @@
-package parse
+package decode
 
 import (
 	"bytes"
@@ -6,15 +6,17 @@ import (
 	"unicode/utf8"
 )
 
-type Pos int
-
 const eof = -1
 
+var invalid = '�'
+
+// Pos is an integer that define a position inside a string
+type Pos int
 type itemType int
 
-const (
-	itemInvalid itemType = iota
-)
+func genInvalid(n int) (inv string) {
+	return strings.Repeat(string(invalid), n)
+}
 
 // stateFn represents the state of the scanner as a function that returns the next state.
 type stateFn func(*decoder) stateFn
@@ -29,7 +31,8 @@ type decoder struct {
 	out   *bytes.Buffer
 }
 
-func NewLexer(input string) *decoder {
+// Constructs a new decoder
+func newDecoder(input string, startState stateFn) *decoder {
 	return &decoder{
 		input: input,
 		state: startState,
@@ -63,20 +66,6 @@ func (l *decoder) backup() {
 	l.pos -= l.width
 }
 
-// emit should write into output what was read up until this point and move l.start to l.pos
-func (l *decoder) emit(t itemType) {
-	token := l.input[l.start:l.pos]
-	//TODO switch on itemtype to select proper decode function
-
-	decodefunc := func(s string) []byte {
-		//This is a null decoder, implement this!
-		return []byte(s)
-	}
-
-	l.out.Write(decodefunc(token))
-	l.start = l.pos
-}
-
 // ignore skips over the pending input before this point.
 func (l *decoder) ignore() {
 	l.start = l.pos
@@ -84,7 +73,7 @@ func (l *decoder) ignore() {
 
 // accept consumes the next rune if it's from the valid set.
 func (l *decoder) accept(valid string) bool {
-	if strings.ContainsRune(valid, l.next()) {
+	if bytes.ContainsRune([]byte(valid), l.next()) {
 		return true
 	}
 	l.backup()
@@ -93,21 +82,15 @@ func (l *decoder) accept(valid string) bool {
 
 // acceptRun consumes a run of runes from the valid set.
 func (l *decoder) acceptRun(valid string) {
-	for strings.ContainsRune(valid, l.next()) {
+	for bytes.ContainsRune([]byte(valid), l.next()) {
 	}
 	l.backup()
 }
 
+// decode runs the decode until EOF
 func (l *decoder) decode() []byte {
 	for l.state != nil {
 		l.state = l.state(l)
 	}
 	return l.out.Bytes()
 }
-
-func startState(l *decoder) stateFn {
-	//TODO
-	panic("Not implemented yet")
-}
-
-//TODO other states

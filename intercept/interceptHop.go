@@ -7,6 +7,9 @@ import (
 
 //Remove trailers?
 //https://github.com/squid-cache/squid/blob/master/src/http/RegisteredHeadersHash.cci
+
+// HopByHopHeaders is a list of all the HTTP headers that are stripped away by
+// the proxy
 var HopByHopHeaders = []string{
 	"Content-Encoding",
 	"Connection",
@@ -30,43 +33,27 @@ func stripHTHHeaders(h *http.Header) {
 	}
 }
 
-//This is a struct that respects the net.RoundTripper interface and just wraps
-//the original http.RoundTripper
+// Interceptor is a struct that respects the net.RoundTripper interface and just wraps
+// the original http.RoundTripper
 type Interceptor struct {
 	wrappedRT http.RoundTripper
 }
 
-//This is a mock RoundTrip used to intercept responses before they are forwarded by the proxy
+// RoundTrip is a mock RoundTrip used to intercept requests and responses
+// before they are forwarded by the proxy.
 func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err error) {
 	//This first part is dedicated to the REQUESTS
-	//log.Println("Request read by proxy")
-	intercepted := intercept.Value()
-	//log.Println("Preprocessing...")
+	intercepted := intercept.value()
 	backUpURL := req.URL
-	req, Id, err := preProcessRequest(req)
-	//log.Println("...done")
+	req, ID, err := preProcessRequest(req)
 	if err != nil {
 		//TODO handle possible autodrop
 		//TODO other errors
 		log.Println(err)
 	}
-	if Plugin.alwaysModifyRequest != nil {
-		req, err = Plugin.alwaysModifyRequest(req)
-		if err != nil {
-			//TODO
-			log.Println(err)
-		}
-	}
 	if intercepted {
-		if Plugin.preModifyRequest != nil {
-			req, err = Plugin.preModifyRequest(req)
-			if err != nil {
-				//TODO
-				log.Println(err)
-			}
-		}
 		var editedReq *http.Request
-		editedReq, res, err = editRequest(req, Id)
+		editedReq, res, err = editRequest(req, ID)
 		if err != nil {
 			//TODO
 			log.Println(err)
@@ -76,27 +63,20 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 			req.URL.Scheme = backUpURL.Scheme
 			req.URL.Host = backUpURL.Host
 		}
-		if Plugin.postModifyRequest != nil {
-			req, err = Plugin.postModifyRequest(req)
-			if err != nil {
-				//TODO
-				log.Println(err)
-			}
-		}
 	}
 
 	status.RLock()
-	status.ReqResps[Id].parseRequest(req)
+	status.ReqResps[ID].parseRequest(req)
 	status.RUnlock()
 	if res != nil {
 		//TODO Adding dropped responses could be avoided.
-		status.addResponse(Id, res)
+		status.addResponse(ID, res)
 		return
 	}
 
 	//This second part works on the RESPONSES
 	//Perform the request, but disable compressing.
-	//The gzip encoding should be used by the http package
+	//The gzip encoding should be used by the http package transparently
 	req.Header.Del("Accept-Encoding")
 	res, err = ri.wrappedRT.RoundTrip(req)
 	if err != nil {
@@ -105,12 +85,12 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 		res = GenerateResponse("Error", "Error in performing the request: "+err.Error(), 500)
 		return
 	}
-	res = preProcessResponse(req, res, Id)
+	res = preProcessResponse(req, res, ID)
 	if intercepted {
-		res, err = editResponse(req, res, Id)
+		res, err = editResponse(req, res, ID)
 	}
 	status.RLock()
-	status.ReqResps[Id].parseResponse(res)
+	status.ReqResps[ID].parseResponse(res)
 	status.RUnlock()
 	return
 }

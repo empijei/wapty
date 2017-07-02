@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-var Base64Test = []struct {
+var B64Test = []struct {
 	in       string
 	eOut     string
 	eIsPrint bool
@@ -63,15 +63,14 @@ var Base64Test = []struct {
 }
 
 func TestB64Decode(t *testing.T) {
-	//invalid = '§'
-	for _, tt := range Base64Test {
-		d := NewBase64CodecC(tt.in)
-		out, ip := d.Decode()
+	for _, tt := range B64Test {
+		d := NewB64CodecC(tt.in)
+		out := d.Decode()
 		if out != tt.eOut {
 			t.Errorf("Expected decoded value: '%s' but got '%s'", tt.eOut, out)
 		}
-		if ip != tt.eIsPrint {
-			t.Errorf("Expected printable: %v but got %v", tt.eIsPrint, ip)
+		if IsPrint(out) != tt.eIsPrint {
+			t.Errorf("Expected printable: %v", tt.eIsPrint)
 		}
 	}
 }

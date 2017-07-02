@@ -1,28 +1,8 @@
 package apis
 
-//Enum for possible user actions
-type HistoryAction int
-
-const (
-	DUMP HistoryAction = iota
-	FILTER
-	FETCH
-	METADATA
-)
-
-var historyActions = [...]string{
-	"dump",
-	"filter",
-	"fetch",
-	"metaData",
-}
-
-func (a HistoryAction) String() string {
-	return historyActions[a]
-}
-
+// ReqRespMetaData is a wrapper type to hold all metadata on a status ReqResp
 type ReqRespMetaData struct {
-	Id          int
+	ID          int
 	Host        string
 	Method      string
 	Path        string
@@ -44,15 +24,11 @@ type ReqRespMetaData struct {
 	*/
 }
 
-func NewReqRespMetaData(Id int) *ReqRespMetaData {
-	return &ReqRespMetaData{Id: Id}
-}
-
-//Represents an item of the proxy history
+// ReqResp Represents an item of the proxy history
 //TODO create a test that fails if this is different from intercept.ReqResp
 type ReqResp struct {
-	//Unique Id in the history
-	Id int
+	//Unique ID in the history
+	ID int
 	//Meta Data about both Req and Resp
 	MetaData *ReqRespMetaData
 	//Original Request

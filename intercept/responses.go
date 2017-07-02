@@ -1,7 +1,3 @@
-//intercept is meant to handle all the interception of requests and responses,
-//including stopping and waiting for edited payloads.
-//Every request going through the proxy is parsed and added to the Status by this
-//package.
 package intercept
 
 import (
@@ -16,7 +12,7 @@ import (
 	"github.com/empijei/wapty/ui/apis"
 )
 
-//Represents the queue of the response to requests that have been intercepted
+//ResponseQueue represents the queue of the response to requests that have been intercepted
 var ResponseQueue chan *pendingResponse
 
 func init() {
@@ -38,11 +34,11 @@ func handleResponse(presp *pendingResponse) {
 	var editedResponse *http.Response
 	editedResponseDump, action := editBuffer(apis.RESPONSE, rawRes, presp.originalRequest.URL.Scheme+"://"+presp.originalRequest.Host)
 	switch action {
-	case apis.FORWARD.String():
+	case apis.FORWARD:
 		res.ContentLength = ContentLength
 		res.Header.Set("Content-Length", strconv.Itoa(int(ContentLength)))
 		editedResponse = res
-	case apis.EDIT.String(), apis.PROVIDERESP.String():
+	case apis.EDIT, apis.PROVIDERESP:
 		editedResponseBuffer := bufio.NewReader(bytes.NewReader(editedResponseDump))
 		editedResponse, err = http.ReadResponse(editedResponseBuffer, presp.originalRequest)
 		if err != nil {
@@ -52,7 +48,7 @@ func handleResponse(presp *pendingResponse) {
 			editedResponse = res
 		}
 		status.addRawEditedResponse(presp.id, editedResponseDump)
-	case apis.DROP.String():
+	case apis.DROP:
 		editedResponse = caseDrop()
 	default:
 		//TODO implement this
@@ -60,19 +56,19 @@ func handleResponse(presp *pendingResponse) {
 	}
 	presp.modifiedResponse <- &mayBeResponse{res: editedResponse, err: err}
 }
-func preProcessResponse(req *http.Request, res *http.Response, Id int) *http.Response {
+func preProcessResponse(req *http.Request, res *http.Response, ID int) *http.Response {
 	res = decodeResponse(res)
 	//Skip intercept if request was not intercepted, just add the response to the Status
-	status.addResponse(Id, res)
+	status.addResponse(ID, res)
 	//TODO autoEdit here
 	//TODO add to status as edited if autoedited
 	return res
 }
-func editResponse(req *http.Request, res *http.Response, Id int) (*http.Response, error) {
+func editResponse(req *http.Request, res *http.Response, ID int) (*http.Response, error) {
 	//Request was intercepted, go through the intercept/edit process
 	//TODO use the autoedited one to edit
 	ModifiedResponse := make(chan *mayBeResponse)
-	ResponseQueue <- &pendingResponse{id: Id, modifiedResponse: ModifiedResponse, originalRequest: req, originalResponse: res}
+	ResponseQueue <- &pendingResponse{id: ID, modifiedResponse: ModifiedResponse, originalRequest: req, originalResponse: res}
 	mayBeRes := <-ModifiedResponse
 	return mayBeRes.res, mayBeRes.err
 }

@@ -10,28 +10,37 @@ import (
 	"time"
 )
 
-var defaultTimeout time.Duration = 10 * time.Second
+// DefaultTimeout is the default value for the timeout when creating a new Repeater
+var DefaultTimeout = 10 * time.Second
 
-type RepeatItem struct {
+// Item contains the information for a single "Go" of a Repeater
+type Item struct {
 	Host     string
 	TLS      bool
 	Request  []byte
 	Response []byte
 }
 
+// Repeater represents a full history of requests and responses
 type Repeater struct {
-	m       sync.Mutex
-	History []RepeatItem
+	m sync.Mutex
+
+	// The Repeater History
+	History []Item
+
+	// The timeout to wait before assuming the server will not respond.
+	// Default is DefaultTimeout
 	Timeout time.Duration
 }
 
+// NewRepeater creates a new Repeater with Timeout set to DefaultTimeout
 func NewRepeater() *Repeater {
 	return &Repeater{
-		Timeout: defaultTimeout,
+		Timeout: DefaultTimeout,
 	}
 }
 
-func (r *Repeater) Repeat(buf io.Reader, host string, _tls bool) (res io.Reader, err error) {
+func (r *Repeater) repeat(buf io.Reader, host string, _tls bool) (res io.Reader, err error) {
 	r.m.Lock()
 	defer r.m.Unlock()
 	savedReq := bytes.NewBuffer(nil)
@@ -67,6 +76,6 @@ func (r *Repeater) Repeat(buf io.Reader, host string, _tls bool) (res io.Reader,
 	if err != nil {
 		return nil, err
 	}
-	r.History = append(r.History, RepeatItem{Request: savedReq.Bytes(), Response: resbuf.Bytes()})
+	r.History = append(r.History, Item{Request: savedReq.Bytes(), Response: resbuf.Bytes()})
 	return resbuf, nil
 }

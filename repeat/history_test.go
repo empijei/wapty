@@ -7,7 +7,7 @@ import (
 
 func TestSave(t *testing.T) {
 	rr := NewRepeater()
-	ri := RepeatItem{
+	ri := Item{
 		Host:     "host:port",
 		Request:  []byte("Request"),
 		Response: []byte("Response"),
@@ -19,5 +19,6 @@ func TestSave(t *testing.T) {
 	if err != nil {
 		t.Log(err)
 	}
+	//FIXME
 	t.Log(string(b.Bytes()))
 }

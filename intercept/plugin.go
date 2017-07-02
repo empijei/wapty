@@ -1,12 +1,12 @@
 package intercept
 
-import (
-	"net/http"
-	"sync"
-)
-
+/*
+// Plugin is the instance of the resulting composition of all the plugins. This is likely
+// to be changed in future versions so please do not use/modify this.
 var Plugin PlugHandler
 
+// PlugHandler is the resulting composition of all the plugins. This is likely
+// to be changed in future versions so please do not use/modify this.
 type PlugHandler struct {
 	sync.Mutex
 	used bool
@@ -23,6 +23,8 @@ type PlugHandler struct {
 	//Called if response is intercepted and after the buffer has been modified
 	postModifyResponse ResponseModifier
 }
+
+
 type RequestModifier func(*http.Request) (*http.Request, error)
 
 func (p *PlugHandler) PreProcessRequest(rm RequestModifier, pre bool) {
@@ -94,3 +96,4 @@ func composeResponseModifier(a ResponseModifier, b ResponseModifier) ResponseMod
 		return a(req, out)
 	}
 }
+*/
