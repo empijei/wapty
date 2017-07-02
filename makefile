@@ -27,6 +27,9 @@ run:
 fast: run
 
 test: buildjs rebind
+	go test -x ${LDFLAGS} ./...
+
+testv: buildjs rebind
 	go test -v -x ${LDFLAGS} ./...
 
 buildjs:

@@ -42,38 +42,6 @@ success
 	},
 }
 
-func TestRepeatConnectivity(t *testing.T) {
-	buf := []byte(`GET / HTTP/1.1
-Host: empijei.science
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-Accept-Language: en-US,en;q=0.5
-Connection: close
-Upgrade-Insecure-Requests: 1
-
-`)
-	r := NewRepeater()
-	res, err := r.repeat(bytes.NewBuffer(buf), "empijei.science:443", true)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	buf, _ = ioutil.ReadAll(res)
-	if !bytes.HasPrefix(buf, []byte("HTTP")) {
-		t.Error("Didn't get the correct response from empijei.science")
-	}
-
-	res, err = r.repeat(bytes.NewBuffer(buf), "empijei.science:80", false)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	buf, _ = ioutil.ReadAll(res)
-	if !bytes.HasPrefix(buf, []byte("HTTP")) {
-		t.Error("Didn't get the correct response from empijei.science")
-	}
-}
-
 func listener(t *testing.T, testChan chan RepTest, input chan []byte) {
 	t.Log("Listening on port 12321")
 	l, err := net.Listen("tcp", ":12321")

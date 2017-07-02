@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/empijei/wapty/ui/apis"
+	js "github.com/gopherjs/gopherjs/js"
 	"github.com/gopherjs/websocket"
 )
 
@@ -25,6 +26,8 @@ func logger(cmd *apis.Command) {
 }
 
 func main() {
+	document = js.Global.Get("document").Call("createElement")
+
 	waptyServer, err := websocket.Dial("ws://localhost:8081/ws")
 	if err != nil {
 		//FIXME handle error

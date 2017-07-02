@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
 	"github.com/gopherjs/gopherjs/js"
 )
+
+var document *js.Object
 
 type DomElement struct {
 	*js.Object
@@ -24,6 +27,9 @@ func GetElementByID(id string) *DomElement {
 
 func (de *DomElement) SetTextContent(content string) {
 	de.Set("textContent", content)
+}
+func (de *DomElement) SetTextContentf(format string, args ...interface{}) {
+	de.Set("textContent", fmt.Sprintf(format, args...))
 }
 
 func (de *DomElement) GetTextContent() string {
@@ -51,4 +57,22 @@ func (de *DomElement) ToggleClass(old, new string) {
 
 	log.Printf("New classes: %v", newclasses)
 	de.Set("classList", strings.Join(newclasses, " "))
+}
+
+func (de *DomElement) SetAttribute(name string, value string) {
+	de.Call("setAttribute", name, value)
+}
+
+func (de *DomElement) SetAttributes(keyvalues map[string]string) {
+	for attribute, value := range keyvalues {
+		de.SetAttribute(attribute, value)
+	}
+}
+
+func (de *DomElement) AppendChild(child *DomElement) {
+	de.Call("appendChild", child.Object)
+}
+
+func createElement(name string) *DomElement {
+	return &DomElement{document.Call("createElement", name)}
 }
