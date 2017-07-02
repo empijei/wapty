@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-const data = `
+const burpImportTestData = `
 <items>
 <item>
     <time>Wed May 31 20:25:16 CEST 2017</time>
@@ -66,10 +66,10 @@ Content-Length: 154
     <comment></comment>
   </item>
   </items>
- `
+`
 
 func TestBurpImporter(t *testing.T) {
-	testbuf := bytes.NewBuffer([]byte(data))
+	testbuf := bytes.NewBuffer([]byte(burpImportTestData))
 	itm, err := BurpImport(testbuf)
 	if err != nil {
 		t.Fatal(err)

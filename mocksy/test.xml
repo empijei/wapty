@@ -82,7 +82,7 @@
     <extension>null</extension>
     <request base64="false"><![CDATA[PINGA]]></request>
     <status>200</status>
-    <responselength>4</responselength>
+    <responselength>5</responselength>
     <mimetype></mimetype>
     <response base64="false"><![CDATA[PONGA]]></response>
     <comment></comment>

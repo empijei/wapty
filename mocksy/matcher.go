@@ -104,11 +104,16 @@ func findBestMatching(reqs []Item, host Host, req *http.Request) Item {
 		port = req.Host[id+1:]
 	}
 
+	proto := req.Proto
+	if id := strings.Index(proto, "/"); id > -1 {
+		proto = proto[:id]
+	}
+
 	less := fuzzyComparer(reqs, compareArgs{
 		Request:  body,
 		Host:     host,
 		Port:     port,
-		Protocol: req.Proto,
+		Protocol: proto,
 		Method:   req.Method,
 		Path:     req.URL.EscapedPath(),
 	})
@@ -212,12 +217,15 @@ func fuzzyComparer(reqs []Item, args compareArgs) func(Item, Item) bool {
 
 		// Here, either both methods match or neither does.
 		// Check the protocol.
-		if (ra.Protocol == args.Protocol) != (rb.Protocol == args.Protocol) {
+		protoA := strings.ToLower(ra.Protocol)
+		protoB := strings.ToLower(rb.Protocol)
+		proto := strings.ToLower(args.Protocol)
+		if (protoA == proto) != (protoB == proto) {
 			// One of the protocol matches, the other does not.
 			// Like before, we may use heuristics on the request bodies to determine our choice,
 			// but for now just return the request whose protocol matches.
 			println("same protocol")
-			return ra.Protocol == args.Protocol
+			return protoA == proto
 		}
 
 		// Finally, check port.

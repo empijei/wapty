@@ -1,7 +1,9 @@
 package mocksy
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -36,16 +38,27 @@ func loadResponseHistory() error {
 		return fmt.Errorf("File not found: %s", fname)
 	}
 
+	return LoadResponsesFrom(file)
+}
+
+// LoadResponseFrom decodes an XML source and loads all req-resp pairs in the matcher's responseHistory.
+func LoadResponsesFrom(source io.ReadSeeker) error {
 	// Go refuses to parse any XML whose version is != "1.0". Burp sometimes
 	// declares XML 1.1, albeit it uses no 1.1-only features, so we trick
 	// the XML parser into parsing our "invalid" XML by skipping the XML header.
 	buf := make([]byte, len(`<?xml version="1.x"?>`))
-	if n, err := file.Read(buf); err == nil && n == len(buf) {
+	if n, err := source.Read(buf); err == nil && n == len(buf) {
+		// Check we actually skipped the XML header and, if not, rewind.
+		if !bytes.Equal(buf[:len(`<?xml`)], []byte(`<?xml`)) {
+			if _, err = source.Seek(0, io.SeekStart); err != nil {
+				return fmt.Errorf("mocksy: error importing data: reader rewind failed.\n")
+			}
+		}
 	} else {
 		return fmt.Errorf("mocksy: error importing data: header skip failed.\n")
 	}
 
-	items, err := BurpImport(file)
+	items, err := BurpImport(source)
 	if err != nil {
 		return fmt.Errorf("mocksy: error importing data:\n\t%s", err.Error())
 	}
