@@ -1,11 +1,18 @@
 package sequence
 
 import (
+	"bufio"
+	"bytes"
+	"crypto/tls"
 	"fmt"
+	"io"
+	"net"
 	"net/http"
 	"sync"
 	"time"
 )
+
+var timeout time.Duration = 3 * time.Second
 
 type pool struct {
 	wg           sync.WaitGroup
@@ -14,9 +21,11 @@ type pool struct {
 	out          chan string
 	errors       chan error
 	isThrottle   bool
+	req          []byte
+	_tls         bool
+	host         string
 
 	//fields not to be accessed by workers
-	req    http.Request
 	ticker *time.Ticker
 	done   bool
 
@@ -26,8 +35,9 @@ type pool struct {
 
 //TODO rethrottle
 //TODO expose info on status and errors
+//TODO add counter, close when done
 
-func newPool(nw int, req http.Request, reqps int, cookieName string) *pool {
+func newPool(nw int, req []byte, _tls bool, host string, reqps int, cookieName string) *pool {
 	var wg sync.WaitGroup
 	wg.Add(nw)
 
@@ -37,12 +47,17 @@ func newPool(nw int, req http.Request, reqps int, cookieName string) *pool {
 		throttledone: make(chan struct{}, 7*nw),
 		out:          make(chan string, 7*nw),
 		errors:       make(chan error, 7*nw),
+		req:          req,
+		_tls:         _tls,
+		host:         host,
 	}
-
 	if reqps > 0 {
 		p.isThrottle = true
 		p.ticker = time.NewTicker(time.Duration(1000000/reqps) * time.Microsecond)
 		go func() {
+			defer func() {
+				_ = recover()
+			}()
 			//TODO defer recover
 			for _ = range p.ticker.C {
 				p.throttledone <- struct{}{}
@@ -51,24 +66,24 @@ func newPool(nw int, req http.Request, reqps int, cookieName string) *pool {
 	}
 
 	for i := 0; i < nw; i++ {
-		//TODO clone request
-		go doWork(p, req)
+		go doWork(p)
 	}
 
 	go func() {
 		wg.Wait()
+		close(p.out)
 		p.done = true
 	}()
 
 	return p
 }
 
-func doWork(p *pool, req http.Request) {
+func (p *pool) stop() {
+	close(p.throttledone)
+}
+
+func doWork(p *pool) {
 	defer p.wg.Done()
-
-	//TODO save req body etc
-
-	c := &http.Client{}
 
 	for {
 		//throttledone is used only as a "done" channel if worker is unthrottled
@@ -91,15 +106,17 @@ func doWork(p *pool, req http.Request) {
 		}
 
 		//perform req
-		resp, err := c.Do(&req)
+		resp, err := doReq(p.req, p._tls, p.host)
 
 		//TODO regenerate request
 		if err != nil {
 			p.errors <- err
+			continue
 		}
 
 		if len(resp.Cookies()) == 0 {
 			p.errors <- fmt.Errorf("sequence: no cookie received")
+			continue
 		}
 
 		//get the right cookie
@@ -116,4 +133,40 @@ func doWork(p *pool, req http.Request) {
 			p.errors <- fmt.Errorf("sequence: no session cookie received")
 		}
 	}
+}
+
+func doReq(buf []byte, _tls bool, host string) (resp *http.Response, err error) {
+	var conn net.Conn
+	if _tls {
+		//The repeater does not care about certs
+		conn, err = tls.Dial("tcp", host, &tls.Config{InsecureSkipVerify: true})
+	} else {
+		conn, err = net.Dial("tcp", host)
+	}
+	if err != nil {
+		return
+	}
+	defer func() { _ = conn.Close() }()
+	_ = conn.SetDeadline(time.Now().Add(timeout))
+	resbuf := bytes.NewBuffer(nil)
+	errWrite := make(chan error)
+
+	teebuf := bytes.NewBuffer(buf)
+
+	go func() {
+		_, errw := io.Copy(conn, teebuf)
+		errWrite <- errw
+	}()
+
+	_, err = io.Copy(resbuf, conn)
+	if tmperr := <-errWrite; tmperr != nil {
+		err = tmperr
+		return
+	}
+	if err != nil {
+		return
+	}
+
+	fmt.Println(string(resbuf.Bytes()))
+	return http.ReadResponse(bufio.NewReader(resbuf), nil)
 }
