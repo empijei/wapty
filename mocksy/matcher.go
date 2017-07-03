@@ -3,6 +3,7 @@ package mocksy
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -14,11 +15,14 @@ import (
 type responseDB []Item
 
 var responseHistory responseDB
+var outw io.Writer
 
 func init() {
 	responseHistory = make([]Item, 0)
+	outw = os.Stderr
 }
 
+// equivalent returns whether Item `a` and `b` are considered the same from the matcher's point of view.
 func equivalent(a, b Item) bool {
 	return a.Host == b.Host && a.Port == b.Port && a.Protocol == b.Protocol && a.Method == b.Method &&
 		a.Path == b.Path && bytes.Equal(a.Request.Value, b.Request.Value)
@@ -45,7 +49,7 @@ func FindMatching(req *http.Request) Response {
 	host := findHost(req)
 	// Take only requests matching our filter criteria and sort them by best match
 	viableReqs := filterByHost(responseHistory, host)
-	fmt.Printf("Found %d viable reqs.\n", len(viableReqs))
+	fmt.Fprintf(outw, "Found %d viable reqs.\n", len(viableReqs))
 	if len(viableReqs) > 0 {
 		best := findBestMatching(viableReqs, host, req)
 		return best.Response
@@ -92,7 +96,7 @@ type compareArgs struct {
 func findBestMatching(reqs []Item, host Host, req *http.Request) Item {
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "mocksy: error reading body of request while sorting: %s\n", err.Error())
+		fmt.Fprintf(outw, "mocksy: error reading body of request while sorting: %s\n", err.Error())
 		return Item{}
 	}
 	// TODO: retreive port
@@ -149,7 +153,7 @@ func fuzzyComparer(reqs []Item, args compareArgs) func(Item, Item) bool {
 		return
 	}
 	return func(ra, rb Item) bool {
-		fmt.Printf("matching %+v with %+v\n", ra, rb)
+		fmt.Fprintf(outw, "matching %+v with %+v\n", ra, rb)
 		// First, check path. If one of the paths is the same as the original one
 		// and the other's not, it's the best candidate.
 		_, pathExactA := longestPrefix(ra.Path, args.Path)
@@ -229,7 +233,6 @@ func fuzzyComparer(reqs []Item, args compareArgs) func(Item, Item) bool {
 		}
 
 		// Finally, check port.
-		fmt.Printf("portA = %d, portB = %d, actual = %d\n", ra.Port, rb.Port, args.Port)
 		if (ra.Port == args.Port) != (rb.Port == args.Port) {
 			println("same port")
 			return ra.Port == args.Port

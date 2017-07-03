@@ -7,6 +7,7 @@ import (
 
 	"github.com/empijei/wapty/decode"
 	"github.com/empijei/wapty/intercept"
+	"github.com/empijei/wapty/mocksy"
 	"github.com/empijei/wapty/ui"
 )
 
@@ -25,6 +26,7 @@ var commands = []struct {
 }{
 	{"decode", decode.MainStandalone},
 	{"proxy", proxyMain},
+	{"mocksy", mocksy.Main},
 	{"version", func() {
 		fmt.Printf("Version: %s\nCommit: %s\n", Version, Commit)
 	}},
