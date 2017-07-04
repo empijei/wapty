@@ -38,13 +38,13 @@
 ## Packages and Coverage
 Package Name | Currently Actively Developing               | Development Phase           | Test Coverage
 :-----------:|:-------------------------------------------:|:---------------------------:|:--:
-main         | [Empijei](https://github.com/empijei)       | Usable                      | [![main](https://gocover.io/_badge/github.com/empijei/wapty)](http://gocover.io/github.com/empijei/wapty)
-mitm         | [Empijei](https://github.com/empijei)       | Done                        | [![mitm](https://gocover.io/_badge/github.com/empijei/wapty/mitm)](http://gocover.io/github.com/empijei/wapty/mitm)
-intercept    | [Empijei](https://github.com/empijei)       | Usable                      | [![intercept](https://gocover.io/_badge/github.com/empijei/wapty/intercept)](http://gocover.io/github.com/empijei/wapty/intercept)
-decode       | [AnnaOpss](https://github.com/annaopss)     | Usable, missing some codecs | [![decode](https://gocover.io/_badge/github.com/empijei/wapty/decode)](http://gocover.io/github.com/empijei/wapty/decode)
-repeat       | [Empijei](https://github.com/empijei)       | Only backend implemented    | [![repeat](https://gocover.io/_badge/github.com/empijei/wapty/repeat)](http://gocover.io/github.com/empijei/wapty/repeat)
-ui           | [Empijei](https://github.com/empijei)       | Usable                      | [![ui](https://gocover.io/_badge/github.com/empijei/wapty/ui)](http://gocover.io/github.com/empijei/wapty/ui)
-mocksy       | [Silverweed](https://github.com/silverweed) | Only Burp importer written  | [![mocksy](https://gocover.io/_badge/github.com/empijei/wapty/mocksy)](http://gocover.io/github.com/empijei/wapty/mocksy)
+main         | [Empijei](https://github.com/empijei)       | Usable                      | [![main](https://gocover.io/_badge/github.com/empijei/wapty?nocache=wapty)](http://gocover.io/github.com/empijei/wapty)
+mitm         | [Empijei](https://github.com/empijei)       | Done                        | [![mitm](https://gocover.io/_badge/github.com/empijei/wapty/mitm?nocache=wapty)](http://gocover.io/github.com/empijei/wapty/mitm)
+intercept    | [Empijei](https://github.com/empijei)       | Usable                      | [![intercept](https://gocover.io/_badge/github.com/empijei/wapty/intercept?nocache=wapty)](http://gocover.io/github.com/empijei/wapty/intercept)
+decode       | [AnnaOpss](https://github.com/annaopss)     | Usable, missing some codecs | [![decode](https://gocover.io/_badge/github.com/empijei/wapty/decode?nocache=wapty)](http://gocover.io/github.com/empijei/wapty/decode)
+repeat       | [Empijei](https://github.com/empijei)       | Only backend implemented    | [![repeat](https://gocover.io/_badge/github.com/empijei/wapty/repeat?nocache=wapty)](http://gocover.io/github.com/empijei/wapty/repeat)
+ui           | [Empijei](https://github.com/empijei)       | Usable                      | [![ui](https://gocover.io/_badge/github.com/empijei/wapty/ui?nocache=wapty)](http://gocover.io/github.com/empijei/wapty/ui)
+mocksy       | [Silverweed](https://github.com/silverweed) | Only Burp importer written  | [![mocksy](https://gocover.io/_badge/github.com/empijei/wapty/mocksy?nocache=wapty)](http://gocover.io/github.com/empijei/wapty/mocksy)
 sequence     | ✗                                           | Draft                       | N/A
 compare      | ✗                                           | Draft                       | N/A
 plug         | ✗                                           | Not implemented yet         | N/A
