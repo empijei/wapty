@@ -44,6 +44,7 @@ intercept    | [Empijei](https://github.com/empijei)       | Usable             
 decode       | [AnnaOpss](https://github.com/annaopss)     | Usable, missing some codecs | [![decode](https://gocover.io/_badge/github.com/empijei/wapty/decode?nocache=wapty)](http://gocover.io/github.com/empijei/wapty/decode)
 repeat       | [Empijei](https://github.com/empijei)       | Only backend implemented    | [![repeat](https://gocover.io/_badge/github.com/empijei/wapty/repeat?nocache=wapty)](http://gocover.io/github.com/empijei/wapty/repeat)
 ui           | [Empijei](https://github.com/empijei)       | Usable                      | [![ui](https://gocover.io/_badge/github.com/empijei/wapty/ui?nocache=wapty)](http://gocover.io/github.com/empijei/wapty/ui)
+config       | [Empijei](https://github.com/empijei)       | Usable                      | [![config](https://gocover.io/_badge/github.com/empijei/wapty/config?nocache=wapty)](http://gocover.io/github.com/empijei/wapty/config)
 mocksy       | [Silverweed](https://github.com/silverweed) | Only Burp importer written  | [![mocksy](https://gocover.io/_badge/github.com/empijei/wapty/mocksy?nocache=wapty)](http://gocover.io/github.com/empijei/wapty/mocksy)
 sequence     | ✗                                           | Draft                       | N/A
 compare      | ✗                                           | Draft                       | N/A
