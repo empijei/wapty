@@ -28,6 +28,7 @@
 * [ ] Sequence
 * [ ] Compare
 * [ ] Crawl
+* [ ] Discover
 * [ ] Scan
 * [ ] Mock
 * [ ] User Documentation
@@ -35,18 +36,18 @@
 * [ ] Dashboard
 
 ## Packages and Coverage
-Package Name | Currently Actively Developing           | Development Phase           | Test Coverage
-:-----------:|:---------------------------------------:|:---------------------------:|:--:
-main         | [Empijei](https://github.com/empijei)   | Usable                      | [![main](https://gocover.io/_badge/github.com/empijei/wapty)](http://gocover.io/github.com/empijei/wapty)
-mitm         | [Empijei](https://github.com/empijei)   | Done                        | [![mitm](https://gocover.io/_badge/github.com/empijei/wapty/mitm)](http://gocover.io/github.com/empijei/wapty/mitm)
-intercept    | [Empijei](https://github.com/empijei)   | Usable                      | [![intercept](https://gocover.io/_badge/github.com/empijei/wapty/intercept)](http://gocover.io/github.com/empijei/wapty/intercept)
-decode       | [AnnaOpss](https://github.com/annaopss) | Usable, missing some codecs | [![decode](https://gocover.io/_badge/github.com/empijei/wapty/decode)](http://gocover.io/github.com/empijei/wapty/decode)
-repeat       | [Empijei](https://github.com/empijei)   | Only backend implemented    | [![repeat](https://gocover.io/_badge/github.com/empijei/wapty/repeat)](http://gocover.io/github.com/empijei/wapty/repeat)
-ui           | [Empijei](https://github.com/empijei)   | Usable                      | [![ui](https://gocover.io/_badge/github.com/empijei/wapty/ui)](http://gocover.io/github.com/empijei/wapty/ui)
-sequence     | ✗                                       | Draft                       | N/A
-compare      | ✗                                       | Draft                       | N/A
-plug         | ✗                                       | Not implemented yet         | N/A
-mocksy       | ✗                                       | Only Burp importer written  | N/A
+Package Name | Currently Actively Developing               | Development Phase           | Test Coverage
+:-----------:|:-------------------------------------------:|:---------------------------:|:--:
+main         | [Empijei](https://github.com/empijei)       | Usable                      | [![main](https://gocover.io/_badge/github.com/empijei/wapty)](http://gocover.io/github.com/empijei/wapty)
+mitm         | [Empijei](https://github.com/empijei)       | Done                        | [![mitm](https://gocover.io/_badge/github.com/empijei/wapty/mitm)](http://gocover.io/github.com/empijei/wapty/mitm)
+intercept    | [Empijei](https://github.com/empijei)       | Usable                      | [![intercept](https://gocover.io/_badge/github.com/empijei/wapty/intercept)](http://gocover.io/github.com/empijei/wapty/intercept)
+decode       | [AnnaOpss](https://github.com/annaopss)     | Usable, missing some codecs | [![decode](https://gocover.io/_badge/github.com/empijei/wapty/decode)](http://gocover.io/github.com/empijei/wapty/decode)
+repeat       | [Empijei](https://github.com/empijei)       | Only backend implemented    | [![repeat](https://gocover.io/_badge/github.com/empijei/wapty/repeat)](http://gocover.io/github.com/empijei/wapty/repeat)
+ui           | [Empijei](https://github.com/empijei)       | Usable                      | [![ui](https://gocover.io/_badge/github.com/empijei/wapty/ui)](http://gocover.io/github.com/empijei/wapty/ui)
+mocksy       | [Silverweed](https://github.com/silverweed) | Only Burp importer written  | [![mocksy](https://gocover.io/_badge/github.com/empijei/wapty/mocksy)](http://gocover.io/github.com/empijei/wapty/mocksy)
+sequence     | ✗                                           | Draft                       | N/A
+compare      | ✗                                           | Draft                       | N/A
+plug         | ✗                                           | Not implemented yet         | N/A
 
 # Detailed TODOs
 ## Initial stage 
@@ -58,34 +59,32 @@ This stage will be the first stage for wapty, before this is finished wapty will
 * [x] Refactor Decode package
 * [x] Rewrite UI in gopherjs
 * [x] Simplify server-side code for UI
-* [ ] finish Repeat tests
 * [x] use templates for UI
-* [ ] Add UI to repeater
 * [x] Use https://gocover.io to compute coverage
+* [x] Add intercept checker in the right spots
+* [x] Add functionality: releasing the intercept should forward all pending requests
 * [ ] Add saving functionality
+* [ ] finish Repeat tests
 * [ ] Add scoping
 * [ ] Add history filtering/sorting
-* [x] Add functionality: releasing the intercept should forward all pending requests
-* [ ] Add internal router
-* [ ] ignore recursive connect
-* [ ] Add intercept checker in the right spots
+* [ ] Ignore recursive connect
 * [ ] Allow the user to change the destination endpoint
-* [ ] Serve the certificates on a specific fake host/path
-* [ ] Add req ID to editor and reject unexpected requests
 * [ ] Add Intruder
-* [ ] Allow for creating multiple proxies, change ports. 
-* [ ] Keep track of which proxy intercepted the request in metadata.
-* [ ] [UI] Send the whole status on ui connect
-* [ ] [UI] Sanitize metadata
-* [ ] [UI] show already pending request/response upon connection
-* [ ] [UI] error log
-* [ ] [UI] auto-open ui in browser on launch
-* [ ] [UI] monospace textareas
-* [ ] [UI] resizable splits
-* [ ] Look for fixmes and todos in the code
-* [ ] Provide a ui to the decoder
+* [ ] Send the whole status on ui connect
+* [ ] Add configurations
+* UI
+	* [ ] Add req ID to editor and warn when receive unexpected requests
+	* [ ] Sanitize metadata
+	* [ ] show already pending request/response upon connection
+	* [ ] error log
+	* [ ] auto-open ui in browser on launch
+	* [ ] monospace textareas
+	* [ ] resizable splits
+	* [ ] Add UI to repeater
+	* [ ] Add UI to decoder
 
 The following is just some general polishing before calling this a proper project
+* [ ] Look for fixmes and todos in the code
 * [ ] Improve README
 * [ ] Handle panics within the package
 * [ ] Move all constant strings to actual constants
@@ -96,7 +95,10 @@ The following is just some general polishing before calling this a proper projec
 
 ## Moving to Release
 This is meant to be mostly an improvement, adding features that are less used in burpsuite but are still there and should end up in wapty before it is called a proper replacement for burp
-
+* [ ] Allow for creating multiple proxies, change ports. 
+* [ ] Keep track of which proxy intercepted the request in metadata.
+* [ ] Serve the certificates on a specific fake host/path
+* [ ] Add internal router
 * [ ] Add AutoEdit
 * [ ] Add cURL converter
 * [ ] Default to bare sockets on error

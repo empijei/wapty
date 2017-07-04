@@ -28,7 +28,7 @@ func logger(cmd *apis.Command) {
 }
 
 func main() {
-	document = js.Global.Get("document").Call("createElement")
+	document = js.Global.Get("document")
 
 	waptyServer, err := websocket.Dial("ws://localhost:8081/ws")
 	if err != nil {
