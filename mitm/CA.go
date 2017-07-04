@@ -11,27 +11,15 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-	"runtime"
+
+	"github.com/empijei/wapty/config"
 )
 
 var (
 	localhostname, _ = os.Hostname()
-
-	dir      = path.Join(getUserHomeDir(), ".wapty")
-	keyFile  = path.Join(dir, "ca-key.pem")
-	certFile = path.Join(dir, "ca-cert.crt")
+	keyFile          = path.Join(config.ConfDir, "ca-key.pem")
+	certFile         = path.Join(config.ConfDir, "ca-cert.crt")
 )
-
-func getUserHomeDir() string {
-	if runtime.GOOS == "windows" {
-		home := os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
-		if home == "" {
-			home = os.Getenv("USERPROFILE")
-		}
-		return home
-	}
-	return os.Getenv("HOME")
-}
 
 // LoadCA loads the ca from "HOME/dir"
 func LoadCA() (cert tls.Certificate, err error) {
@@ -47,10 +35,6 @@ func LoadCA() (cert tls.Certificate, err error) {
 }
 
 func genCA() (cert tls.Certificate, err error) {
-	err = os.MkdirAll(dir, 0700)
-	if err != nil {
-		return
-	}
 	certPEM, keyPEM, err := GenerateCA(localhostname)
 	if err != nil {
 		return
