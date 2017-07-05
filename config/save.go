@@ -29,7 +29,7 @@ type SaveLoadStringer interface {
 // The old file will be removed only on successful save.
 func (p Project) SaveAll(workspace string) error {
 	var errorlist []error
-	out, err := os.OpenFile(workspace+".status.zip", os.O_CREATE|os.O_WRONLY, 0660)
+	out, err := os.OpenFile(workspace+".status.zip", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0660)
 	if err != nil {
 		return err
 	}
