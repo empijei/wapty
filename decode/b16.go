@@ -76,7 +76,7 @@ func NewB16CodecC(in string) CodecC {
 
 	startState = func(d *decoder) stateFn {
 		switch n := d.peek(); {
-		case bytes.ContainsRune([]byte(b64Alphabet), n):
+		case bytes.ContainsRune([]byte(b16Alphabet), n):
 			return alphabetState
 		case n == eof:
 			return nil
@@ -88,7 +88,7 @@ func NewB16CodecC(in string) CodecC {
 	invalidState = func(d *decoder) stateFn {
 		for {
 			switch n := d.next(); {
-			case bytes.ContainsRune([]byte(b64Alphabet), n):
+			case bytes.ContainsRune([]byte(b16Alphabet), n):
 				d.backup()
 				emit(d, itemInvalid)
 				return alphabetState
@@ -103,8 +103,8 @@ func NewB16CodecC(in string) CodecC {
 	alphabetState = func(d *decoder) stateFn {
 		for {
 			switch n := d.next(); {
-			case bytes.ContainsRune([]byte(b64Alphabet), n):
-				d.acceptRun(b64Alphabet)
+			case bytes.ContainsRune([]byte(b16Alphabet), n):
+				d.acceptRun(b16Alphabet)
 				continue
 
 			case n == eof:

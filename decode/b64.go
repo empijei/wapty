@@ -49,7 +49,7 @@ func NewB64CodecC(in string) CodecC {
 		}
 	}
 
-	// emit should write into output what was read up until this point and move l.start to l.pos
+	// emit writes into output what was read up until this point and move l.start to l.pos
 	emit := func(d *decoder, t itemType) {
 		token := d.input[d.start:d.pos]
 
