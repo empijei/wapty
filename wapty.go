@@ -95,4 +95,5 @@ func invokeMain(s string) {
 	for _, cmd := range commands {
 		fmt.Fprintln(os.Stderr, "\t"+cmd.name)
 	}
+	fmt.Fprintln(os.Stderr, "Default command is: proxy")
 }
