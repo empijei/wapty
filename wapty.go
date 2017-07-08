@@ -28,6 +28,13 @@ var commands = []struct {
 	{"proxy", proxyMain},
 	{"mocksy", mocksy.Main},
 	{"version", func() {
+		// Setup fallback version and commit in case wapty wasn't "properly" compiled
+		if len(Version) == 0 {
+			Version = "Unknown"
+		}
+		if len(Commit) == 0 {
+			Commit = "Unknown"
+		}
 		fmt.Printf("Version: %s\nCommit: %s\n", Version, Commit)
 	}},
 }
