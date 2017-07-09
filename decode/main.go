@@ -8,24 +8,34 @@ import (
 	"strings"
 )
 
+var FlagEncode *bool
+var FlagCodeclist *string
+
+// RegisterFlagStandalone initialiases the flags for the decode package
+func RegisterFlagStandalone() {
+	FlagEncode = flag.Bool("encode", false, "Sets the decoder to an encoder instead")
+	FlagCodeclist = flag.String("codec", "smart", "Sets the decoder/encoder codec. Multiple codecs can be specified and comma separated, they will be applied one on the output of the previous as in a pipeline.")
+}
+
 // MainStandalone parses its own flag and it is the funcion to be run when using
 // `wapty decode`. This behaves as a main and expects the "decode" parameter to
 // be removed from os.Args.
 func MainStandalone() {
-	encode := flag.Bool("encode", false, "Sets the decoder to an encoder instead")
-	codeclist := flag.String("codec", "smart", "Sets the decoder/encoder codec. Multiple codecs can be specified and comma separated, they will be applied one on the output of the previous as in a pipeline.")
-	flag.Usage = func() {
-		fmt.Fprintln(os.Stderr, "Usage of decoder:")
-		flag.PrintDefaults()
+	if flag.Parsed() == false {
+		RegisterFlagStandalone()
+		flag.Usage = func() {
+			fmt.Fprintln(os.Stderr, "Usage of decoder:")
+			flag.PrintDefaults()
+		}
+		flag.Parse()
 	}
-	flag.Parse()
 
 	buf := takeInput()
-	sequence := strings.Split(*codeclist, ",")
+	sequence := strings.Split(*FlagCodeclist, ",")
 	for i, codec := range sequence {
 		var c CodecC
 		if codec == "smart" {
-			if *encode {
+			if *FlagEncode {
 				fmt.Fprintf(os.Stderr, "Cannot 'smart' encode, please specify a codec")
 				os.Exit(2)
 			}
@@ -43,7 +53,7 @@ func MainStandalone() {
 			}
 		}
 		fmt.Fprintf(os.Stderr, "Codec: %s\n", c.String())
-		if *encode {
+		if *FlagEncode {
 			buf = c.Encode()
 		} else {
 			buf = c.Decode()
