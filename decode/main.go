@@ -14,6 +14,10 @@ import (
 func MainStandalone() {
 	encode := flag.Bool("encode", false, "Sets the decoder to an encoder instead")
 	codeclist := flag.String("codec", "smart", "Sets the decoder/encoder codec. Multiple codecs can be specified and comma separated, they will be applied one on the output of the previous as in a pipeline.")
+	flag.Usage = func() {
+		fmt.Fprintln(os.Stderr, "Usage of decoder:")
+		flag.PrintDefaults()
+	}
 	flag.Parse()
 
 	buf := takeInput()
