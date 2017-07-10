@@ -38,6 +38,12 @@ var CodecPayloadTest = []struct {
 		"",
 		false,
 	},
+	{
+		"smart,smart",
+		"5a6d3976",
+		"foo",
+		true,
+	},
 }
 
 func init() {
