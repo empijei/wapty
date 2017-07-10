@@ -17,8 +17,8 @@
 	* Codecs
 		* [ ] Binary
 		* [x] Base 16 
-		* [ ] Base32
-		* [x] Base64
+		* [x] Base 32
+		* [x] Base 64
 		* [ ] URL
 		* [ ] HTML Entities
 		* [ ] Javascript-Escape
