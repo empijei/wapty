@@ -21,6 +21,11 @@ var base32Test = []struct {
 		true,
 	},
 	{
+		"mzxw6ytboi",
+		"foobar",
+		true,
+	},
+	{
 		"MZXW6YTBO",
 		"fooba" + genInvalid(1),
 		false,
@@ -54,6 +59,11 @@ var base32Test = []struct {
 		"",
 		"",
 		true,
+	},
+	{
+		".",
+		genInvalid(1),
+		false,
 	},
 }
 

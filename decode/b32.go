@@ -6,7 +6,9 @@ import (
 	"strings"
 )
 
-const b32Alphabet = "abcdefghijklmnopqrstuvwxyz234567ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+// TODO add state that handels = as padding and invalid chars
+
+const b32Alphabet = "abcdefghijklmnopqrstuvwxyz234567ABCDEFGHIJKLMNOPQRSTUVWXYZ="
 
 const b32name = "b32"
 
@@ -38,17 +40,20 @@ func NewB32CodecC(in string) CodecC {
 					return []byte(genInvalid(len(in)))
 				}
 
+				in = strings.ToUpper(in)
 				odd := false
 
 				// checking if len(in) is correct, then add padding
 				switch n := len(in) % 8; n {
 				case 6, 3, 1:
-					in = in[:n-1]
+					in = in[:len(in)-1]
 					odd = true
 				}
 
-				pad := 8 - len(in)%8
-				in = in + strings.Repeat("=", pad)
+				if len(in)%8 != 0 {
+					pad := 8 - len(in)%8
+					in = in + strings.Repeat("=", pad)
+				}
 
 				encoding := base32.StdEncoding
 				buf, err := encoding.DecodeString(in)
