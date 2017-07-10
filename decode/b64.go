@@ -12,10 +12,6 @@ const b64UrlVariant = "-_"
 
 const b64name = "b64"
 
-func init() {
-	addCodecC(b64name, codecConstructor(NewB64CodecC))
-}
-
 // Base64 takes a decoder and an input string
 type Base64 struct {
 	dec   *decoder
@@ -217,7 +213,8 @@ func NewB64CodecC(in string) CodecC {
 	}
 }
 
-func (b *Base64) String() string {
+// Name returns the name of the codec
+func (b *Base64) Name() string {
 	return b64name
 }
 

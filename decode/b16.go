@@ -9,10 +9,6 @@ const b16Alphabet = "0123456789abcdefABCDEF"
 
 const b16name = "b16"
 
-func init() {
-	addCodecC(b16name, codecConstructor(NewB16CodecC))
-}
-
 // Base16 takes a decoder and an input string
 type Base16 struct {
 	dec   *decoder
@@ -125,7 +121,8 @@ func NewB16CodecC(in string) CodecC {
 	}
 }
 
-func (b *Base16) String() string {
+// Name returns the name of the codec
+func (b *Base16) Name() string {
 	return b16name
 }
 

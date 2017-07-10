@@ -1,22 +1,29 @@
 package decode
 
 import (
-	"fmt"
 	"log"
 	"strings"
-	"sync"
 	"unicode"
 )
 
 type codecConstructor func(string) CodecC
 
-var codecs = make(map[string]codecConstructor)
-var codecsM sync.Mutex
-
-func addCodecC(name string, c codecConstructor) {
-	codecsM.Lock()
-	defer codecsM.Unlock()
-	codecs[name] = c
+var codecs = []struct {
+	name      string
+	codecCons codecConstructor
+}{
+	{
+		b16name,
+		codecConstructor(NewB16CodecC),
+	},
+	{
+		b32name,
+		codecConstructor(NewB32CodecC),
+	},
+	{
+		b64name,
+		codecConstructor(NewB64CodecC),
+	},
 }
 
 //Decoder decodes the string and returns a decoded value that tries to skip
@@ -43,7 +50,7 @@ type CodecC interface {
 	Decoder
 	Encoder
 	Checker
-	fmt.Stringer
+	Name() string
 }
 
 //SmartDecode loops through the available CodecCs
@@ -51,16 +58,14 @@ type CodecC interface {
 func SmartDecode(input string) (c CodecC) {
 	var curvalue float64
 	//FIXME add a null codecC if no codecC is selected
-	//FIXME use a priority list for ambiguous alphabets (b16 should be
-	//prioritized against b64.
 	for _, cc := range codecs {
-		tmp := cc(input)
+		tmp := cc.codecCons(input)
 		if t := tmp.Check(); t > curvalue {
 			curvalue = t
 			c = tmp
 		}
 	}
-	log.Printf("Smart Decoding, selected: %s with likelihood==%d%%", c.String(), int(curvalue*100))
+	log.Printf("Smart Decoding, selected: %s with likelihood==%d%%", c.Name(), int(curvalue*100))
 	return
 }
 

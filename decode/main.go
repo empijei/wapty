@@ -34,6 +34,7 @@ func MainStandalone() {
 	sequence := strings.Split(*FlagCodeclist, ",")
 	for i, codec := range sequence {
 		var c CodecC
+		var codecNames []string
 		if codec == "smart" {
 			if *FlagEncode {
 				fmt.Fprintf(os.Stderr, "Cannot 'smart' encode, please specify a codec")
@@ -41,19 +42,18 @@ func MainStandalone() {
 			}
 			c = SmartDecode(buf)
 		} else {
-			var names []string
-			for name, cc := range codecs {
-				if name == codec {
-					c = cc(buf)
+			for _, cc := range codecs {
+				if cc.name == codec {
+					c = cc.codecCons(buf)
 				}
-				names = append(names, name)
+				codecNames = append(codecNames, cc.name)
 			}
 			if c == nil {
-				fmt.Fprintf(os.Stderr, "Codec not found: %s. Supported codecs are: %s\n", codec, strings.Join(names, ", "))
+				fmt.Fprintf(os.Stderr, "Codec not found: %s. Supported codecs are: %s\n", codec, strings.Join(codecNames, ", "))
 				os.Exit(2)
 			}
 		}
-		fmt.Fprintf(os.Stderr, "Codec: %s\n", c.String())
+		fmt.Fprintf(os.Stderr, "Codec: %s\n", c.Name())
 		if *FlagEncode {
 			buf = c.Encode()
 		} else {
