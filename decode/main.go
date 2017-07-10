@@ -46,9 +46,10 @@ func MainStandalone() {
 				if name == codec {
 					c = cc(buf)
 				}
+				names = append(names, name)
 			}
 			if c == nil {
-				fmt.Fprintf(os.Stderr, "Codec not found: %s. Supported codecs are: %s", codec, strings.Join(names, ", "))
+				fmt.Fprintf(os.Stderr, "Codec not found: %s. Supported codecs are: %s\n", codec, strings.Join(names, ", "))
 				os.Exit(2)
 			}
 		}
