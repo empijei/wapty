@@ -71,15 +71,6 @@ func (l *decoder) ignore() {
 	l.start = l.pos
 }
 
-// accept consumes the next rune if it's from the valid set.
-func (l *decoder) accept(valid string) bool {
-	if bytes.ContainsRune([]byte(valid), l.next()) {
-		return true
-	}
-	l.backup()
-	return false
-}
-
 // acceptRun consumes a run of runes from the valid set.
 func (l *decoder) acceptRun(valid string) {
 	for bytes.ContainsRune([]byte(valid), l.next()) {
