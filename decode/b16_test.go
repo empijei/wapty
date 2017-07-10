@@ -55,6 +55,11 @@ var Base16Test = []struct {
 		"",
 		true,
 	},
+	{
+		".",
+		genInvalid(1),
+		false,
+	},
 }
 
 var Base16EncodeTest = []struct {
