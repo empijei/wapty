@@ -50,10 +50,8 @@ func NewB32CodecC(in string) CodecC {
 					odd = true
 				}
 
-				if len(in)%8 != 0 {
-					pad := 8 - len(in)%8
-					in = in + strings.Repeat("=", pad)
-				}
+				pad := (8 - len(in)%8) % 8
+				in = in + strings.Repeat("=", pad)
 
 				encoding := base32.StdEncoding
 				buf, err := encoding.DecodeString(in)
