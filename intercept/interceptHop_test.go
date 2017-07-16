@@ -30,8 +30,8 @@ var rtTests = []struct {
 	in              *http.Request
 	subj            mockRT
 	interceptStatus bool
-	reqModifier     func(*pendingRequest)
-	resModifier     func(*pendingResponse)
+	reqModifier     func()
+	resModifier     func()
 	//Expected values
 	eEditedRequest *http.Request
 	eOut           *http.Response
@@ -45,29 +45,36 @@ var rtTests = []struct {
 		eEditedRequest:  &http.Request{URL: &url.URL{}},
 		eOut:            &http.Response{ContentLength: 3, Body: ioutil.NopCloser(bytes.NewReader([]byte(`foo`)))},
 	},
+	{
+		in:              &http.Request{URL: &url.URL{}, Header: http.Header{}},
+		subj:            mockRT{res: &http.Response{ContentLength: 3, Body: ioutil.NopCloser(bytes.NewReader([]byte(`foo`)))}},
+		interceptStatus: true,
+		eEditedRequest:  &http.Request{URL: &url.URL{}},
+		eOut:            &http.Response{ContentLength: 3, Body: ioutil.NopCloser(bytes.NewReader([]byte(`foo`)))},
+	},
 }
 
-//This is more of an integration test
 func TestRoundTrip(t *testing.T) {
-	beforeHopTest()
-	defer afterHopTest()
 	for i, tt := range rtTests {
 		ri := &Interceptor{wrappedRT: &tt.subj}
 		intercept.setValue(tt.interceptStatus)
 		if intercept.value() {
 			if tt.reqModifier != nil {
-				go tt.reqModifier(<-RequestQueue)
+				go tt.reqModifier()
 			} else {
-				go func(p *pendingRequest) {
+				go func() {
+					p := <-RequestQueue
 					p.modifiedRequest <- &mayBeRequest{req: p.originalRequest}
-				}(<-RequestQueue)
+				}()
 			}
+
 			if tt.resModifier != nil {
-				go tt.resModifier(<-ResponseQueue)
+				go tt.resModifier()
 			} else {
-				go func(p *pendingResponse) {
+				go func() {
+					p := <-ResponseQueue
 					p.modifiedResponse <- &mayBeResponse{res: p.originalResponse}
-				}(<-ResponseQueue)
+				}()
 			}
 		}
 		out, err := ri.RoundTrip(tt.in)
@@ -82,6 +89,3 @@ func TestRoundTrip(t *testing.T) {
 		}
 	}
 }
-
-func beforeHopTest() {}
-func afterHopTest()  {}
