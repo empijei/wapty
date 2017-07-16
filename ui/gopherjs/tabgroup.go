@@ -40,6 +40,7 @@ type TabGroup struct {
 
 func newTabGroup(name string, parentNode DomElement) *TabGroup {
 	//BOOKMARK
+	return nil
 }
 
 type Tab struct {
@@ -85,7 +86,7 @@ func (tg *TabGroup) addTab(title string, content string) (tabID int) {
 	div := createElement("div")
 	div.SetAttributes(map[string]string{
 		"class": "tab-pane fade",
-		id:      refid,
+		"id":    refid,
 	})
 	div.Set("innerHTML", content)
 	//Adding tab body to DOM
