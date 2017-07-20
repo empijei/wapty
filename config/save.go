@@ -35,6 +35,10 @@ func (p Project) SaveAll(workspace string) error {
 
 	var errorlist []error
 	w := zip.NewWriter(out)
+	defer func() {
+		_ = w.Flush()
+		_ = w.Close()
+	}()
 
 	for _, sls := range p {
 		f, err := w.Create(sls.String())

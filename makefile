@@ -30,7 +30,7 @@ test: buildjs rebind
 	go test ${LDFLAGS} ./...
 
 testv: buildjs rebind
-	go test -v -x ${LDFLAGS} ./...
+	go test -v -x -race ${LDFLAGS} ./...
 
 buildjs:
 	# Regenerating minified js
@@ -42,7 +42,7 @@ rebind:
 	# Cleaning and re-embedding assets
 	cd ui && rm rice-box.go 1>/dev/null 2>/dev/null; rice embed-go
 
-install: installdeps buildjs rebind
+install: buildjs rebind
 	# Installing the executable
 	go install ${LDFLAGS}
 

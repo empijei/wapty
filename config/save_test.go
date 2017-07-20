@@ -34,8 +34,7 @@ func (m *mockSaveLoadStringer) String() string {
 
 func TestSaveAll(t *testing.T) {
 	// FIXME debug "not a valid zip file" error
-	return
-	workspace = os.TempDir()
+	workspace = os.TempDir() + string(os.PathSeparator)
 
 	pSave := Project{
 		&mockSaveLoadStringer{
