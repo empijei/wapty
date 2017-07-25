@@ -24,6 +24,10 @@ var codecs = []struct {
 		b64name,
 		codecConstructor(NewB64CodecC),
 	},
+	{
+		urlname,
+		codecConstructor(NewURLCodecC),
+	},
 }
 
 //Decoder decodes the string and returns a decoded value that tries to skip
