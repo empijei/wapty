@@ -37,7 +37,7 @@ func (cmd *Command) UnpackArgs(names []ArgName, vars ...interface{}) (err error)
 		case *int:
 			*_var, err = strconv.Atoi(arg)
 			if err != nil {
-				return fmt.Errorf("cannot read %s as int: %s", arg, err.Error())
+				return fmt.Errorf("cannot read <%s> as int: %s", arg, err.Error())
 			}
 		case *bool:
 			*_var = arg == TRUE
@@ -57,5 +57,9 @@ func (cmd *Command) UnpackArgs(names []ArgName, vars ...interface{}) (err error)
 func (cmd *Command) PackArgs(names []ArgName, vars ...string) {
 	if nnames, nvars := len(names), len(vars); nnames != nvars {
 		log.Fatalf("wrong call to ArgsUnpack: given %d names but got %d variables to store them", nnames, nvars)
+	}
+	cmd.Args = make(map[ArgName]string)
+	for i, name := range names {
+		cmd.Args[name] = vars[i]
 	}
 }

@@ -92,7 +92,7 @@ func TestRepeatPlain(t *testing.T) {
 		DefaultTimeout = 1 * time.Second
 		r := NewRepeater()
 		buf := bytes.NewBuffer(tt.in)
-		res, err := r.repeat(buf, "localhost:12321", false)
+		res, _, err := r.repeat(buf, "localhost:12321", false)
 		if err != nil {
 			t.Error(err)
 			return

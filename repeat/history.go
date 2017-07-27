@@ -14,11 +14,13 @@ type Repeaters struct {
 	Repeats []*Repeater
 }
 
-// Add appends in a thread-safe way a repeater to the current status
-func (h *Repeaters) Add(r *Repeater) {
+// Add appends in a thread-safe way a repeater to the current status and returns
+// its id
+func (h *Repeaters) Add(r *Repeater) int {
 	h.Lock()
 	defer h.Unlock()
 	h.Repeats = append(h.Repeats, r)
+	return len(h.Repeats) - 1
 }
 
 // Save writes the current status to the given writer in a thread-safe way

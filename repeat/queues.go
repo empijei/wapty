@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"strconv"
 
 	"github.com/empijei/wapty/ui/apis"
 )
@@ -20,8 +21,7 @@ func RepeaterLoop() {
 		case cmd := <-uiRepeater.RecChannel():
 			switch cmd.Action {
 			case apis.CREATE:
-				r := NewRepeater()
-				status.Add(r)
+				uiRepeater.Send(handleCreate(&cmd))
 			case apis.GO:
 				uiRepeater.Send(handleGo(&cmd))
 			case apis.GET:
@@ -33,6 +33,15 @@ func RepeaterLoop() {
 			return
 		}
 	}
+}
+
+func handleCreate(cmd *apis.Command) *apis.Command {
+	r := NewRepeater()
+	id := status.Add(r)
+	cmd.Args = map[apis.ArgName]string{apis.ID: strconv.Itoa(id)}
+
+	//TODO reply with repeater ID
+	return cmd
 }
 
 func handleGo(cmd *apis.Command) *apis.Command {
@@ -57,7 +66,8 @@ func handleGo(cmd *apis.Command) *apis.Command {
 	}
 	r := status.Repeats[ri]
 	var res io.Reader
-	if res, err = r.repeat(body, host, tls); err != nil {
+	var id int
+	if res, id, err = r.repeat(body, host, tls); err != nil {
 		log.Println(err)
 		return apis.Err(err)
 	}
@@ -66,6 +76,7 @@ func handleGo(cmd *apis.Command) *apis.Command {
 		return apis.Err(err)
 	}
 	cmd.Payload = resbuf
+	cmd.Args[apis.SUBID] = strconv.Itoa(id)
 	return cmd
 }
 

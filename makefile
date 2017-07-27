@@ -52,7 +52,7 @@ installdeps:
 	# Installing dependencies to build JS
 	go get -u github.com/gopherjs/gopherjs
 	go get -u github.com/gopherjs/websocket/...
-	# Installing Decode dependencies
+	# Installing Diff dependencies
 	go get -u github.com/fatih/color
 	go get -u github.com/pmezard/go-difflib/difflib
 

@@ -1,33 +1,111 @@
 package repeat
 
 import (
+	"bytes"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"testing"
+
+	"github.com/empijei/wapty/ui/apis"
 )
 
-func TestHandleGo(t *testing.T) {
-	//testChan := make(chan RepTest, 2)
-	//input := make(chan []byte, 2)
-	//go listener(t, testChan, input)
-	//for _, tt := range RepeatTests {
-	//testChan <- tt
-	//defaultTimeout = 1 * time.Second
-	//r := NewRepeater()
-	//buf := bytes.NewBuffer(tt.in)
-	//res, err := r.Repeat(buf, "localhost:12321", false)
-	//if err != nil {
-	//t.Error(err)
-	//return
-	//}
-	//resBuf, err := ioutil.ReadAll(res)
-	//if err != nil {
-	//t.Error(err)
-	//}
-	//if bytes.Compare(resBuf, tt.out) != 0 {
-	//t.Errorf("Expected <%s> but got <%s>", string(tt.out), string(resBuf))
-	//}
-	//in := <-input
-	//if bytes.Compare(in, tt.in) != 0 {
-	//t.Errorf("Expected <%s> but got <%s>", string(tt.in), string(in))
-	//}
-	//}
+type MockSubscription struct {
+	ID        int64
+	Channel   string
+	DataCh    chan apis.Command
+	SentStuff chan apis.Command
+}
+
+func (s *MockSubscription) Receive() apis.Command {
+	return <-s.DataCh
+}
+func (s *MockSubscription) RecChannel() <-chan apis.Command {
+	return s.DataCh
+}
+func (s *MockSubscription) Send(c *apis.Command) {
+	s.SentStuff <- *c
+}
+
+func TestHandler(t *testing.T) {
+	backupstatus := status
+	backupui := uiRepeater
+	dataCh := make(chan apis.Command)
+	mocksub := &MockSubscription{
+		DataCh:    dataCh,
+		SentStuff: make(chan apis.Command),
+	}
+	uiRepeater = mocksub
+	status = Repeaters{}
+	go RepeaterLoop()
+	defer func() {
+		status = backupstatus
+		done = make(chan struct{})
+		uiRepeater = backupui
+	}()
+
+	var req *http.Request
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		req = r
+		_, _ = w.Write([]byte("Test response"))
+	}))
+	defer ts.Close()
+	URL, _ := url.Parse(ts.URL)
+	assert := func(condition bool, message string, vars ...interface{}) {
+		if !condition {
+			t.Errorf(message, vars...)
+		}
+	}
+	dataCh <- apis.Command{
+		Channel: apis.REPEATCHANNEL,
+		Action:  apis.CREATE,
+	}
+
+	tmp := <-mocksub.SentStuff
+	id := tmp.Args[apis.ID]
+	assert(id == "0", "Expected repeater id 0 but got "+id)
+
+	tmp = apis.Command{
+		Channel: apis.REPEATCHANNEL,
+		Action:  apis.GO,
+		Payload: []byte(`GET / HTTP/1.1
+Host: localhost:` + URL.Port() + `
+X-Wapty-Test: TestHeader
+Connection: close
+
+
+`)}
+	tmp.PackArgs(
+		[]apis.ArgName{apis.ENDPOINT, apis.TLS, apis.ID},
+		"localhost:"+URL.Port(), "false", id,
+	)
+	dataCh <- tmp
+
+	tmp = <-mocksub.SentStuff
+	assert(bytes.Contains(tmp.Payload, []byte(`Test response`)), "Unexpected response: "+string(tmp.Payload))
+	assert(req.Header.Get("X-Wapty-Test") == "TestHeader", "Test header was not sucessfully set. Expected <TestHeader> but got <%s>", req.Header.Get("X-Wapty-Test"))
+	subid := tmp.Args[apis.SUBID]
+	assert(subid == "0", "Expected repeat payload id 0 but got "+subid)
+
+	tmp = apis.Command{
+		Channel: apis.REPEATCHANNEL,
+		Action:  apis.GET,
+	}
+	tmp.PackArgs(
+		[]apis.ArgName{apis.ID, apis.SUBID},
+		id, subid,
+	)
+	dataCh <- tmp
+
+	tmp = <-mocksub.SentStuff
+	var histitem Item
+	err := json.Unmarshal(tmp.Payload, &histitem)
+	if err != nil {
+		t.Error("Unexpected error while fetching repeat entry: " + err.Error())
+	}
+	assert(bytes.Contains(histitem.Response, []byte(`Test response`)), "Unexpected history response: "+string(tmp.Payload))
+	assert(bytes.Contains(histitem.Request, []byte(`TestHeader`)), "Unexpected history request: "+string(tmp.Payload))
+	subid = tmp.Args[apis.SUBID]
+	assert(subid == "0", "Expected repeat payload id 0 but got "+subid)
 }

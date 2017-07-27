@@ -64,7 +64,7 @@ This stage will be the first stage for wapty, before this is finished wapty will
 * [x] Use https://gocover.io to compute coverage
 * [x] Add intercept checker in the right spots
 * [x] Add functionality: releasing the intercept should forward all pending requests
-* [ ] Add saving functionality
+* [x] Add saving functionality
 * [ ] finish Repeat tests
 * [ ] Add scoping
 * [ ] Add history filtering/sorting

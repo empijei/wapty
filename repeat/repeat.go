@@ -40,7 +40,8 @@ func NewRepeater() *Repeater {
 	}
 }
 
-func (r *Repeater) repeat(buf io.Reader, host string, _tls bool) (res io.Reader, err error) {
+func (r *Repeater) repeat(buf io.Reader, host string, _tls bool) (res io.Reader, id int, err error) {
+	id = -1
 	r.m.Lock()
 	defer r.m.Unlock()
 	savedReq := bytes.NewBuffer(nil)
@@ -71,11 +72,12 @@ func (r *Repeater) repeat(buf io.Reader, host string, _tls bool) (res io.Reader,
 	_, err = io.Copy(resbuf, conn)
 	log.Println("Response read")
 	if tmperr := <-errWrite; tmperr != nil {
-		return nil, tmperr
+		err = tmperr
+		return
 	}
 	if err != nil {
-		return nil, err
+		return
 	}
 	r.History = append(r.History, Item{Request: savedReq.Bytes(), Response: resbuf.Bytes()})
-	return resbuf, nil
+	return resbuf, len(r.History) - 1, nil
 }
