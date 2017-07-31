@@ -4,6 +4,9 @@ import "log"
 
 func Main() {
 	const port = ":8082"
+	const histDir = "."
+
+	SetHistDir(histDir)
 
 	log.Printf("Starting mocksy server at %s\n", port)
 	if err := StartServer(port); err != nil {

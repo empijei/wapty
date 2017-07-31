@@ -3,10 +3,8 @@ package mocksy
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"strings"
 )
 
@@ -15,18 +13,6 @@ import (
 type responseDB []Item
 
 var responseHistory responseDB
-var outw io.Writer
-
-func init() {
-	responseHistory = make([]Item, 0)
-	outw = os.Stderr
-}
-
-// equivalent returns whether Item `a` and `b` are considered the same from the matcher's point of view.
-func equivalent(a, b Item) bool {
-	return a.Host == b.Host && a.Port == b.Port && a.Protocol == b.Protocol && a.Method == b.Method &&
-		a.Path == b.Path && bytes.Equal(a.Request.Value, b.Request.Value)
-}
 
 // AddToHistory inserts a pair request-response in the responseHistory.
 func AddToHistory(itm Item) {
@@ -39,8 +25,8 @@ func AddToHistory(itm Item) {
 	responseHistory = append(responseHistory, itm)
 }
 
-func HistoryLength() int {
-	return len(responseHistory)
+func ClearHistory() {
+	responseHistory = responseHistory[:0]
 }
 
 // FindMatching takes an http request and returns the closest match to it
@@ -57,18 +43,31 @@ func FindMatching(req *http.Request) Response {
 	return Response{}
 }
 
-// findHost tries to retreive host information from `req`.
-// It fills Host.Value with the verbatim req.Host string, then tries to
-// find the correct Ip as well from header information.
-func findHost(req *http.Request) Host {
-	host := Host{
-		Value: req.Host,
-		Ip:    "", // TODO
-	}
-	if id := strings.Index(host.Value, ":"); id > -1 {
-		host.Value = host.Value[:id]
-	}
-	return host
+// HistoryLength returns the number of entries in history
+func HistoryLength() int {
+	return len(responseHistory)
+}
+
+////////////////////////// Unexported /////////////////////////////
+
+// compareArgs is a struct containing the information that we use to match two requests.
+type compareArgs struct {
+	Request  []byte
+	Host     Host
+	Port     string
+	Protocol string
+	Method   string
+	Path     string
+}
+
+// equivalent returns whether Item `a` and `b` are considered the same from the matcher's point of view.
+func equivalent(a, b Item) bool {
+	return a.Host == b.Host &&
+		a.Port == b.Port &&
+		a.Protocol == b.Protocol &&
+		a.Method == b.Method &&
+		a.Path == b.Path &&
+		bytes.Equal(a.Request.Value, b.Request.Value)
 }
 
 // filterByHost returns all elements in `lst` whose host is `host` (matching either by value or by ip)
@@ -82,18 +81,9 @@ func filterByHost(lst []Item, host Host) []Item {
 	return newlst
 }
 
-// compareArgs is a struct containing the information that we use to match two requests.
-type compareArgs struct {
-	Request  []byte
-	Host     Host
-	Port     string
-	Protocol string
-	Method   string
-	Path     string
-}
-
 // findBestMatching returns the request that is the "best matching" with `req`.
 func findBestMatching(reqs []Item, host Host, req *http.Request) Item {
+	// Read the request body
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		fmt.Fprintf(outw, "mocksy: error reading body of request while sorting: %s\n", err.Error())
@@ -108,6 +98,7 @@ func findBestMatching(reqs []Item, host Host, req *http.Request) Item {
 		port = req.Host[id+1:]
 	}
 
+	// Retreive protocol
 	proto := req.Proto
 	if id := strings.Index(proto, "/"); id > -1 {
 		proto = proto[:id]
@@ -130,6 +121,20 @@ func findBestMatching(reqs []Item, host Host, req *http.Request) Item {
 		}
 	}
 	return best
+}
+
+// findHost tries to retreive host information from `req`.
+// It fills Host.Value with the verbatim req.Host string, then tries to
+// find the correct Ip as well from header information.
+func findHost(req *http.Request) Host {
+	host := Host{
+		Value: req.Host,
+		Ip:    "", // TODO
+	}
+	if id := strings.Index(host.Value, ":"); id > -1 {
+		host.Value = host.Value[:id]
+	}
+	return host
 }
 
 // fuzzyComparer returns a `Less` function which, given requests i and j,
@@ -176,7 +181,7 @@ func fuzzyComparer(reqs []Item, args compareArgs) func(Item, Item) bool {
 			return reqAExact
 		}
 
-		// Else, get the information on which request is closer to the actual one.
+		// If no request matches exactly (or both do), find which request is closer to the actual one.
 		// TODO: for now, we just check the _length_ of the requests, not the content
 		var aMatchesMost bool
 		//var minReqLenDiff = 0
@@ -202,7 +207,7 @@ func fuzzyComparer(reqs []Item, args compareArgs) func(Item, Item) bool {
 		// to the actual one. In that case, use heuristic to decide the better option.
 		if (ra.Method == args.Method) != (rb.Method == args.Method) {
 
-			// In this case, one of the methods matches exactly and the other does not.
+			// In this branch, one of the methods matches exactly and the other does not.
 
 			if (ra.Method == args.Method) != aMatchesMost {
 				// In this case, one of the requests has the same method, but the other has

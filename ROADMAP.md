@@ -31,9 +31,13 @@
 * [ ] Discover
 * [ ] Scan
 * [ ] Mock
+	* [ ] Importer
+	* [ ] Matcher
+	* [ ] Server
 * [ ] User Documentation
 * [ ] Extend
 * [ ] Dashboard
+* [ ] Help
 
 ## Packages and Coverage
 Package Name | Currently Actively Developing               | Development Phase           | Test Coverage

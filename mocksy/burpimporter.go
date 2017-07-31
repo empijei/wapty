@@ -8,7 +8,8 @@ import (
 	"log"
 )
 
-// Request is just a struct used to deserialize burp XML saved requests
+// Response is struct used to deserialize burp XML. It contains text data and an attribute telling
+// if the content is base64 or not.
 type Request struct {
 	Base64 string `xml:"base64,attr"`
 	Value  []byte `xml:",chardata"`
@@ -19,7 +20,8 @@ func (r Request) Bytes() []byte {
 	return b64Able(r).Bytes()
 }
 
-// Response is just a struct used to deserialize burp XML saved responses
+// Response is struct used to deserialize burp XML. It contains text data and an attribute telling
+// if the content is base64 or not.
 type Response struct {
 	Base64 string `xml:"base64,attr"`
 	Value  []byte `xml:",chardata"`
@@ -50,13 +52,14 @@ func (r b64Able) Bytes() []byte {
 	return r.Value
 }
 
-// Host is just used to deserialize burp saved XML
+// Host is used to deserialize burp saved XML. It contains text data and an attribute "ip".
 type Host struct {
 	Ip    string `xml:"ip,attr"`
 	Value string `xml:",chardata"`
 }
 
-// Item is just used to deserialize burp saved XML
+// Item is used to deserialize burp saved XML. It is the element containing all the information
+// about a single request.
 type Item struct {
 	Time           string   `xml:"time"`
 	Url            string   `xml:"url"`
@@ -74,19 +77,18 @@ type Item struct {
 	Comment        string   `xml:"comment"`
 }
 
-// Items is just used to deserialize burp saved XML
+// Items is used to deserialize burp saved XML. It is the root element, containing a list of Item's.
 type Items struct {
 	Items []Item `xml:"item"`
 }
 
-// BurpImport reads a "saved requests" file from r both in base64 and cleartext
-// form
+// BurpImport reads a "saved requests" file from r both in base64 and cleartext form
 func BurpImport(r io.Reader) (*Items, error) {
 	dec := xml.NewDecoder(r)
 	var itm Items
 	err := dec.Decode(&itm)
 	if err != nil {
-		//wrapping errors is good practice
+		// wrapping errors is good practice
 		return nil, fmt.Errorf("mocksy: cannot import status: %s", err.Error())
 	}
 	return &itm, nil
