@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/empijei/wapty/common"
 	"github.com/empijei/wapty/decode"
 	"github.com/empijei/wapty/intercept"
 	"github.com/empijei/wapty/mocksy"
@@ -20,14 +21,17 @@ var (
 	Commit string
 )
 
-var commands = []struct {
-	name string
-	main func()
-}{
-	{"decode", decode.MainStandalone},
-	{"proxy", proxyMain},
-	{"mocksy", mocksy.Main},
-	{"version", func() {
+var CmdProxy = common.Command{
+	Name:      "proxy",
+	Run:       proxyMain,
+	UsageLine: "proxy",
+	Short:     "work as a proxy",
+	Long:      "",
+}
+
+var CmdVersion = common.Command{
+	Name: "version",
+	Run: func() {
 		// Setup fallback version and commit in case wapty wasn't "properly" compiled
 		if len(Version) == 0 {
 			Version = "Unknown"
@@ -36,7 +40,17 @@ var commands = []struct {
 			Commit = "Unknown"
 		}
 		fmt.Printf("Version: %s\nCommit: %s\n", Version, Commit)
-	}},
+	},
+	UsageLine: "version",
+	Short:     "print version and exit",
+	Long:      "print version and exit",
+}
+
+var commands = []common.Command{
+	decode.CmdDecode,
+	CmdProxy,
+	mocksy.CmdMocksy,
+	CmdVersion,
 }
 
 func init() {
@@ -65,35 +79,37 @@ func proxyMain() {
 }
 
 func invokeMain(s string) {
-	var toinvoke func()
-	var success bool
+	var command common.Command
+	success := false
 	for _, cmd := range commands {
-		if cmd.name == s {
-			toinvoke = cmd.main
+		if cmd.Name == s {
+			command = cmd
 			success = true
 			break
 		}
-		if strings.HasPrefix(cmd.name, s) {
-			if toinvoke != nil {
+		if strings.HasPrefix(cmd.Name, s) {
+			if command.Run != nil {
 				fmt.Fprintf(os.Stderr, "Ambiguous command: '%s'. ", s)
 				success = false
 			} else {
-				toinvoke = cmd.main
+				command = cmd
 				success = true
 			}
 		}
 	}
 	if success {
-		toinvoke()
+		command.Flag.Usage = command.Usage
+		command.Flag.Parse(os.Args[1:])
+		command.Run()
 		return
 	}
-	if toinvoke == nil {
+	if command.Run == nil {
 		fmt.Fprintf(os.Stderr, "Command not found: '%s'. ", s)
 	}
 
-	fmt.Fprintln(os.Stderr, "Available commands are: ")
+	fmt.Fprintln(os.Stderr, "Available commands are:\n")
 	for _, cmd := range commands {
-		fmt.Fprintln(os.Stderr, "\t"+cmd.name)
+		fmt.Fprintln(os.Stderr, "\t"+cmd.Name+"\n\t\t"+cmd.Short)
 	}
-	fmt.Fprintln(os.Stderr, "Default command is: proxy")
+	fmt.Fprintln(os.Stderr, "\nDefault command is: proxy")
 }
