@@ -9,7 +9,7 @@ import (
 
 var outw io.Writer
 
-var CmdMocksy = common.Command{
+var CmdMocksy = &common.Command{
 	Name:      "mocksy",
 	Run:       Main,
 	UsageLine: "mocksy",

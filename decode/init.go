@@ -2,7 +2,7 @@ package decode
 
 import "github.com/empijei/wapty/common"
 
-var CmdDecode = common.Command{
+var CmdDecode = &common.Command{
 	Name:      "decode",
 	Run:       MainStandalone,
 	UsageLine: "decode [flags]",
