@@ -26,6 +26,7 @@
 * [ ] Save/Load
 * [ ] Intrude
 * [ ] Sequence
+* [ ] Websocket
 * [ ] Compare
 * [ ] Crawl
 * [ ] Discover
@@ -127,6 +128,7 @@ This section contains the features that burpsuite lacks but that will make this 
 These features will probably be implemented along with the ones in the other stages.
 
 * [ ] Add Mocksy
+* [ ] Add websocket support, with buffers to "stop" data and the chance to add data in both outgoing and incoming sockets
 * [ ] UI add preview of blocked requests queue with a chance to perform some actions on them
 * [ ] Add pre-engagement 
 	* [ ] analysis/recon, 
