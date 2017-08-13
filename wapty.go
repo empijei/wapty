@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 
+	"github.com/empijei/wapty/common"
 	"github.com/empijei/wapty/decode"
+	"github.com/empijei/wapty/help"
 	"github.com/empijei/wapty/intercept"
 	"github.com/empijei/wapty/mocksy"
 	"github.com/empijei/wapty/ui"
@@ -20,14 +21,17 @@ var (
 	Commit string
 )
 
-var commands = []struct {
-	name string
-	main func()
-}{
-	{"decode", decode.MainStandalone},
-	{"proxy", proxyMain},
-	{"mocksy", mocksy.Main},
-	{"version", func() {
+var CmdProxy = &common.Command{
+	Name:      "proxy",
+	Run:       proxyMain,
+	UsageLine: "proxy",
+	Short:     "work as a proxy",
+	Long:      "",
+}
+
+var CmdVersion = &common.Command{
+	Name: "version",
+	Run: func(_ ...string) {
 		// Setup fallback version and commit in case wapty wasn't "properly" compiled
 		if len(Version) == 0 {
 			Version = "Unknown"
@@ -36,11 +40,21 @@ var commands = []struct {
 			Commit = "Unknown"
 		}
 		fmt.Printf("Version: %s\nCommit: %s\n", Version, Commit)
-	}},
+	},
+	UsageLine: "version",
+	Short:     "print version and exit",
+	Long:      "print version and exit",
 }
 
 func init() {
 	//log.SetFlags(log.LstdFlags | log.Lshortfile)
+	common.WaptyCommands = []*common.Command{
+		decode.CmdDecode,
+		CmdProxy,
+		mocksy.CmdMocksy,
+		CmdVersion,
+		help.CmdHelp,
+	}
 }
 
 func main() {
@@ -59,41 +73,25 @@ func main() {
 	}
 }
 
-func proxyMain() {
+func proxyMain(_ ...string) {
 	go ui.MainLoop()
 	intercept.MainLoop()
 }
 
 func invokeMain(s string) {
-	var toinvoke func()
-	var success bool
-	for _, cmd := range commands {
-		if cmd.name == s {
-			toinvoke = cmd.main
-			success = true
-			break
-		}
-		if strings.HasPrefix(cmd.name, s) {
-			if toinvoke != nil {
-				fmt.Fprintf(os.Stderr, "Ambiguous command: '%s'. ", s)
-				success = false
-			} else {
-				toinvoke = cmd.main
-				success = true
-			}
-		}
-	}
-	if success {
-		toinvoke()
+	command, err := common.FindCommand(s)
+	if err == nil {
+		command.Flag.Usage = command.Usage
+		//TODO handle this error
+		_ = command.Flag.Parse(os.Args[1:])
+		command.Run(command.Flag.Args()...)
 		return
+	} else {
+		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+		fmt.Fprintln(os.Stderr, "Available commands are:\n")
+		for _, cmd := range common.WaptyCommands {
+			fmt.Fprintln(os.Stderr, "\t"+cmd.Name+"\n\t\t"+cmd.Short)
+		}
+		fmt.Fprintln(os.Stderr, "\nDefault command is: proxy")
 	}
-	if toinvoke == nil {
-		fmt.Fprintf(os.Stderr, "Command not found: '%s'. ", s)
-	}
-
-	fmt.Fprintln(os.Stderr, "Available commands are: ")
-	for _, cmd := range commands {
-		fmt.Fprintln(os.Stderr, "\t"+cmd.name)
-	}
-	fmt.Fprintln(os.Stderr, "Default command is: proxy")
 }

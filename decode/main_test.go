@@ -46,9 +46,9 @@ var CodecPayloadTest = []struct {
 	},
 }
 
-func init() {
-	RegisterFlagStandalone()
-}
+//func init() {
+//RegisterFlagStandalone()
+//}
 
 func TestMainStandalone(t *testing.T) {
 	if os.Getenv("BE_MAIN") == "1" {
