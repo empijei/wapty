@@ -21,7 +21,7 @@ Usage:
 
 var outw = os.Stderr
 
-func Main() {
+func Main(_ ...string) {
 	requestedCmd := "help"
 	if len(os.Args) > 1 {
 		requestedCmd = os.Args[1]
@@ -31,7 +31,7 @@ func Main() {
 		tmpl := template.New("help")
 		tmpl.Funcs(template.FuncMap{"trim": strings.TrimSpace, "capitalize": capitalize})
 		template.Must(tmpl.Parse(docTemplate))
-		tmpl.Execute(outw, command)
+		_ = tmpl.Execute(outw, command)
 	} else {
 		fmt.Fprintf(outw, "help: error processing command: %s\n", err.Error())
 	}

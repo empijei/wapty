@@ -18,7 +18,7 @@ type Command struct {
 	Name string
 
 	// Run is the command entrypoint.
-	Run func()
+	Run func(...string)
 
 	// UsageLine is the header of what's printed by flag.PrintDefaults.
 	UsageLine string
@@ -49,6 +49,9 @@ func FindCommand(name string) (command *Command, err error) {
 	for _, cmd := range WaptyCommands {
 		if cmd.Name == name {
 			command = cmd
+			// If there were several commands beginning with this string, but I
+			// have an exact match, the error should not be returned.
+			err = nil
 			return
 		}
 		if strings.HasPrefix(cmd.Name, name) {

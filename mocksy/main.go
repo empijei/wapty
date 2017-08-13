@@ -2,7 +2,7 @@ package mocksy
 
 import "log"
 
-func Main() {
+func Main(_ ...string) {
 	const port = ":8082"
 	const histDir = "."
 

@@ -31,7 +31,7 @@ var CmdProxy = &common.Command{
 
 var CmdVersion = &common.Command{
 	Name: "version",
-	Run: func() {
+	Run: func(_ ...string) {
 		// Setup fallback version and commit in case wapty wasn't "properly" compiled
 		if len(Version) == 0 {
 			Version = "Unknown"
@@ -73,7 +73,7 @@ func main() {
 	}
 }
 
-func proxyMain() {
+func proxyMain(_ ...string) {
 	go ui.MainLoop()
 	intercept.MainLoop()
 }
@@ -82,8 +82,9 @@ func invokeMain(s string) {
 	command, err := common.FindCommand(s)
 	if err == nil {
 		command.Flag.Usage = command.Usage
-		command.Flag.Parse(os.Args[1:])
-		command.Run()
+		//TODO handle this error
+		_ = command.Flag.Parse(os.Args[1:])
+		command.Run(command.Flag.Args()...)
 		return
 	} else {
 		fmt.Fprintf(os.Stderr, "%s\n", err.Error())

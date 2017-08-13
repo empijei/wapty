@@ -1,7 +1,6 @@
 package decode
 
 import (
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -11,10 +10,10 @@ import (
 // MainStandalone parses its own flag and it is the funcion to be run when using
 // `wapty decode`. This behaves as a main and expects the "decode" parameter to
 // be removed from os.Args.
-func MainStandalone() {
+func MainStandalone(args ...string) {
 
 	// FIXME: argument validation should be separated from encoding/decoding
-	buf := takeInput()
+	buf := takeInput(args)
 	sequence := strings.Split(flagCodeclist, ",")
 	for i, codec := range sequence {
 		var c CodecC
@@ -51,8 +50,7 @@ func MainStandalone() {
 	fmt.Printf(buf)
 }
 
-func takeInput() string {
-	args := flag.Args()
+func takeInput(args []string) string {
 	stdininfo, err := os.Stdin.Stat()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error while connecting to stdin: %s\n", err.Error())
