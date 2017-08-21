@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"text/template"
 
 	"github.com/empijei/wapty/common"
 	"github.com/empijei/wapty/decode"
@@ -12,14 +13,13 @@ import (
 	"github.com/empijei/wapty/ui"
 )
 
-const banner = `
-                     _         
+const banner = `                     _         
 __      ____ _ _ __ | |_ _   _ 
-\ \ /\ / / _' | '_ \| __| | | |
- \ V  V / (_| | |_) | |_| |_| |
-  \_/\_/ \__,_| .__/ \__|\__, |
+\ \ /\ / / _' | '_ \| __| | | | 
+ \ V  V / (_| | |_) | |_| |_| |   Version: {{.Version}}
+  \_/\_/ \__,_| .__/ \__|\__, |   Build:   {{.Build}}
               |_|        |___/ 
-
+  
 `
 
 var (
@@ -42,13 +42,6 @@ var CmdProxy = &common.Command{
 var CmdVersion = &common.Command{
 	Name: "version",
 	Run: func(_ ...string) {
-		// Setup fallback version and commit in case wapty wasn't "properly" compiled
-		if len(Version) == 0 {
-			Version = "Unknown"
-		}
-		if len(Commit) == 0 {
-			Commit = "Unknown"
-		}
 		fmt.Printf("Version: %s\nCommit: %s\n", Version, Commit)
 	},
 	UsageLine: "version",
@@ -65,10 +58,18 @@ func init() {
 		CmdVersion,
 		help.CmdHelp,
 	}
+
+	// Setup fallback version and commit in case wapty wasn't "properly" compiled
+	if len(Version) == 0 {
+		Version = "Unknown, please compile wapty with 'make'"
+	}
+	if len(Commit) == 0 {
+		Commit = "Unknown, please compile wapty with 'make'"
+	}
 }
 
 func main() {
-	fmt.Println(banner)
+	printbanner()
 	if len(os.Args) > 1 {
 		//read the first argument
 		directive := os.Args[1]
@@ -105,4 +106,10 @@ func invokeMain(s string) {
 		}
 		fmt.Fprintln(os.Stderr, "\nDefault command is: proxy")
 	}
+}
+
+func printbanner() {
+	tmpl := template.New("banner")
+	template.Must(tmpl.Parse(banner))
+	_ = tmpl.Execute(os.Stderr, struct{ Version, Build string }{Version, Commit})
 }

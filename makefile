@@ -3,7 +3,7 @@ BINARY=wapty
 
 # Variables
 VERSION=0.2.0
-BUILD=`git rev-parse HEAD`
+BUILD=`git rev-parse --short HEAD`
 
 LDFLAGS=-ldflags "-X main.Version=${VERSION} -X main.Commit=${BUILD}"
 
