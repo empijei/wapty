@@ -28,6 +28,8 @@ func init() {
 	log.SetFlags(log.Lshortfile)
 	flag.Parse()
 	_, _ = LoadCA()
+	caCert = MustReadFile(certFile)
+	caKey = MustReadFile(keyFile)
 }
 
 var hostname, _ = os.Hostname()
@@ -45,8 +47,8 @@ func MustReadFile(path string) []byte {
 }
 
 var (
-	caCert = MustReadFile(certFile)
-	caKey  = MustReadFile(keyFile)
+	caCert []byte
+	caKey  []byte
 )
 
 func testProxy(t *testing.T, setupReq func(req *http.Request), wrap func(http.Handler) http.Handler, downstream http.HandlerFunc, checkResp func(*http.Response)) {
