@@ -26,6 +26,8 @@ import (
 
 func init() {
 	log.SetFlags(log.Lshortfile)
+	flag.Parse()
+	_, _ = LoadCA()
 }
 
 var hostname, _ = os.Hostname()
@@ -34,13 +36,17 @@ var (
 	nettest = flag.Bool("nettest", false, "run tests over network")
 )
 
-func init() {
-	flag.Parse()
+func MustReadFile(path string) []byte {
+	buf, err := ioutil.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+	return buf
 }
 
 var (
-	caCert = MustAsset("cert.pem")
-	caKey  = MustAsset("key.pem")
+	caCert = MustReadFile(certFile)
+	caKey  = MustReadFile(keyFile)
 )
 
 func testProxy(t *testing.T, setupReq func(req *http.Request), wrap func(http.Handler) http.Handler, downstream http.HandlerFunc, checkResp func(*http.Response)) {
