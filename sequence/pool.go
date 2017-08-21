@@ -55,10 +55,10 @@ func newPool(nw int, req []byte, _tls bool, host string, reqps int, cookieName s
 		p.isThrottle = true
 		p.ticker = time.NewTicker(time.Duration(1000000/reqps) * time.Microsecond)
 		go func() {
+			// TODO fix this, this is not good practice
 			defer func() {
 				_ = recover()
 			}()
-			//TODO defer recover
 			for _ = range p.ticker.C {
 				p.throttledone <- struct{}{}
 			}

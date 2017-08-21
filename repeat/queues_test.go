@@ -29,8 +29,8 @@ func (s *MockSubscription) Send(c *apis.Command) {
 }
 
 func TestHandler(t *testing.T) {
-	backupstatus := status
-	backupui := uiRepeater
+	//backupstatus := status
+	//backupui := uiRepeater
 	dataCh := make(chan apis.Command)
 	mocksub := &MockSubscription{
 		DataCh:    dataCh,
@@ -39,12 +39,6 @@ func TestHandler(t *testing.T) {
 	uiRepeater = mocksub
 	status = Repeaters{}
 	go RepeaterLoop()
-	defer func() {
-		status = backupstatus
-		done = make(chan struct{})
-		uiRepeater = backupui
-	}()
-
 	var req *http.Request
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		req = r
