@@ -22,7 +22,7 @@ run:
 	# Generating JS
 	cd ui/gopherjs/ && gopherjs build -o ../static/gopherjs.js
 	# Done generating JS, launching wapty
-	go run ${LDFLAGS} wapty.go
+	go run -race ${LDFLAGS} wapty.go
 
 fast: run
 
@@ -48,11 +48,21 @@ install: buildjs rebind
 
 installdeps:
 	# Installing dependencies to embed assets
-	go get -u github.com/GeertJohan/go.rice/...
+	go get github.com/GeertJohan/go.rice/...
 	# Installing dependencies to build JS
+	go get github.com/gopherjs/gopherjs
+	go get github.com/gopherjs/websocket/...
+	# Installing Diff dependencies
+	go get github.com/fatih/color
+	go get github.com/pmezard/go-difflib/difflib
+
+updatedeps:
+	# Updating dependencies to embed assets
+	go get -u github.com/GeertJohan/go.rice/...
+	# Updating dependencies to build JS
 	go get -u github.com/gopherjs/gopherjs
 	go get -u github.com/gopherjs/websocket/...
-	# Installing Diff dependencies
+	# Updating Diff dependencies
 	go get -u github.com/fatih/color
 	go get -u github.com/pmezard/go-difflib/difflib
 

@@ -132,7 +132,7 @@ func MainLoop() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write(appPage)
 	})
-
+	log.Printf("UI is running on: http://localhost:%d/", 8081)
 	log.Fatal(http.ListenAndServe(":8081", nil))
 
 }

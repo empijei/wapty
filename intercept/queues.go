@@ -91,6 +91,8 @@ func MainLoop() {
 		//Wrap:      interceptRequestWrapper,
 		Transport: &modifiedTransport,
 	}
+
+	log.Printf("Proxy is running on localhost:%d", 8080)
 	//Starts the mitm.Proxy
 	log.Println(http.ListenAndServe(":8080", p)) //TODO parametrize this and allow for closure
 	close(done)

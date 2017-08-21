@@ -83,7 +83,7 @@ This stage will be the first stage for wapty, before this is finished wapty will
 	* [ ] Sanitize metadata
 	* [ ] show already pending request/response upon connection
 	* [ ] error log
-	* [ ] auto-open ui in browser on launch
+	* [ ] auto-open ui in browser on launch?
 	* [ ] monospace textareas
 	* [ ] resizable splits
 	* [ ] Add UI to repeater
@@ -94,6 +94,7 @@ The following is just some general polishing before calling this a proper projec
 * [ ] Improve README
 * [ ] Handle panics within the package
 * [ ] Move all constant strings to actual constants
+* [ ] Analyze all -race warnings
 * [ ] All the deferred closes if err!= nil send that, otherwise propagate the new one
 * [ ] Doc comment should be a complete sentence that starts with the name being declared.
 * [ ] Lint the code, improve score on goreportcard

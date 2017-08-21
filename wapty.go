@@ -12,6 +12,16 @@ import (
 	"github.com/empijei/wapty/ui"
 )
 
+const banner = `
+                     _         
+__      ____ _ _ __ | |_ _   _ 
+\ \ /\ / / _' | '_ \| __| | | |
+ \ V  V / (_| | |_) | |_| |_| |
+  \_/\_/ \__,_| .__/ \__|\__, |
+              |_|        |___/ 
+
+`
+
 var (
 	//Version is taken by the build flags, represent current version as
 	//<major>.<minor>.<patch>
@@ -58,6 +68,7 @@ func init() {
 }
 
 func main() {
+	fmt.Println(banner)
 	if len(os.Args) > 1 {
 		//read the first argument
 		directive := os.Args[1]
