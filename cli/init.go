@@ -1,8 +1,6 @@
-package help
+package cli
 
-import "github.com/empijei/wapty/common"
-
-var CmdHelp = &common.Command{
+var CmdHelp = &Command{
 	Name:      "help",
 	Run:       Main,
 	UsageLine: "help",

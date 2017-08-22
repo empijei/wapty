@@ -5,9 +5,8 @@ import (
 	"os"
 	"text/template"
 
-	"github.com/empijei/wapty/common"
+	"github.com/empijei/wapty/cli"
 	"github.com/empijei/wapty/decode"
-	"github.com/empijei/wapty/help"
 	"github.com/empijei/wapty/intercept"
 	"github.com/empijei/wapty/mocksy"
 	"github.com/empijei/wapty/ui"
@@ -31,7 +30,7 @@ var (
 	Commit string
 )
 
-var CmdProxy = &common.Command{
+var CmdProxy = &cli.Command{
 	Name:      "proxy",
 	Run:       proxyMain,
 	UsageLine: "proxy",
@@ -39,7 +38,7 @@ var CmdProxy = &common.Command{
 	Long:      "",
 }
 
-var CmdVersion = &common.Command{
+var CmdVersion = &cli.Command{
 	Name: "version",
 	Run: func(_ ...string) {
 		fmt.Printf("Version: %s\nCommit: %s\n", Version, Commit)
@@ -51,12 +50,12 @@ var CmdVersion = &common.Command{
 
 func init() {
 	//log.SetFlags(log.LstdFlags | log.Lshortfile)
-	common.WaptyCommands = []*common.Command{
+	cli.WaptyCommands = []*cli.Command{
 		decode.CmdDecode,
 		CmdProxy,
 		mocksy.CmdMocksy,
 		CmdVersion,
-		help.CmdHelp,
+		cli.CmdHelp,
 	}
 
 	// Setup fallback version and commit in case wapty wasn't "properly" compiled
@@ -91,7 +90,7 @@ func proxyMain(_ ...string) {
 }
 
 func invokeMain(s string) {
-	command, err := common.FindCommand(s)
+	command, err := cli.FindCommand(s)
 	if err == nil {
 		command.Flag.Usage = command.Usage
 		//TODO handle this error
@@ -101,7 +100,7 @@ func invokeMain(s string) {
 	} else {
 		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		fmt.Fprintln(os.Stderr, "Available commands are:\n")
-		for _, cmd := range common.WaptyCommands {
+		for _, cmd := range cli.WaptyCommands {
 			fmt.Fprintln(os.Stderr, "\t"+cmd.Name+"\n\t\t"+cmd.Short)
 		}
 		fmt.Fprintln(os.Stderr, "\nDefault command is: proxy")

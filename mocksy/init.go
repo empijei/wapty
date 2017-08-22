@@ -4,12 +4,12 @@ import (
 	"io"
 	"os"
 
-	"github.com/empijei/wapty/common"
+	"github.com/empijei/wapty/cli"
 )
 
 var outw io.Writer
 
-var CmdMocksy = &common.Command{
+var CmdMocksy = &cli.Command{
 	Name:      "mocksy",
 	Run:       Main,
 	UsageLine: "mocksy",

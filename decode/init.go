@@ -1,8 +1,8 @@
 package decode
 
-import "github.com/empijei/wapty/common"
+import "github.com/empijei/wapty/cli"
 
-var CmdDecode = &common.Command{
+var CmdDecode = &cli.Command{
 	Name:      "decode",
 	Run:       MainStandalone,
 	UsageLine: "decode [flags]",

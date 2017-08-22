@@ -1,4 +1,4 @@
-package help
+package cli
 
 import (
 	"fmt"
@@ -7,8 +7,6 @@ import (
 	"text/template"
 	"unicode"
 	"unicode/utf8"
-
-	"github.com/empijei/wapty/common"
 )
 
 const docTemplate = `{{.Name | capitalize}}: {{.Short}}
@@ -27,7 +25,7 @@ func Main(_ ...string) {
 		requestedCmd = os.Args[1]
 	}
 
-	if command, err := common.FindCommand(requestedCmd); err == nil {
+	if command, err := FindCommand(requestedCmd); err == nil {
 		tmpl := template.New("help")
 		tmpl.Funcs(template.FuncMap{"trim": strings.TrimSpace, "capitalize": capitalize})
 		template.Must(tmpl.Parse(docTemplate))
