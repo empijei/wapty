@@ -5,10 +5,12 @@ import (
 	"os"
 	"text/template"
 
+	//Packages imported for initialization purposes
+	_ "github.com/empijei/wapty/decode"
+	_ "github.com/empijei/wapty/mocksy"
+
 	"github.com/empijei/wapty/cli"
-	"github.com/empijei/wapty/decode"
 	"github.com/empijei/wapty/intercept"
-	"github.com/empijei/wapty/mocksy"
 	"github.com/empijei/wapty/ui"
 )
 
@@ -30,7 +32,7 @@ var (
 	Commit string
 )
 
-var CmdProxy = &cli.Command{
+var cmdProxy = &cli.Cmd{
 	Name:      "proxy",
 	Run:       proxyMain,
 	UsageLine: "proxy",
@@ -38,7 +40,7 @@ var CmdProxy = &cli.Command{
 	Long:      "",
 }
 
-var CmdVersion = &cli.Command{
+var cmdVersion = &cli.Cmd{
 	Name: "version",
 	Run: func(_ ...string) {
 		fmt.Printf("Version: %s\nCommit: %s\n", Version, Commit)
@@ -49,14 +51,6 @@ var CmdVersion = &cli.Command{
 }
 
 func init() {
-	//log.SetFlags(log.LstdFlags | log.Lshortfile)
-	cli.WaptyCommands = []*cli.Command{
-		decode.CmdDecode,
-		CmdProxy,
-		mocksy.CmdMocksy,
-		CmdVersion,
-		cli.CmdHelp,
-	}
 
 	// Setup fallback version and commit in case wapty wasn't "properly" compiled
 	if len(Version) == 0 {
@@ -65,6 +59,8 @@ func init() {
 	if len(Commit) == 0 {
 		Commit = "Unknown, please compile wapty with 'make'"
 	}
+	cli.AddCommand(cmdProxy)
+	cli.AddCommand(cmdVersion)
 }
 
 func main() {

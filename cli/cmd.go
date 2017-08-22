@@ -9,11 +9,11 @@ import (
 
 // WaptyCommands is the list of all wapty commands available.
 // Each command `cmd` is invoked via `wapty cmd`
-var WaptyCommands []*Command
+var WaptyCommands []*Cmd
 
-// Command is used by any package exposing a runnable command to gather information
+// Cmd is used by any package exposing a runnable command to gather information
 // about command name, usage and flagset.
-type Command struct {
+type Cmd struct {
 	// Name is the name of the command. It's what comes after `wapty`.
 	Name string
 
@@ -35,7 +35,13 @@ type Command struct {
 	Flag flag.FlagSet
 }
 
-func (c *Command) Usage() {
+// AddCommand allows packages to setup their own command. In order for them to
+// be compiled, they must be imported by the main package with the "_" alias
+func AddCommand(c *Cmd) {
+	WaptyCommands = append(WaptyCommands, c)
+}
+
+func (c *Cmd) Usage() {
 	fmt.Fprintf(os.Stderr, "usage: %s\n\n", c.UsageLine)
 	c.Flag.PrintDefaults()
 	os.Exit(2)
@@ -45,7 +51,7 @@ func (c *Command) Usage() {
 // prefix. If more than 1 command name has that string as a prefix (and no command name
 // equals that string), an error is returned. If no suitable command is found, an error
 // is returned.
-func FindCommand(name string) (command *Command, err error) {
+func FindCommand(name string) (command *Cmd, err error) {
 	for _, cmd := range WaptyCommands {
 		if cmd.Name == name {
 			command = cmd

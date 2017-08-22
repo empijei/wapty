@@ -9,7 +9,7 @@ import (
 
 var outw io.Writer
 
-var CmdMocksy = &cli.Command{
+var cmdMocksy = &cli.Cmd{
 	Name:      "mocksy",
 	Run:       Main,
 	UsageLine: "mocksy",
@@ -20,4 +20,5 @@ var CmdMocksy = &cli.Command{
 func init() {
 	responseHistory = make([]Item, 0)
 	outw = os.Stderr
+	cli.AddCommand(cmdMocksy)
 }

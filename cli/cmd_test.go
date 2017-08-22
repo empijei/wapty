@@ -18,7 +18,7 @@ func TestFindCommand(t *testing.T) {
 	defer func() { WaptyCommands = bk }()
 
 	var out string
-	WaptyCommands = []*Command{
+	WaptyCommands = []*Cmd{
 		{
 			Name: "prefixsuffix",
 			Run: func(_ ...string) {

@@ -12,14 +12,22 @@ import (
 const docTemplate = `{{.Name | capitalize}}: {{.Short}}
 
 Usage:
-	go {{.UsageLine}}
+	wapty {{.UsageLine}}
 
 {{.Long | trim}}
 `
 
 var outw = os.Stderr
 
-func Main(_ ...string) {
+var cmdHelp = &Cmd{
+	Name:      "help",
+	Run:       helpMain,
+	UsageLine: "help",
+	Short:     "display help information for wapty commands",
+	Long:      "",
+}
+
+func helpMain(_ ...string) {
 	requestedCmd := "help"
 	if len(os.Args) > 1 {
 		requestedCmd = os.Args[1]
