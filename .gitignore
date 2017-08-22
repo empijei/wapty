@@ -13,3 +13,4 @@ wapty
 Wapty.debug
 gopherjs.js
 *.map
+*.sh

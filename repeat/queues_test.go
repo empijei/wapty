@@ -31,6 +31,8 @@ func (s *MockSubscription) Send(c *apis.Command) {
 func TestHandler(t *testing.T) {
 	//backupstatus := status
 	//backupui := uiRepeater
+	//FIXME change this test to directly invoke proper handler and do not spawn
+	// the repeater loop
 	dataCh := make(chan apis.Command)
 	mocksub := &MockSubscription{
 		DataCh:    dataCh,
