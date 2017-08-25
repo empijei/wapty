@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/empijei/wapty/ui/apis"
+	. "github.com/empijei/wapty/ui/apis"
 	js "github.com/gopherjs/gopherjs/js"
 	"github.com/gopherjs/websocket"
 )
@@ -19,11 +19,11 @@ var (
 	interceptOn bool
 )
 
-func send(cmd apis.Command) error {
+func send(cmd Command) error {
 	return enc.Encode(cmd)
 }
 
-func logger(cmd *apis.Command) {
+func logger(cmd *Command) {
 	log.Printf("Received actions %s on channel %s", cmd.Action, cmd.Channel)
 }
 
@@ -40,10 +40,10 @@ func main() {
 	dec = json.NewDecoder(waptyServer)
 	enc = json.NewEncoder(waptyServer)
 
-	var msg apis.Command
+	var msg Command
 
-	msg.Action = apis.INTERCEPT
-	msg.Channel = apis.INTERCEPTSETTINGSCHANNEL
+	msg.Action = STN_INTERCEPT
+	msg.Channel = INTERCEPTSETTINGSCHANNEL
 
 	err = send(msg)
 	if err != nil {
@@ -51,23 +51,23 @@ func main() {
 	}
 
 	for {
-		var msg apis.Command
+		var msg Command
 		err = dec.Decode(&msg)
 		logger(&msg)
 		if err != nil {
 			panic(err)
 		}
 		switch msg.Channel {
-		case apis.EDITORCHANNEL:
+		case EDITORCHANNEL:
 			handleEdit(msg)
 
-		case apis.INTERCEPTSETTINGSCHANNEL:
+		case INTERCEPTSETTINGSCHANNEL:
 			handleIntercept(msg)
 
-		case apis.HISTORYCHANNEL:
+		case HISTORYCHANNEL:
 			handleHistory(msg)
 
-		case apis.REPEATCHANNEL:
+		case REPEATCHANNEL:
 			handleRepeat(msg)
 
 		default:

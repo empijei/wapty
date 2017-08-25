@@ -77,5 +77,5 @@ func sendMetaData(metaData *apis.ReqRespMetaData) {
 	if err != nil {
 		log.Println(err)
 	}
-	uiHistory.Send(&apis.Command{Action: apis.METADATA, Args: map[apis.ArgName]string{apis.METADATA: string(metaJSON)}})
+	uiHistory.Send(&apis.Command{Action: apis.HST_METADATA, Args: map[apis.ArgName]string{apis.HST_METADATA: string(metaJSON)}})
 }

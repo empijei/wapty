@@ -14,3 +14,4 @@ Wapty.debug
 gopherjs.js
 *.map
 *.sh
+ignored/*

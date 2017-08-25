@@ -18,13 +18,13 @@ func init() {
 //the action, the caller must take care of it.
 func editBuffer(p string, b []byte, endpoint string) ([]byte, apis.Action) {
 	if !intercept.value() {
-		return nil, apis.FORWARD
+		return nil, apis.EDT_FORWARD
 	}
 	log.Println("Editing " + p)
 	args := map[apis.ArgName]string{
-		apis.PAYLOADTYPE: p,
-		apis.ENDPOINT:    endpoint}
-	uiEditor.Send(&apis.Command{Action: apis.EDIT, Args: args, Payload: b})
+		apis.ARG_PAYLOADTYPE: p,
+		apis.ARG_ENDPOINT:    endpoint}
+	uiEditor.Send(&apis.Command{Action: apis.EDT_EDIT, Args: args, Payload: b})
 	log.Println("Waiting for user interaction")
 	result := uiEditor.Receive()
 	log.Println("User interacted")

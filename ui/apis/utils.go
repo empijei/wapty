@@ -8,7 +8,7 @@ import (
 func Err(m interface{}) *Command {
 	message := fmt.Sprint(m)
 	return &Command{
-		Action: ERR,
-		Args:   map[ArgName]string{ERR: message},
+		Action: ARG_ERR,
+		Args:   map[ArgName]string{ARG_ERR: message},
 	}
 }

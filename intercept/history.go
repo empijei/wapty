@@ -91,7 +91,7 @@ func historyLoop() {
 		select {
 		case cmd := <-uiHistory.RecChannel():
 			switch cmd.Action {
-			case apis.DUMP:
+			case apis.HST_DUMP:
 				status.RLock()
 				dump, err := json.Marshal(status)
 				status.RUnlock()
@@ -101,7 +101,7 @@ func historyLoop() {
 				}
 				log.Printf("Dump: %s\n", dump)
 				uiHistory.Send(&apis.Command{Action: "Dump", Payload: dump})
-			case apis.FETCH:
+			case apis.HST_FETCH:
 				uiHistory.Send(handleFetch(cmd))
 			}
 		case <-done:
@@ -112,7 +112,7 @@ func historyLoop() {
 
 func handleFetch(cmd apis.Command) *apis.Command {
 	var ID int
-	err := cmd.UnpackArgs([]apis.ArgName{apis.ID}, &ID)
+	err := cmd.UnpackArgs([]apis.ArgName{apis.ARG_ID}, &ID)
 	if err != nil {
 		log.Println(err)
 		return apis.Err(err)
@@ -120,7 +120,7 @@ func handleFetch(cmd apis.Command) *apis.Command {
 	log.Println("Requested history entry")
 	rr := status.getItem(ID)
 	buf, err := json.Marshal(rr)
-	return &apis.Command{Action: apis.FETCH, Payload: buf}
+	return &apis.Command{Action: apis.HST_FETCH, Payload: buf}
 }
 
 //ReqResp represents an item of the proxy history

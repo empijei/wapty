@@ -32,13 +32,13 @@ func handleResponse(presp *pendingResponse) {
 		return
 	}
 	var editedResponse *http.Response
-	editedResponseDump, action := editBuffer(apis.RESPONSE, rawRes, presp.originalRequest.URL.Scheme+"://"+presp.originalRequest.Host)
+	editedResponseDump, action := editBuffer(apis.PLD_RESPONSE, rawRes, presp.originalRequest.URL.Scheme+"://"+presp.originalRequest.Host)
 	switch action {
-	case apis.FORWARD:
+	case apis.EDT_FORWARD:
 		res.ContentLength = ContentLength
 		res.Header.Set("Content-Length", strconv.Itoa(int(ContentLength)))
 		editedResponse = res
-	case apis.EDIT, apis.PROVIDERESP:
+	case apis.EDT_EDIT, apis.EDT_PROVIDERESP:
 		editedResponseBuffer := bufio.NewReader(bytes.NewReader(editedResponseDump))
 		editedResponse, err = http.ReadResponse(editedResponseBuffer, presp.originalRequest)
 		if err != nil {
@@ -48,7 +48,7 @@ func handleResponse(presp *pendingResponse) {
 			editedResponse = res
 		}
 		status.addRawEditedResponse(presp.id, editedResponseDump)
-	case apis.DROP:
+	case apis.EDT_DROP:
 		editedResponse = caseDrop()
 	default:
 		//TODO implement this

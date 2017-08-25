@@ -40,7 +40,7 @@ func (cmd *Command) UnpackArgs(names []ArgName, vars ...interface{}) (err error)
 				return fmt.Errorf("cannot read <%s> as int: %s", arg, err.Error())
 			}
 		case *bool:
-			*_var = arg == TRUE
+			*_var = arg == ARG_TRUE
 		case *string:
 			*_var = arg
 		default:

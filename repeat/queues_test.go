@@ -55,16 +55,16 @@ func TestHandler(t *testing.T) {
 	}
 	dataCh <- apis.Command{
 		Channel: apis.REPEATCHANNEL,
-		Action:  apis.CREATE,
+		Action:  apis.RPT_CREATE,
 	}
 
 	tmp := <-mocksub.SentStuff
-	id := tmp.Args[apis.ID]
+	id := tmp.Args[apis.ARG_ID]
 	assert(id == "0", "Expected repeater id 0 but got "+id)
 
 	tmp = apis.Command{
 		Channel: apis.REPEATCHANNEL,
-		Action:  apis.GO,
+		Action:  apis.RPT_GO,
 		Payload: []byte(`GET / HTTP/1.1
 Host: localhost:` + URL.Port() + `
 X-Wapty-Test: TestHeader
@@ -73,7 +73,7 @@ Connection: close
 
 `)}
 	tmp.PackArgs(
-		[]apis.ArgName{apis.ENDPOINT, apis.TLS, apis.ID},
+		[]apis.ArgName{apis.ARG_ENDPOINT, apis.ARG_TLS, apis.ARG_ID},
 		"localhost:"+URL.Port(), "false", id,
 	)
 	dataCh <- tmp
@@ -81,15 +81,15 @@ Connection: close
 	tmp = <-mocksub.SentStuff
 	assert(bytes.Contains(tmp.Payload, []byte(`Test response`)), "Unexpected response: "+string(tmp.Payload))
 	assert(req.Header.Get("X-Wapty-Test") == "TestHeader", "Test header was not sucessfully set. Expected <TestHeader> but got <%s>", req.Header.Get("X-Wapty-Test"))
-	subid := tmp.Args[apis.SUBID]
+	subid := tmp.Args[apis.ARG_SUBID]
 	assert(subid == "0", "Expected repeat payload id 0 but got "+subid)
 
 	tmp = apis.Command{
 		Channel: apis.REPEATCHANNEL,
-		Action:  apis.GET,
+		Action:  apis.RPT_GET,
 	}
 	tmp.PackArgs(
-		[]apis.ArgName{apis.ID, apis.SUBID},
+		[]apis.ArgName{apis.ARG_ID, apis.ARG_SUBID},
 		id, subid,
 	)
 	dataCh <- tmp
@@ -102,6 +102,6 @@ Connection: close
 	}
 	assert(bytes.Contains(histitem.Response, []byte(`Test response`)), "Unexpected history response: "+string(tmp.Payload))
 	assert(bytes.Contains(histitem.Request, []byte(`TestHeader`)), "Unexpected history request: "+string(tmp.Payload))
-	subid = tmp.Args[apis.SUBID]
+	subid = tmp.Args[apis.ARG_SUBID]
 	assert(subid == "0", "Expected repeat payload id 0 but got "+subid)
 }

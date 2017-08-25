@@ -20,11 +20,11 @@ func RepeaterLoop() {
 		select {
 		case cmd := <-uiRepeater.RecChannel():
 			switch cmd.Action {
-			case apis.CREATE:
+			case apis.RPT_CREATE:
 				uiRepeater.Send(handleCreate(&cmd))
-			case apis.GO:
+			case apis.RPT_GO:
 				uiRepeater.Send(handleGo(&cmd))
-			case apis.GET:
+			case apis.RPT_GET:
 				uiRepeater.Send(handleGet(&cmd))
 			default:
 				log.Println("Unknown repeater action: " + cmd.Action)
@@ -38,7 +38,7 @@ func RepeaterLoop() {
 func handleCreate(cmd *apis.Command) *apis.Command {
 	r := NewRepeater()
 	id := status.Add(r)
-	cmd.Args = map[apis.ArgName]string{apis.ID: strconv.Itoa(id)}
+	cmd.Args = map[apis.ArgName]string{apis.ARG_ID: strconv.Itoa(id)}
 
 	//TODO reply with repeater ID
 	return cmd
@@ -49,7 +49,7 @@ func handleGo(cmd *apis.Command) *apis.Command {
 	var tls bool
 	var ri int
 	err := cmd.UnpackArgs(
-		[]apis.ArgName{apis.ENDPOINT, apis.TLS, apis.ID},
+		[]apis.ArgName{apis.ARG_ENDPOINT, apis.ARG_TLS, apis.ARG_ID},
 		&host, &tls, &ri,
 	)
 	if err != nil {
@@ -76,14 +76,14 @@ func handleGo(cmd *apis.Command) *apis.Command {
 		return apis.Err(err)
 	}
 	cmd.Payload = resbuf
-	cmd.Args[apis.SUBID] = strconv.Itoa(id)
+	cmd.Args[apis.ARG_SUBID] = strconv.Itoa(id)
 	return cmd
 }
 
 func handleGet(cmd *apis.Command) *apis.Command {
 	var ri, itemn int
 	err := cmd.UnpackArgs(
-		[]apis.ArgName{apis.ID, apis.SUBID},
+		[]apis.ArgName{apis.ARG_ID, apis.ARG_SUBID},
 		&ri, &itemn,
 	)
 	status.RLock()

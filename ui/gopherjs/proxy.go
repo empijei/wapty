@@ -5,26 +5,26 @@ package main
 import (
 	"log"
 
-	"github.com/empijei/wapty/ui/apis"
+	. "github.com/empijei/wapty/ui/apis"
 	"github.com/gopherjs/gopherjs/js"
 )
 
-func handleEdit(msg apis.Command) {
+func handleEdit(msg Command) {
 	proxyBuffer.SetTextContent(string(msg.Payload))
 	var text string
-	if msg.Args[apis.PAYLOADTYPE] == apis.REQUEST {
+	if msg.Args[ARG_PAYLOADTYPE] == PLD_REQUEST {
 		text = "Request for:   "
 	} else {
 		text = "Response from: "
 	}
-	endpointIndicator.SetTextContent(text + msg.Args[apis.ENDPOINT])
+	endpointIndicator.SetTextContent(text + msg.Args[ARG_ENDPOINT])
 	controls = true
 }
 
-func handleIntercept(msg apis.Command) {
+func handleIntercept(msg Command) {
 	switch msg.Action {
-	case apis.INTERCEPT:
-		if msg.Args[apis.ON] == apis.TRUE {
+	case STN_INTERCEPT:
+		if msg.Args[ARG_ON] == ARG_TRUE {
 			btn.ToggleClass("btn-danger", "btn-success")
 			btn.SetTextContent("Intercept is on")
 			interceptOn = true
@@ -58,7 +58,7 @@ func init() {
 	})
 }
 
-func proxyAction(msg apis.Command, ignoreControls bool) {
+func proxyAction(msg Command, ignoreControls bool) {
 	log.Printf("Requested action %s", msg.Action)
 	if !ignoreControls {
 		if !controls {
@@ -77,31 +77,31 @@ func proxyAction(msg apis.Command, ignoreControls bool) {
 }
 
 func onForwardOriginalClick() {
-	proxyAction(apis.Command{
-		Action:  apis.FORWARD,
-		Channel: apis.EDITORCHANNEL,
+	proxyAction(Command{
+		Action:  EDT_FORWARD,
+		Channel: EDITORCHANNEL,
 	}, false)
 }
 
 func onForwardModifiedClick() {
-	proxyAction(apis.Command{
-		Action:  apis.EDIT,
-		Channel: apis.EDITORCHANNEL,
+	proxyAction(Command{
+		Action:  EDT_EDIT,
+		Channel: EDITORCHANNEL,
 		Payload: []byte(proxyBuffer.GetTextContent()),
 	}, false)
 }
 
 func onDropClick() {
-	proxyAction(apis.Command{
-		Action:  apis.DROP,
-		Channel: apis.EDITORCHANNEL,
+	proxyAction(Command{
+		Action:  EDT_DROP,
+		Channel: EDITORCHANNEL,
 	}, false)
 }
 
 func onProvideResponseClick() {
-	proxyAction(apis.Command{
-		Action:  apis.PROVIDERESP,
-		Channel: apis.EDITORCHANNEL,
+	proxyAction(Command{
+		Action:  EDT_PROVIDERESP,
+		Channel: EDITORCHANNEL,
 		Payload: []byte(proxyBuffer.GetTextContent()),
 	}, false)
 }
@@ -109,9 +109,9 @@ func onProvideResponseClick() {
 func onToggleInterceptClick() {
 	var msg string
 	if interceptOn {
-		msg = apis.FALSE
+		msg = ARG_FALSE
 	} else {
-		msg = apis.TRUE
+		msg = ARG_TRUE
 	}
 
 	var buf string
@@ -120,19 +120,19 @@ func onToggleInterceptClick() {
 		log.Printf("there is a buffer that will be forwarded, value: %s", buf)
 	}
 
-	proxyAction(apis.Command{
-		Action:  apis.INTERCEPT,
-		Channel: apis.INTERCEPTSETTINGSCHANNEL,
-		Args:    map[apis.ArgName]string{apis.ON: msg},
+	proxyAction(Command{
+		Action:  STN_INTERCEPT,
+		Channel: INTERCEPTSETTINGSCHANNEL,
+		Args:    map[ArgName]string{ARG_ON: msg},
 	}, true)
 
 	// If the proxy had a payload when intercept was turned off we assume it was
 	// modified
 	if buf != "" {
 		log.Println("forwarding buffer")
-		proxyAction(apis.Command{
-			Action:  apis.EDIT,
-			Channel: apis.EDITORCHANNEL,
+		proxyAction(Command{
+			Action:  EDT_EDIT,
+			Channel: EDITORCHANNEL,
 			Payload: []byte(buf),
 		}, false)
 	}

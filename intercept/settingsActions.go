@@ -12,7 +12,7 @@ func settingsLoop() {
 		case cmd := <-uiSettings.RecChannel():
 			log.Println("Settings accessed")
 			switch cmd.Action {
-			case apis.INTERCEPT:
+			case apis.STN_INTERCEPT:
 				uiSettings.Send(handleIntercept(cmd))
 			default:
 				//TODO send error?
@@ -25,20 +25,20 @@ func settingsLoop() {
 }
 
 func handleIntercept(cmd apis.Command) *apis.Command {
-	value := apis.FALSE
+	value := apis.ARG_FALSE
 	if len(cmd.Args) >= 1 {
 		log.Println("Requested change intercept status")
-		intercept.setValue(cmd.Args[apis.ON] == apis.TRUE)
+		intercept.setValue(cmd.Args[apis.ARG_ON] == apis.ARG_TRUE)
 		if intercept.value() {
-			value = apis.TRUE
+			value = apis.ARG_TRUE
 		}
 	}
 	log.Println("Requested intercept status")
 	if intercept.value() {
-		value = apis.TRUE
+		value = apis.ARG_TRUE
 	}
 	return &apis.Command{
-		Action: apis.INTERCEPT,
-		Args:   map[apis.ArgName]string{apis.ON: value},
+		Action: apis.STN_INTERCEPT,
+		Args:   map[apis.ArgName]string{apis.ARG_ON: value},
 	}
 }

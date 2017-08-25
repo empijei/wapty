@@ -37,17 +37,17 @@ func handleRequest(preq *pendingRequest) {
 	}
 	var editedRequest *http.Request
 	var providedResp *http.Response
-	editedRequestDump, action := editBuffer(apis.REQUEST, req, r.URL.Scheme+"://"+r.Host)
+	editedRequestDump, action := editBuffer(apis.PLD_REQUEST, req, r.URL.Scheme+"://"+r.Host)
 	switch action {
-	case apis.FORWARD:
+	case apis.EDT_FORWARD:
 		r.ContentLength = ContentLength
 		editedRequest = r
-	case apis.EDIT:
+	case apis.EDT_EDIT:
 		editedRequest, err = editCase(editedRequestDump)
 		status.addRawEditedRequest(preq.id, editedRequestDump)
-	case apis.DROP:
+	case apis.EDT_DROP:
 		providedResp = caseDrop()
-	case apis.PROVIDERESP:
+	case apis.EDT_PROVIDERESP:
 		providedResponseBuffer := bufio.NewReader(bytes.NewReader(editedRequestDump))
 		providedResp, err = http.ReadResponse(providedResponseBuffer, preq.originalRequest)
 		if err != nil {

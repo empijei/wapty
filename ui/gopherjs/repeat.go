@@ -2,9 +2,9 @@
 
 package main
 
-import "github.com/empijei/wapty/ui/apis"
+import . "github.com/empijei/wapty/ui/apis"
 
-func handleRepeat(mdg apis.Command) {
+func handleRepeat(mdg Command) {
 
 }
 

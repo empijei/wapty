@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/empijei/wapty/ui/apis"
+	. "github.com/empijei/wapty/ui/apis"
 	"github.com/gopherjs/gopherjs/js"
 )
 
@@ -15,11 +15,11 @@ var (
 	tmpHistory = make(map[int]map[string]*js.Object)
 )
 
-func handleHistory(msg apis.Command) {
+func handleHistory(msg Command) {
 	switch msg.Action {
-	case apis.METADATA:
-		var md apis.ReqRespMetaData
-		err := json.Unmarshal([]byte(msg.Args[apis.METADATA]), &md)
+	case HST_METADATA:
+		var md ReqRespMetaData
+		err := json.Unmarshal([]byte(msg.Args[HST_METADATA]), &md)
 		if err != nil {
 			panic(err)
 		}
@@ -49,8 +49,8 @@ func handleHistory(msg apis.Command) {
 			//receives the same metadata multiple times.
 			//delete(tmpHistory, md.Id)
 		}
-	case apis.FETCH:
-		var rr apis.ReqResp
+	case HST_FETCH:
+		var rr ReqResp
 		err := json.Unmarshal(msg.Payload, &rr)
 		if err != nil {
 			panic(err)
@@ -76,7 +76,7 @@ func init() {
 	hth := js.Global.Get("historyHeader")
 
 	//This is used to make the ui adapt to backend changes in metadata
-	val := reflect.Indirect(reflect.ValueOf(apis.ReqRespMetaData{}))
+	val := reflect.Indirect(reflect.ValueOf(ReqRespMetaData{}))
 	for i := 0; i < val.Type().NumField(); i++ {
 		hth.Call("insertCell", -1).Set("innerText", val.Type().Field(i).Name)
 	}
@@ -88,9 +88,9 @@ func init() {
 }
 
 func onHistoryCellClick() {
-	proxyAction(apis.Command{
-		Action:  apis.FETCH,
-		Channel: apis.HISTORYCHANNEL,
-		Args:    map[apis.ArgName]string{apis.ID: js.Global.Get("event").Get("target").Get("parentNode").Get("childNodes").Index(0).Get("textContent").String()},
+	proxyAction(Command{
+		Action:  HST_FETCH,
+		Channel: HISTORYCHANNEL,
+		Args:    map[ArgName]string{ARG_ID: js.Global.Get("event").Get("target").Get("parentNode").Get("childNodes").Index(0).Get("textContent").String()},
 	}, true)
 }
