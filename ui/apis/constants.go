@@ -82,12 +82,12 @@ const (
 type UIChannel string
 
 const (
-	// EDITORCHANNEL channel used by intercept package, editor actions
-	EDITORCHANNEL UIChannel = "proxy/intercept/editor"
-	// HISTORYCHANNEL channel used by intercept package, history actions
-	HISTORYCHANNEL = "proxy/httpHistory"
-	// REPEATCHANNEL channel used by repeat package
-	REPEATCHANNEL = "repeat"
-	// INTERCEPTSETTINGSCHANNEL channel used by intercept package, history actions
-	INTERCEPTSETTINGSCHANNEL = "proxy/intercept/options"
+	// CHN_EDITOR channel used by intercept package, editor actions
+	CHN_EDITOR UIChannel = "proxy/intercept/editor"
+	// CHN_HISTORY channel used by intercept package, history actions
+	CHN_HISTORY = "proxy/httpHistory"
+	// CHN_REPEAT channel used by repeat package
+	CHN_REPEAT = "repeat"
+	// CHN_INTERCEPTSETTINGS channel used by intercept package, history actions
+	CHN_INTERCEPTSETTINGS = "proxy/intercept/options"
 )

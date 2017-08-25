@@ -8,5 +8,5 @@ import (
 var uiHistory ui.Subscription
 
 func init() {
-	uiHistory = ui.Subscribe(apis.HISTORYCHANNEL)
+	uiHistory = ui.Subscribe(apis.CHN_HISTORY)
 }

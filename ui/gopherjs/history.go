@@ -90,7 +90,7 @@ func init() {
 func onHistoryCellClick() {
 	proxyAction(Command{
 		Action:  HST_FETCH,
-		Channel: HISTORYCHANNEL,
+		Channel: CHN_HISTORY,
 		Args:    map[ArgName]string{ARG_ID: js.Global.Get("event").Get("target").Get("parentNode").Get("childNodes").Index(0).Get("textContent").String()},
 	}, true)
 }

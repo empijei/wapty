@@ -8,5 +8,5 @@ import (
 var uiRepeater ui.Subscription
 
 func init() {
-	uiRepeater = ui.Subscribe(apis.REPEATCHANNEL)
+	uiRepeater = ui.Subscribe(apis.CHN_REPEAT)
 }

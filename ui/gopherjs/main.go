@@ -43,7 +43,7 @@ func main() {
 	var msg Command
 
 	msg.Action = STN_INTERCEPT
-	msg.Channel = INTERCEPTSETTINGSCHANNEL
+	msg.Channel = CHN_INTERCEPTSETTINGS
 
 	err = send(msg)
 	if err != nil {
@@ -58,16 +58,16 @@ func main() {
 			panic(err)
 		}
 		switch msg.Channel {
-		case EDITORCHANNEL:
+		case CHN_EDITOR:
 			handleEdit(msg)
 
-		case INTERCEPTSETTINGSCHANNEL:
+		case CHN_INTERCEPTSETTINGS:
 			handleIntercept(msg)
 
-		case HISTORYCHANNEL:
+		case CHN_HISTORY:
 			handleHistory(msg)
 
-		case REPEATCHANNEL:
+		case CHN_REPEAT:
 			handleRepeat(msg)
 
 		default:

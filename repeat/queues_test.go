@@ -54,7 +54,7 @@ func TestHandler(t *testing.T) {
 		}
 	}
 	dataCh <- apis.Command{
-		Channel: apis.REPEATCHANNEL,
+		Channel: apis.CHN_REPEAT,
 		Action:  apis.RPT_CREATE,
 	}
 
@@ -63,7 +63,7 @@ func TestHandler(t *testing.T) {
 	assert(id == "0", "Expected repeater id 0 but got "+id)
 
 	tmp = apis.Command{
-		Channel: apis.REPEATCHANNEL,
+		Channel: apis.CHN_REPEAT,
 		Action:  apis.RPT_GO,
 		Payload: []byte(`GET / HTTP/1.1
 Host: localhost:` + URL.Port() + `
@@ -85,7 +85,7 @@ Connection: close
 	assert(subid == "0", "Expected repeat payload id 0 but got "+subid)
 
 	tmp = apis.Command{
-		Channel: apis.REPEATCHANNEL,
+		Channel: apis.CHN_REPEAT,
 		Action:  apis.RPT_GET,
 	}
 	tmp.PackArgs(

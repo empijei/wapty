@@ -79,14 +79,14 @@ func proxyAction(msg Command, ignoreControls bool) {
 func onForwardOriginalClick() {
 	proxyAction(Command{
 		Action:  EDT_FORWARD,
-		Channel: EDITORCHANNEL,
+		Channel: CHN_EDITOR,
 	}, false)
 }
 
 func onForwardModifiedClick() {
 	proxyAction(Command{
 		Action:  EDT_EDIT,
-		Channel: EDITORCHANNEL,
+		Channel: CHN_EDITOR,
 		Payload: []byte(proxyBuffer.GetTextContent()),
 	}, false)
 }
@@ -94,14 +94,14 @@ func onForwardModifiedClick() {
 func onDropClick() {
 	proxyAction(Command{
 		Action:  EDT_DROP,
-		Channel: EDITORCHANNEL,
+		Channel: CHN_EDITOR,
 	}, false)
 }
 
 func onProvideResponseClick() {
 	proxyAction(Command{
 		Action:  EDT_PROVIDERESP,
-		Channel: EDITORCHANNEL,
+		Channel: CHN_EDITOR,
 		Payload: []byte(proxyBuffer.GetTextContent()),
 	}, false)
 }
@@ -122,7 +122,7 @@ func onToggleInterceptClick() {
 
 	proxyAction(Command{
 		Action:  STN_INTERCEPT,
-		Channel: INTERCEPTSETTINGSCHANNEL,
+		Channel: CHN_INTERCEPTSETTINGS,
 		Args:    map[ArgName]string{ARG_ON: msg},
 	}, true)
 
@@ -132,7 +132,7 @@ func onToggleInterceptClick() {
 		log.Println("forwarding buffer")
 		proxyAction(Command{
 			Action:  EDT_EDIT,
-			Channel: EDITORCHANNEL,
+			Channel: CHN_EDITOR,
 			Payload: []byte(buf),
 		}, false)
 	}
