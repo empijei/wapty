@@ -1,11 +1,13 @@
 # Name
 BINARY=wapty
+IMPORTPATH=`go list`/
 
 # Variables
 VERSION=0.2.0
 BUILD=`git rev-parse --short HEAD`
 
-LDFLAGS=-ldflags "-X main.Version=${VERSION} -X main.Commit=${BUILD}"
+LDFLAGS=-ldflags "-X ${IMPORTPATH}cli.Version=${VERSION} -X ${IMPORTPATH}cli.Commit=${BUILD}"
+LDFLAGS_RELEASE=-ldflags "-X ${IMPORTPATH}cli.Version=${VERSION} -X ${IMPORTPATH}cli.Commit=${BUILD} -X ${IMPORTPATH}cli.Build=Release"
 
 .DEFAULT_GOAL: ${BINARY}
 
@@ -13,7 +15,7 @@ LDFLAGS=-ldflags "-X main.Version=${VERSION} -X main.Commit=${BUILD}"
 # TODO call gopherjs
 ${BINARY}: buildjs rebind
 	# Building the executable.
-	go build ${LDFLAGS} -o ${BINARY}
+	go build ${LDFLAGS_RELEASE} -o ${BINARY}
 
 run:
 	# This will make rice use data that is on disk, creates a lighter executable
@@ -44,7 +46,7 @@ rebind:
 
 install: buildjs rebind
 	# Installing the executable
-	go install ${LDFLAGS}
+	go install ${LDFLAGS_RELEASE}
 
 installdeps:
 	# Installing dependencies to embed assets

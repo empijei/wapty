@@ -1,9 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"os"
-	"text/template"
 
 	//Packages imported for initialization purposes
 	_ "github.com/empijei/wapty/decode"
@@ -14,97 +11,22 @@ import (
 	"github.com/empijei/wapty/ui"
 )
 
-const banner = `                     _         
-__      ____ _ _ __ | |_ _   _ 
-\ \ /\ / / _' | '_ \| __| | | | 
- \ V  V / (_| | |_) | |_| |_| |   Version: {{.Version}}
-  \_/\_/ \__,_| .__/ \__|\__, |   Build:   {{.Build}}
-              |_|        |___/ 
-  
-`
-
-var (
-	//Version is taken by the build flags, represent current version as
-	//<major>.<minor>.<patch>
-	Version string
-
-	//Commit is the output of `git rev-parse HEAD` at the moment of the build
-	Commit string
-)
-
 var cmdProxy = &cli.Cmd{
-	Name:      "proxy",
-	Run:       proxyMain,
+	Name: "proxy",
+	Run: func(...string) {
+		go ui.MainLoop()
+		intercept.MainLoop()
+	},
 	UsageLine: "proxy",
 	Short:     "work as a proxy",
 	Long:      "",
 }
 
-var cmdVersion = &cli.Cmd{
-	Name: "version",
-	Run: func(_ ...string) {
-		fmt.Printf("Version: %s\nCommit: %s\n", Version, Commit)
-	},
-	UsageLine: "version",
-	Short:     "print version and exit",
-	Long:      "print version and exit",
-}
-
 func init() {
-
-	// Setup fallback version and commit in case wapty wasn't "properly" compiled
-	if len(Version) == 0 {
-		Version = "Unknown, please compile wapty with 'make'"
-	}
-	if len(Commit) == 0 {
-		Commit = "Unknown, please compile wapty with 'make'"
-	}
 	cli.AddCommand(cmdProxy)
-	cli.AddCommand(cmdVersion)
 }
 
 func main() {
-	printbanner()
-	if len(os.Args) > 1 {
-		//read the first argument
-		directive := os.Args[1]
-		if len(os.Args) > 2 {
-			//shift parameters left, but keep argv[0]
-			os.Args = append(os.Args[:1], os.Args[2:]...)
-		} else {
-			os.Args = os.Args[:1]
-		}
-		invokeMain(directive)
-	} else {
-		proxyMain()
-	}
-}
-
-func proxyMain(_ ...string) {
-	go ui.MainLoop()
-	intercept.MainLoop()
-}
-
-func invokeMain(s string) {
-	command, err := cli.FindCommand(s)
-	if err == nil {
-		command.Flag.Usage = command.Usage
-		//TODO handle this error
-		_ = command.Flag.Parse(os.Args[1:])
-		command.Run(command.Flag.Args()...)
-		return
-	} else {
-		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
-		fmt.Fprintln(os.Stderr, "Available commands are:\n")
-		for _, cmd := range cli.WaptyCommands {
-			fmt.Fprintln(os.Stderr, "\t"+cmd.Name+"\n\t\t"+cmd.Short)
-		}
-		fmt.Fprintln(os.Stderr, "\nDefault command is: proxy")
-	}
-}
-
-func printbanner() {
-	tmpl := template.New("banner")
-	template.Must(tmpl.Parse(banner))
-	_ = tmpl.Execute(os.Stderr, struct{ Version, Build string }{Version, Commit})
+	cli.DefaultCommand = cmdProxy
+	cli.Init()
 }

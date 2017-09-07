@@ -78,6 +78,7 @@ This stage will be the first stage for wapty, before this is finished wapty will
 * [ ] Add Intruder
 * [ ] Send the whole status on ui connect
 * [ ] Add configurations
+* [ ] Use proper Logging
 * UI
 	* [ ] Add req ID to editor and warn when receive unexpected requests
 	* [ ] Sanitize metadata

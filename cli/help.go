@@ -27,7 +27,11 @@ var cmdHelp = &Cmd{
 	Long:      "",
 }
 
-func helpMain(_ ...string) {
+func init() {
+	AddCommand(cmdHelp)
+}
+
+func helpMain(...string) {
 	requestedCmd := "help"
 	if len(os.Args) > 1 {
 		requestedCmd = os.Args[1]

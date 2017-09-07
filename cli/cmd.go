@@ -11,6 +11,8 @@ import (
 // Each command `cmd` is invoked via `wapty cmd`
 var WaptyCommands []*Cmd
 
+var DefaultCommand *Cmd
+
 // Cmd is used by any package exposing a runnable command to gather information
 // about command name, usage and flagset.
 type Cmd struct {
@@ -71,5 +73,13 @@ func FindCommand(name string) (command *Cmd, err error) {
 	if command == nil {
 		err = fmt.Errorf("Command not found: '%s'.", name)
 	}
+	return
+}
+
+func callCommand(command *Cmd) {
+	command.Flag.Usage = command.Usage
+	//TODO handle this error
+	_ = command.Flag.Parse(os.Args[1:])
+	command.Run(command.Flag.Args()...)
 	return
 }
