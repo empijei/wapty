@@ -15,3 +15,4 @@ gopherjs.js
 *.map
 *.sh
 ignored/*
+vendor/
