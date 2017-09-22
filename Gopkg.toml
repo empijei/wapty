@@ -30,14 +30,6 @@
   version = "1.5.0"
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/gopherjs/gopherjs"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/gopherjs/websocket"
-
-[[constraint]]
   name = "github.com/pmezard/go-difflib"
   version = "1.0.0"
 

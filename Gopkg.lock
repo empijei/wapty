@@ -21,18 +21,6 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/gopherjs/gopherjs"
-  packages = ["js"]
-  revision = "b40cd48c38f9a18eb3db20d163bad78de12cf0b7"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/gopherjs/websocket"
-  packages = [".","websocketjs"]
-  revision = "87ee47603f137e7f8419765b3621b3c36e715a08"
-
-[[projects]]
-  branch = "master"
   name = "github.com/kardianos/osext"
   packages = ["."]
   revision = "ae77be60afb1dcacde03767a8c37337fad28ac14"
