@@ -6,7 +6,7 @@ import (
 	"os"
 	"text/template"
 
-	"github.com/empijei/wapty/cli/l"
+	"github.com/empijei/wapty/cli/lg"
 )
 
 func init() {
@@ -60,14 +60,14 @@ func Printbanner() {
 
 func Init() {
 	if Build == "Release" {
-		l.CurLevel = l.Level_Info
-		l.SetFlags(log.Ltime)
+		lg.CurLevel = lg.Level_Info
+		lg.SetFlags(log.Ltime)
 	}
 
 	stderrinfo, err := os.Stderr.Stat()
 	if err == nil && stderrinfo.Mode()&os.ModeCharDevice == 0 {
 		// Output is a pipe, turn off colors
-		l.Color = false
+		lg.Color = false
 	} else {
 		// Output is to terminal, print banner
 		Printbanner()

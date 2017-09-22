@@ -1,4 +1,4 @@
-package l
+package lg
 
 import "fmt"
 

@@ -1,4 +1,4 @@
-package l
+package lg
 
 type LogLevel uint
 
