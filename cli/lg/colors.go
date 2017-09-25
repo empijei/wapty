@@ -1,4 +1,4 @@
-package lg
+package l
 
 import "fmt"
 
@@ -72,4 +72,8 @@ const (
 
 func printColor(s string, color cliAttribute) string {
 	return fmt.Sprintf("%s[%dm%s%s[%dm", escape, color, s, escape, style_Reset)
+}
+
+func printColorStyle(s string, color cliAttribute, style cliAttribute) string {
+	return fmt.Sprintf("%s[%d;%dm%s%s[%dm", escape, style, color, s, escape, style_Reset)
 }

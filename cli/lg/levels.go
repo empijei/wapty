@@ -1,4 +1,4 @@
-package lg
+package l
 
 type LogLevel uint
 
@@ -32,17 +32,11 @@ var repr = []string{
 	"F",
 }
 var reprC = []string{
-	repr[Level_Debug],
-	printColor(repr[Level_Info], color_FgCyan),
-	printColor(repr[Level_Warn], color_FgYellow),
-	printColor(repr[Level_Error], color_FgRed),
-	printColor(repr[Level_Failure], color_FgMagenta),
-}
-
-func init() {
-	for i := 0; i < len(reprC); i++ {
-		reprC[i] = printColor(reprC[i], style_Bold)
-	}
+	printColor(repr[Level_Debug], style_Bold),
+	printColorStyle(repr[Level_Info], color_FgCyan, style_Bold),
+	printColorStyle(repr[Level_Warn], color_FgYellow, style_Bold),
+	printColorStyle(repr[Level_Error], color_FgRed, style_Bold),
+	printColorStyle(repr[Level_Failure], color_FgMagenta, style_Bold),
 }
 
 func (ll LogLevel) ShortString(color bool) string {

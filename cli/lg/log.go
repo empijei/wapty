@@ -1,4 +1,4 @@
-package lg
+package l
 
 import (
 	"fmt"
@@ -21,7 +21,7 @@ var std = log.New(os.Stderr, "", Flags)
 
 var Color bool = true
 
-func Log(level LogLevel, params ...interface{}) {
+func _log(level LogLevel, params ...interface{}) {
 	if level < CurLevel {
 		return
 	}
@@ -30,7 +30,7 @@ func Log(level LogLevel, params ...interface{}) {
 	_ = std.Output(3, fmt.Sprint(params...))
 }
 
-func Logf(level LogLevel, format string, params ...interface{}) {
+func _logf(level LogLevel, format string, params ...interface{}) {
 	if level < CurLevel {
 		return
 	}
@@ -44,13 +44,13 @@ func SetFlags(flag int) {
 
 // Failure behaves as all other logging functions, then panics with the given parameters
 func Failure(params ...interface{}) {
-	Log(Level_Failure, params...)
+	_log(Level_Failure, params...)
 	panic(fmt.Sprint(params))
 }
 
 // Failuref behaves as all other logging functions, then panics with the given parameters
 func Failuref(format string, params ...interface{}) {
-	Logf(Level_Failure, format, params...)
+	_logf(Level_Failure, format, params...)
 	panic(fmt.Sprintf(format, params...))
 }
 
@@ -60,17 +60,17 @@ func Failuref(format string, params ...interface{}) {
 for level in Debug Info Warn Error
 do
 sed "s/LEVEL/$level/g" <<TMPL
-func LEVEL(params ...interface{}) { Log(Level_LEVEL, params...) }
-func LEVELf(format string, params ...interface{}) { Logf(Level_LEVEL, format, params...) }
+func LEVEL(params ...interface{}) { _log(Level_LEVEL, params...) }
+func LEVELf(format string, params ...interface{}) { _logf(Level_LEVEL, format, params...) }
 TMPL
 done
 */
 
-func Debug(params ...interface{})                 { Log(Level_Debug, params...) }
-func Debugf(format string, params ...interface{}) { Logf(Level_Debug, format, params...) }
-func Info(params ...interface{})                  { Log(Level_Info, params...) }
-func Infof(format string, params ...interface{})  { Logf(Level_Info, format, params...) }
-func Warn(params ...interface{})                  { Log(Level_Warn, params...) }
-func Warnf(format string, params ...interface{})  { Logf(Level_Warn, format, params...) }
-func Error(params ...interface{})                 { Log(Level_Error, params...) }
-func Errorf(format string, params ...interface{}) { Logf(Level_Error, format, params...) }
+func Debug(params ...interface{})                 { _log(Level_Debug, params...) }
+func Debugf(format string, params ...interface{}) { _logf(Level_Debug, format, params...) }
+func Info(params ...interface{})                  { _log(Level_Info, params...) }
+func Infof(format string, params ...interface{})  { _logf(Level_Info, format, params...) }
+func Warn(params ...interface{})                  { _log(Level_Warn, params...) }
+func Warnf(format string, params ...interface{})  { _logf(Level_Warn, format, params...) }
+func Error(params ...interface{})                 { _log(Level_Error, params...) }
+func Errorf(format string, params ...interface{}) { _logf(Level_Error, format, params...) }
