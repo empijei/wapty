@@ -19,7 +19,7 @@
 		* [x] Base 16 
 		* [x] Base 32
 		* [x] Base 64
-		* [ ] URL
+		* [x] URL
 		* [ ] HTML Entities
 		* [ ] Javascript-Escape
 		* [ ] Gzip
