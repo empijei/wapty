@@ -4,6 +4,7 @@ package mitm
 
 import (
 	"bufio"
+	"bytes"
 	"crypto/tls"
 	"crypto/x509"
 	"flag"
@@ -37,6 +38,33 @@ var hostname, _ = os.Hostname()
 var (
 	nettest = flag.Bool("nettest", false, "run tests over network")
 )
+
+func TestDnsName(t *testing.T) {
+	var dnsNameTest = []struct {
+		in   string
+		eOut string
+	}{
+		{
+			"localhost:8080",
+			"localhost",
+		},
+		{
+			"",
+			"",
+		},
+		{
+			hostname + ":",
+			hostname,
+		},
+	}
+
+	for _, tt := range dnsNameTest {
+		out := dnsName(tt.in)
+		if out != tt.eOut {
+			t.Errorf("Expected hostname %s, but got %s", tt.eOut, out)
+		}
+	}
+}
 
 func MustReadFile(path string) []byte {
 	buf, err := ioutil.ReadFile(path)
@@ -603,4 +631,51 @@ func (w *stickyErrWriter) Write(b []byte) (int, error) {
 		*w.err = err
 	}
 	return n, *w.err
+}
+
+func TestTlsDial(t *testing.T) {
+	expected := "Hello"
+
+	_, ca := setupCA()
+
+	cert, err := GenerateCert(ca, "www.google.com")
+	if err != nil {
+		t.Fatal("GenerateCert:", err)
+	}
+
+	p := &Proxy{
+		CA: ca,
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+		TLSServerConfig: &tls.Config{
+			MinVersion:   tls.VersionTLS12,
+			Certificates: []tls.Certificate{*cert},
+		},
+	}
+
+	server := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.WriteHeader(http.StatusOK)
+		io.WriteString(w, expected)
+	}))
+	server.TLS = new(tls.Config)
+	server.StartTLS()
+
+	uri, _ := url.Parse(server.URL)
+	fmt.Println(uri.Hostname() + " dialing")
+	c, err := p.tlsDial(uri.Hostname()+":"+uri.Port(), uri.Host)
+	if err != nil {
+		t.Error(err)
+		server.Close()
+	}
+
+	var out []byte
+	_, _ = c.Read(out)
+
+	if bytes.Contains(out, []byte(expected)) {
+		t.Errorf("Expected %v but got %v", expected, c)
+	}
+	server.Close()
+	c.Close()
 }
