@@ -181,14 +181,14 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			TLSConfig: p.TLSServerConfig,
 		})
 		if err := sc.Handshake(); err != nil {
-			lg.Error("Server Handshake: %v", err)
+			lg.Errorf("Server Handshake: %v", err)
 			return
 		}
 	}
 
 	cc, err := p.tlsDial(req.Host, sc.ServerName)
 	if err != nil {
-		lg.Error("tlsDial: %v", err)
+		lg.Errorf("tlsDial: %v", err)
 		_, _ = io.WriteString(cn, noUpstreamHeader)
 		return
 	}
