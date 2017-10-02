@@ -6,11 +6,11 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 
 	. "github.com/empijei/wapty/ui/apis"
 	js "github.com/gopherjs/gopherjs/js"
 	"github.com/gopherjs/websocket"
+	"github.com/empijei/wapty/cli/lg"
 )
 
 var (
@@ -24,7 +24,7 @@ func send(cmd Command) error {
 }
 
 func logger(cmd *Command) {
-	log.Printf("Received actions %s on channel %s", cmd.Action, cmd.Channel)
+	lg.Infof("Received actions %s on channel %s", cmd.Action, cmd.Channel)
 }
 
 func main() {
@@ -36,7 +36,7 @@ func main() {
 		panic(err)
 	}
 
-	log.Println("WebSocket connetcted")
+	lg.Info("WebSocket connetcted")
 	dec = json.NewDecoder(waptyServer)
 	enc = json.NewEncoder(waptyServer)
 
@@ -71,7 +71,7 @@ func main() {
 			handleRepeat(msg)
 
 		default:
-			log.Println("Unrecognized message")
+			lg.Error("Unrecognized message")
 		}
 	}
 }

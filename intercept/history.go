@@ -3,11 +3,11 @@ package intercept
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"net/http/httputil"
 	"sync"
 
+	"github.com/empijei/wapty/cli/lg"
 	"github.com/empijei/wapty/ui/apis"
 )
 
@@ -49,7 +49,7 @@ func (h *History) addResponse(ID int, res *http.Response) {
 	tmp, err := httputil.DumpResponse(res, true)
 	if err != nil {
 		//TODO
-		log.Println(err.Error())
+		lg.Failure(err.Error())
 	}
 	h.addRawResponse(ID, tmp)
 }
@@ -69,9 +69,9 @@ func StatusDump(status *History) {
 	status.RLock()
 	foo, err := json.MarshalIndent(status, " ", " ")
 	if err != nil {
-		log.Println(err.Error())
+		lg.Failure(err.Error())
 	}
-	log.Printf("%s", foo)
+	lg.Info(foo)
 	status.RUnlock()
 }
 
@@ -99,7 +99,7 @@ func historyLoop() {
 					StatusDump(&status)
 					panic(err)
 				}
-				log.Printf("Dump: %s\n", dump)
+				lg.Infof("Dump: %s", dump)
 				uiHistory.Send(&apis.Command{Action: "Dump", Payload: dump})
 			case apis.HST_FETCH:
 				uiHistory.Send(handleFetch(cmd))
@@ -114,10 +114,10 @@ func handleFetch(cmd apis.Command) *apis.Command {
 	var ID int
 	err := cmd.UnpackArgs([]apis.ArgName{apis.ARG_ID}, &ID)
 	if err != nil {
-		log.Println(err)
+		lg.Error(err)
 		return apis.Err(err)
 	}
-	log.Println("Requested history entry")
+	lg.Info("Requested history entry")
 	rr := status.getItem(ID)
 	buf, err := json.Marshal(rr)
 	return &apis.Command{Action: apis.HST_FETCH, Payload: buf}
@@ -145,14 +145,14 @@ type ReqResp struct {
 //current id value
 //Returns the id of the newly created item
 func newRawReqResp(rawReq []byte) int {
-	//log.Println("Locking status for write")
+	//lg.Info("Locking status for write")
 	status.Lock()
-	//log.Println("Locked")
+	//lg.Info("Locked")
 	curReq := status.Count
 	tmp := &ReqResp{RawReq: rawReq, ID: curReq, MetaData: &apis.ReqRespMetaData{ID: curReq}}
 	status.ReqResps = append(status.ReqResps, tmp)
 	status.Count++
-	//log.Println("UnLocking status")
+	//lg.Info("UnLocking status")
 	status.Unlock()
 	return curReq
 }
@@ -161,7 +161,7 @@ func newReqResp(req *http.Request) int {
 	tmp, err := httputil.DumpRequest(req, true)
 	if err != nil {
 		//TODO
-		log.Println(err.Error())
+		lg.Error(err.Error())
 	}
 	return newRawReqResp(tmp)
 }

@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/empijei/wapty/cli/lg"
 )
 
 // MainStandalone parses its own flag and it is the funcion to be run when using
@@ -19,7 +21,7 @@ func MainStandalone(args ...string) {
 		//fmt.Fprintln(os.Stderr, buf)
 		//}
 		if out, codecUsed, err := DecodeEncode(buf, flagEncode, codec); err == nil {
-			fmt.Printf("Codec: %s\n%s\n", codecUsed, out)
+			lg.Infof("Codec: %s\n%s\n", codecUsed, out)
 			buf = out
 		} else {
 			fmt.Fprintln(os.Stderr, err.Error())

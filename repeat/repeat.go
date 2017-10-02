@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"crypto/tls"
 	"io"
-	"log"
 	"net"
 	"sync"
 	"time"
+
+	"github.com/empijei/wapty/cli/lg"
 )
 
 // DefaultTimeout is the default value for the timeout when creating a new Repeater
@@ -62,15 +63,15 @@ func (r *Repeater) repeat(buf io.Reader, host string, _tls bool) (res io.Reader,
 	errWrite := make(chan error)
 
 	go func() {
-		log.Println("Transmitting the request")
+		lg.Info("Transmitting the request")
 		_, errw := io.Copy(conn, teebuf)
 		errWrite <- errw
-		log.Println("Request transmitted")
+		lg.Info("Request transmitted")
 	}()
 
-	log.Println("Reading the response")
+	lg.Info("Reading the response")
 	_, err = io.Copy(resbuf, conn)
-	log.Println("Response read")
+	lg.Info("Response read")
 	if tmperr := <-errWrite; tmperr != nil {
 		err = tmperr
 		return

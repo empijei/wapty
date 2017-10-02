@@ -6,13 +6,13 @@ package ui
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"sync"
 
 	rice "github.com/GeertJohan/go.rice"
 	"github.com/empijei/wapty/ui/apis"
 
+	"github.com/empijei/wapty/cli/lg"
 	"golang.org/x/net/websocket"
 )
 
@@ -27,7 +27,7 @@ var uiconn io.ReadWriteCloser
 func serve(pattern string) {
 	// websocket handler
 	onConnected := func(ws *websocket.Conn) {
-		log.Println("A client has connected")
+		lg.Info("A client has connected")
 		defer func() {
 			_ = ws.Close()
 		}()
@@ -35,7 +35,7 @@ func serve(pattern string) {
 		connMut.Lock()
 		if uiconn != nil {
 			//TODO tell the new UI to GTFO
-			log.Println("A UI is already connected")
+			lg.Info("A UI is already connected")
 			return
 		}
 		uiconn = ws
@@ -72,7 +72,7 @@ func handleClient(uiconn io.ReadWriteCloser) {
 				//cmd was not sent successfully, let's save it
 				outg <- cmd
 			}
-			log.Println("Copyer terminated")
+			lg.Info("Copyer terminated")
 		}()
 		for cmd = range outg {
 			dedicatedchan <- cmd
@@ -85,13 +85,13 @@ func handleClient(uiconn io.ReadWriteCloser) {
 		for cmd := range dedicatedchan {
 			err := enc.Encode(cmd)
 			if err != nil {
-				log.Println(err)
+				lg.Error(err)
 				break
 			}
 		}
 		err := uiconn.Close()
-		log.Println(err)
-		log.Println("Sender terminated")
+		lg.Error(err)
+		lg.Info("Sender terminated")
 	}()
 
 	//Takes commands from the ui and sends them to the backend.
@@ -102,14 +102,14 @@ func handleClient(uiconn io.ReadWriteCloser) {
 		err := dec.Decode(&cmd)
 		if err != nil {
 			err2 := uiconn.Close()
-			log.Println(err2)
-			log.Println(err)
+			lg.Error(err2)
+			lg.Error(err)
 			break
 		}
 		inc <- cmd
 	}
 	close(dedicatedchan)
-	log.Println("A client has disconnected")
+	lg.Info("A client has disconnected")
 }
 
 func send(cmd *apis.Command) {
@@ -132,7 +132,7 @@ func MainLoop() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write(appPage)
 	})
-	log.Printf("UI is running on: http://localhost:%d/", 8081)
-	log.Fatal(http.ListenAndServe(":8081", nil))
+	lg.Infof("UI is running on: http://localhost:%d/", 8081)
+	lg.Failure(http.ListenAndServe(":8081", nil))
 
 }

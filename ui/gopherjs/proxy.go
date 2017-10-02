@@ -3,10 +3,9 @@
 package main
 
 import (
-	"log"
-
 	. "github.com/empijei/wapty/ui/apis"
 	"github.com/gopherjs/gopherjs/js"
+	"github.com/empijei/wapty/cli/lg"
 )
 
 func handleEdit(msg Command) {
@@ -59,21 +58,21 @@ func init() {
 }
 
 func proxyAction(msg Command, ignoreControls bool) {
-	log.Printf("Requested action %s", msg.Action)
+	lg.Infof("Requested action %s", msg.Action)
 	if !ignoreControls {
 		if !controls {
 			return
 		}
 		controls = false
 	}
-	log.Printf("Performing action %s", msg.Action)
+	lg.Infof("Performing action %s", msg.Action)
 	err := enc.Encode(msg)
 	if err != nil {
 		panic(err)
 	}
 	proxyBuffer.SetTextContent("")
 	endpointIndicator.SetTextContent("")
-	log.Printf("Action %s invoked", msg.Action)
+	lg.Infof("Action %s invoked", msg.Action)
 }
 
 func onForwardOriginalClick() {
@@ -117,7 +116,7 @@ func onToggleInterceptClick() {
 	var buf string
 	if controls && interceptOn {
 		buf = proxyBuffer.GetTextContent()
-		log.Printf("there is a buffer that will be forwarded, value: %s", buf)
+		lg.Infof("there is a buffer that will be forwarded, value: %s", buf)
 	}
 
 	proxyAction(Command{
@@ -129,7 +128,7 @@ func onToggleInterceptClick() {
 	// If the proxy had a payload when intercept was turned off we assume it was
 	// modified
 	if buf != "" {
-		log.Println("forwarding buffer")
+		lg.Info("forwarding buffer")
 		proxyAction(Command{
 			Action:  EDT_EDIT,
 			Channel: CHN_EDITOR,

@@ -1,6 +1,6 @@
 package mocksy
 
-import "log"
+import "github.com/empijei/wapty/cli/lg"
 
 func Main(_ ...string) {
 	const port = ":8082"
@@ -8,7 +8,7 @@ func Main(_ ...string) {
 
 	SetHistDir(histDir)
 
-	log.Printf("Starting mocksy server at %s\n", port)
+	lg.Infof("Starting mocksy server at %s", port)
 	if err := StartServer(port); err != nil {
 		panic(err)
 	}

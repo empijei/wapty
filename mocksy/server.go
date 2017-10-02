@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/empijei/wapty/cli/lg"
 )
 
 // histDir is the directory to load XML from
@@ -75,7 +76,7 @@ func LoadResponsesFrom(source io.ReadSeeker) error {
 	for _, item := range items.Items {
 		AddToHistory(item)
 	}
-	log.Printf("Loaded %d Request-Response pairs.\n", len(items.Items))
+	lg.Infof("Loaded %d Request-Response pairs.", len(items.Items))
 
 	return nil
 }
@@ -101,7 +102,7 @@ func mocksyHandler(rw http.ResponseWriter, req *http.Request) {
 	resp := FindMatching(req)
 	//if err != nil {
 	//rw.WriteHeader(http.StatusInternalServerError)
-	//log.Println(err)
+	//lg.Error(err)
 	//fmt.Fprintln(rw, "mocksy: internal server error :(")
 	//return
 	//}

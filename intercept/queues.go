@@ -6,12 +6,12 @@ package intercept
 
 import (
 	"crypto/tls"
-	"log"
 	"net"
 	"net/http"
 	"sync"
 	"time"
 
+	"github.com/empijei/wapty/cli/lg"
 	"github.com/empijei/wapty/mitm"
 	"github.com/empijei/wapty/ui"
 	"github.com/empijei/wapty/ui/apis"
@@ -58,7 +58,7 @@ func MainLoop() {
 	//Load Certificate authority
 	ca, err := mitm.LoadCA()
 	if err != nil {
-		log.Fatal(err)
+		lg.Failure(err)
 	}
 
 	//Call dispatchloop on other goroutine
@@ -91,10 +91,9 @@ func MainLoop() {
 		//Wrap:      interceptRequestWrapper,
 		Transport: &modifiedTransport,
 	}
-
-	log.Printf("Proxy is running on localhost:%d", 8080)
+	lg.Infof("Proxy is running on localhost: %d\n", 8080)
 	//Starts the mitm.Proxy
-	log.Println(http.ListenAndServe(":8080", p)) //TODO parametrize this and allow for closure
+	lg.Info(http.ListenAndServe(":8080", p)) //TODO parametrize this and allow for closure
 	close(done)
 }
 
