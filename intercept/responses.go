@@ -52,7 +52,7 @@ func handleResponse(presp *pendingResponse) {
 		editedResponse = caseDrop()
 	default:
 		//TODO implement this
-		lg.Info("Not implemented yet")
+		lg.Error("Not implemented yet")
 	}
 	presp.modifiedResponse <- &mayBeResponse{res: editedResponse, err: err}
 }

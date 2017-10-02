@@ -49,7 +49,7 @@ func (h *History) addResponse(ID int, res *http.Response) {
 	tmp, err := httputil.DumpResponse(res, true)
 	if err != nil {
 		//TODO
-		lg.Failure(err.Error())
+		lg.Error(err)
 	}
 	h.addRawResponse(ID, tmp)
 }
@@ -69,7 +69,7 @@ func StatusDump(status *History) {
 	status.RLock()
 	foo, err := json.MarshalIndent(status, " ", " ")
 	if err != nil {
-		lg.Failure(err.Error())
+		lg.Error(err)
 	}
 	lg.Info(foo)
 	status.RUnlock()
