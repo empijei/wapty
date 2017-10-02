@@ -27,7 +27,7 @@ func handleResponse(presp *pendingResponse) {
 	res.Header.Del("Content-Length")
 	rawRes, err := httputil.DumpResponse(res, true)
 	if err != nil {
-		lg.Errorf("intercept: dumping response %v\n", err)
+		lg.Error("intercept: dumping response %v", err)
 		presp.modifiedResponse <- &mayBeResponse{err: err}
 		return
 	}
@@ -43,7 +43,7 @@ func handleResponse(presp *pendingResponse) {
 		editedResponse, err = http.ReadResponse(editedResponseBuffer, presp.originalRequest)
 		if err != nil {
 			//TODO check this error and hijack connection to send raw bytes
-			lg.Errorf("Error during edited response parsing, forwarding original response.\n")
+			lg.Error("Error during edited response parsing, forwarding original response.")
 			res.ContentLength = ContentLength
 			editedResponse = res
 		}
@@ -52,7 +52,7 @@ func handleResponse(presp *pendingResponse) {
 		editedResponse = caseDrop()
 	default:
 		//TODO implement this
-		lg.Infof("Not implemented yet\n")
+		lg.Info("Not implemented yet")
 	}
 	presp.modifiedResponse <- &mayBeResponse{res: editedResponse, err: err}
 }
@@ -80,7 +80,7 @@ func decodeResponse(res *http.Response) *http.Response {
 	defer func() { _ = res.Body.Close() }()
 	buf, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		lg.Errorf("%s\n", err.Error())
+		lg.Error(err)
 		return res
 	}
 	res.Body = ioutil.NopCloser(bytes.NewBuffer(buf))

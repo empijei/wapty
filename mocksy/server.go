@@ -76,7 +76,7 @@ func LoadResponsesFrom(source io.ReadSeeker) error {
 	for _, item := range items.Items {
 		AddToHistory(item)
 	}
-	lg.Infof("Loaded %d Request-Response pairs.\n", len(items.Items))
+	lg.Infof("Loaded %d Request-Response pairs.", len(items.Items))
 
 	return nil
 }

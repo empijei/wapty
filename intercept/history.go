@@ -71,7 +71,7 @@ func StatusDump(status *History) {
 	if err != nil {
 		lg.Failure(err.Error())
 	}
-	lg.Infof("%s", foo)
+	lg.Info(foo)
 	status.RUnlock()
 }
 
@@ -99,7 +99,7 @@ func historyLoop() {
 					StatusDump(&status)
 					panic(err)
 				}
-				lg.Infof("Dump: %s\n", dump)
+				lg.Infof("Dump: %s", dump)
 				uiHistory.Send(&apis.Command{Action: "Dump", Payload: dump})
 			case apis.HST_FETCH:
 				uiHistory.Send(handleFetch(cmd))
@@ -117,7 +117,7 @@ func handleFetch(cmd apis.Command) *apis.Command {
 		lg.Error(err)
 		return apis.Err(err)
 	}
-	lg.Infof("Requested history entry\n")
+	lg.Info("Requested history entry")
 	rr := status.getItem(ID)
 	buf, err := json.Marshal(rr)
 	return &apis.Command{Action: apis.HST_FETCH, Payload: buf}
@@ -145,14 +145,14 @@ type ReqResp struct {
 //current id value
 //Returns the id of the newly created item
 func newRawReqResp(rawReq []byte) int {
-	//lg.Infof("Locking status for write\n")
+	//lg.Info("Locking status for write")
 	status.Lock()
-	//lg.Infof("Locked\n")
+	//lg.Info("Locked")
 	curReq := status.Count
 	tmp := &ReqResp{RawReq: rawReq, ID: curReq, MetaData: &apis.ReqRespMetaData{ID: curReq}}
 	status.ReqResps = append(status.ReqResps, tmp)
 	status.Count++
-	//lg.Infof("UnLocking status\n")
+	//lg.Info("UnLocking status")
 	status.Unlock()
 	return curReq
 }

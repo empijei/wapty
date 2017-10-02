@@ -45,7 +45,7 @@ var (
 var cmdVersion = &Cmd{
 	Name: "version",
 	Run: func(_ ...string) {
-		lg.Infof("Version: %s\nCommit: %s\n", Version, Commit)
+		lg.Infof("Version: %s\nCommit: %s", Version, Commit)
 	},
 	UsageLine: "version",
 	Short:     "print version and exit",

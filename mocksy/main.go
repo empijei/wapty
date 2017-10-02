@@ -8,7 +8,7 @@ func Main(_ ...string) {
 
 	SetHistDir(histDir)
 
-	lg.Infof("Starting mocksy server at %s\n", port)
+	lg.Infof("Starting mocksy server at %s", port)
 	if err := StartServer(port); err != nil {
 		panic(err)
 	}

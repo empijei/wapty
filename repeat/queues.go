@@ -27,7 +27,7 @@ func RepeaterLoop() {
 			case apis.RPT_GET:
 				uiRepeater.Send(handleGet(&cmd))
 			default:
-				lg.Infof("Unknown repeater action: %s\n", cmd.Action)
+				lg.Infof("Unknown repeater action: %s", cmd.Action)
 			}
 		case <-done:
 			return
@@ -53,7 +53,7 @@ func handleGo(cmd *apis.Command) *apis.Command {
 		&host, &tls, &ri,
 	)
 	if err != nil {
-		lg.Errorf("%s\n", err.Error())
+		lg.Error(err)
 		return apis.Err(err)
 	}
 	body := bytes.NewBuffer(cmd.Payload)
@@ -61,7 +61,7 @@ func handleGo(cmd *apis.Command) *apis.Command {
 	defer status.RUnlock()
 	if len(status.Repeats) <= ri || ri < 0 {
 		err := "Repeater out of range"
-		lg.Errorf("%s\n", err.Error())
+		lg.Error(err)
 		return apis.Err(err)
 	}
 	r := status.Repeats[ri]
@@ -89,19 +89,19 @@ func handleGet(cmd *apis.Command) *apis.Command {
 	status.RLock()
 	defer status.RUnlock()
 	if len(status.Repeats) <= ri {
-		lg.Infof("Repeater out of range\n")
+		lg.Infof("Repeater out of range")
 		return apis.Err(err)
 	}
 	r := status.Repeats[ri]
 	if len(r.History) <= itemn {
 		err := "Repeater item out of range"
-		lg.Errorf("%s\n", err.Error())
+		lg.Error(err)
 		return apis.Err(err)
 	}
 	repitem, err := json.Marshal(r.History[itemn])
 	if err != nil {
 		err := "Error while marshaling repeat item"
-		lg.Errorf("%s\n", err.Error())
+		lg.Error(err)
 		return apis.Err(err)
 	}
 	cmd.Payload = repitem

@@ -17,7 +17,7 @@ func main() {
 	b, ib := wordsplit(sb)
 	s := difflib.NewMatcher(a, b)
 	mb := s.GetMatchingBlocks()
-	lg.Infof("%v\n", mb[:len(mb)-1])
+	lg.Infof("%v", mb[:len(mb)-1])
 	lg.Infof("%#v\n%#v\n%#v\n%#v\n", a, ia, b, ib)
 	type section struct {
 		begin, end int
@@ -33,7 +33,7 @@ func main() {
 				ia[m.A+m.Size-1] + len(a[m.A+m.Size-1])})
 	}
 
-	lg.Infof("\n")
+	lg.Info()
 	prev := 0
 	color.Set(color.FgRed)
 	for _, sec := range secsa {
@@ -46,7 +46,7 @@ func main() {
 	if prev != len(sa) {
 		lg.Info(sa[prev:len(sa)])
 	}
-	lg.Infof("\n")
+	lg.Info()
 
 	var secsb []section
 	for _, m := range mb {
@@ -60,7 +60,7 @@ func main() {
 	}
 	color.Unset()
 
-	lg.Infof("\n")
+	lg.Info()
 	color.Set(color.FgRed)
 	prev = 0
 	for _, sec := range secsb {

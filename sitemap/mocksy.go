@@ -98,5 +98,5 @@ func main() {
 	close(c)
 	<-done
 	lg.Info(start)
-	lg.Infof("\n")
+	lg.Info()
 }

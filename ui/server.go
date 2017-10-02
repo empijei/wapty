@@ -27,7 +27,7 @@ var uiconn io.ReadWriteCloser
 func serve(pattern string) {
 	// websocket handler
 	onConnected := func(ws *websocket.Conn) {
-		lg.Infof("A client has connected\n")
+		lg.Info("A client has connected")
 		defer func() {
 			_ = ws.Close()
 		}()
@@ -35,7 +35,7 @@ func serve(pattern string) {
 		connMut.Lock()
 		if uiconn != nil {
 			//TODO tell the new UI to GTFO
-			lg.Infof("A UI is already connected\n")
+			lg.Info("A UI is already connected")
 			return
 		}
 		uiconn = ws
@@ -72,7 +72,7 @@ func handleClient(uiconn io.ReadWriteCloser) {
 				//cmd was not sent successfully, let's save it
 				outg <- cmd
 			}
-			lg.Infof("Copyer terminated\n")
+			lg.Info("Copyer terminated")
 		}()
 		for cmd = range outg {
 			dedicatedchan <- cmd
@@ -85,13 +85,13 @@ func handleClient(uiconn io.ReadWriteCloser) {
 		for cmd := range dedicatedchan {
 			err := enc.Encode(cmd)
 			if err != nil {
-				lg.Errorf("%v\n", err)
+				lg.Error(err)
 				break
 			}
 		}
 		err := uiconn.Close()
-		lg.Errorf("%v\n", err)
-		lg.Infof("Sender terminated\n")
+		lg.Error(err)
+		lg.Info("Sender terminated")
 	}()
 
 	//Takes commands from the ui and sends them to the backend.
@@ -102,14 +102,14 @@ func handleClient(uiconn io.ReadWriteCloser) {
 		err := dec.Decode(&cmd)
 		if err != nil {
 			err2 := uiconn.Close()
-			lg.Errorf("%v\n", err2)
-			lg.Errorf("%v\n", err)
+			lg.Error(err2)
+			lg.Error(err)
 			break
 		}
 		inc <- cmd
 	}
 	close(dedicatedchan)
-	lg.Infof("A client has disconnected\n")
+	lg.Info("A client has disconnected")
 }
 
 func send(cmd *apis.Command) {

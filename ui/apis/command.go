@@ -41,7 +41,7 @@ func (cmd *Command) UnpackArgs(names []ArgName, vars ...interface{}) (err error)
 		case *int:
 			*_var, err = strconv.Atoi(arg)
 			if err != nil {
-				lg.Infof("cannot read <%s> as int: %s\n", arg, err.Error())
+				lg.Infof("cannot read <%s> as int: %s", arg, err.Error())
 				return err
 			}
 		case *bool:

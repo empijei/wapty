@@ -156,7 +156,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	//empijei: This type assertion is awful and endangers stability
 	cn, _, err := w.(http.Hijacker).Hijack()
 	if err != nil {
-		lg.Errorf("Hijack: %s\n", err.Error())
+		lg.Error("Hijack: %v", err)
 		http.Error(w, "No Upstream", 503)
 		return
 	}
@@ -164,7 +164,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	_, err = io.WriteString(cn, okHeader)
 	if err != nil {
-		lg.Errorf("Write: %s\n", err.Error())
+		lg.Error("Write: %v", err)
 		return
 	}
 
@@ -181,14 +181,14 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			TLSConfig: p.TLSServerConfig,
 		})
 		if err := sc.Handshake(); err != nil {
-			lg.Errorf("Server Handshake: %v\n", err)
+			lg.Error("Server Handshake: %v", err)
 			return
 		}
 	}
 
 	cc, err := p.tlsDial(req.Host, sc.ServerName)
 	if err != nil {
-		lg.Errorf("tlsDial: %v\n", err)
+		lg.Error("tlsDial: %v", err)
 		_, _ = io.WriteString(cn, noUpstreamHeader)
 		return
 	}

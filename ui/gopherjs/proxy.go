@@ -128,7 +128,7 @@ func onToggleInterceptClick() {
 	// If the proxy had a payload when intercept was turned off we assume it was
 	// modified
 	if buf != "" {
-		lg.Infof("forwarding buffer\n")
+		lg.Info("forwarding buffer")
 		proxyAction(Command{
 			Action:  EDT_EDIT,
 			Channel: CHN_EDITOR,

@@ -36,7 +36,7 @@ func main() {
 		panic(err)
 	}
 
-	lg.Infof("WebSocket connetcted\n")
+	lg.Info("WebSocket connetcted")
 	dec = json.NewDecoder(waptyServer)
 	enc = json.NewEncoder(waptyServer)
 
@@ -71,7 +71,7 @@ func main() {
 			handleRepeat(msg)
 
 		default:
-			lg.Errorf("Unrecognized message\n")
+			lg.Error("Unrecognized message")
 		}
 	}
 }

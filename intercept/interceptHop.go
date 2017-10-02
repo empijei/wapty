@@ -50,14 +50,14 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 	if err != nil {
 		//TODO handle possible autodrop
 		//TODO other errors
-		lg.Errorf("%s\n", err.Error())
+		lg.Error(err)
 	}
 	if intercepted {
 		var editedReq *http.Request
 		editedReq, res, err = editRequest(req, ID)
 		if err != nil {
 			//TODO
-			lg.Errorf("%s\n", err.Error())
+			lg.Error(err)
 		}
 		if editedReq != nil {
 			req = editedReq
@@ -81,7 +81,7 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 	req.Header.Del("Accept-Encoding")
 	res, err = ri.wrappedRT.RoundTrip(req)
 	if err != nil {
-		lg.Errorf("Something went wrong trying to contact the server\n")
+		lg.Error("Something went wrong trying to contact the server")
 		//TODO return a fake response containing the error message
 		res = GenerateResponse("Error", "Error in performing the request: "+err.Error(), 500)
 		return
