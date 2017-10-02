@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"unicode"
 
+	"github.com/empijei/wapty/cli/lg"
 	"github.com/fatih/color"
 	"github.com/pmezard/go-difflib/difflib"
 )
@@ -17,8 +17,8 @@ func main() {
 	b, ib := wordsplit(sb)
 	s := difflib.NewMatcher(a, b)
 	mb := s.GetMatchingBlocks()
-	fmt.Printf("%v\n", mb[:len(mb)-1])
-	fmt.Printf("%#v\n%#v\n%#v\n%#v\n", a, ia, b, ib)
+	lg.Infof("%v\n", mb[:len(mb)-1])
+	lg.Infof("%#v\n%#v\n%#v\n%#v\n", a, ia, b, ib)
 	type section struct {
 		begin, end int
 	}
@@ -33,20 +33,20 @@ func main() {
 				ia[m.A+m.Size-1] + len(a[m.A+m.Size-1])})
 	}
 
-	fmt.Println()
+	lg.Infof("\n")
 	prev := 0
 	color.Set(color.FgRed)
 	for _, sec := range secsa {
-		fmt.Print(sa[prev:sec.begin])
+		lg.Info(sa[prev:sec.begin])
 		color.Set(color.FgGreen)
-		fmt.Print(sa[sec.begin:sec.end])
+		lg.Info(sa[sec.begin:sec.end])
 		color.Set(color.FgRed)
 		prev = sec.end
 	}
 	if prev != len(sa) {
-		fmt.Print(sa[prev:len(sa)])
+		lg.Info(sa[prev:len(sa)])
 	}
-	fmt.Println()
+	lg.Infof("\n")
 
 	var secsb []section
 	for _, m := range mb {
@@ -60,18 +60,18 @@ func main() {
 	}
 	color.Unset()
 
-	fmt.Println()
+	lg.Infof("\n")
 	color.Set(color.FgRed)
 	prev = 0
 	for _, sec := range secsb {
-		fmt.Print(sb[prev:sec.begin])
+		lg.Info(sb[prev:sec.begin])
 		color.Set(color.FgGreen)
-		fmt.Print(sb[sec.begin:sec.end])
+		lg.Info(sb[sec.begin:sec.end])
 		color.Set(color.FgRed)
 		prev = sec.end
 	}
 	if prev != len(sb) {
-		fmt.Print(sb[prev:len(sb)])
+		lg.Info(sb[prev:len(sb)])
 	}
 }
 
