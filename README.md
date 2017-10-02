@@ -14,7 +14,7 @@ An Open Source alternative to Burp Suite.
 We are working to make wapty a worthy replacement for Burp, but we are [not there yet](https://github.com/empijei/wapty/blob/master/ROADMAP.md).
 # Usage
 ```sh
-go get empijei/wapty
+go get github.com/empijei/wapty
 cd $GOPATH/src/github.com/empijei/wapty
 make installdeps
 make
