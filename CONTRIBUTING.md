@@ -15,6 +15,16 @@ Please note we have a code of conduct, please follow it in all your interactions
 1. Make the Pull Request
 1. Be thanked by the devs :blush:
 
+## For Contributors that have write access
+We would like to keep the history as linear as possible, so please when you have to pull from remote use
+```
+git fetch
+git rebase
+```
+instead of `git pull` if you have conflicts to solve.
+
+Unless the commit changes a good portion of the code and it is meaningful to have a merge commit please avoid branching history.
+
 ## Code of Conduct
 
 ### Our Pledge
