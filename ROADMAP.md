@@ -1,4 +1,4 @@
-# Roadmap 
+# Roadmap
 ## Implemented Features
 
 * [x] Proxy
@@ -10,13 +10,13 @@
 * [ ] Repeat
 	* [x] Backend
 	* [ ] UI
-* [ ] Decode 
+* [ ] Decode
 	* [x] Backend
 	* [x] CLI
 	* [ ] UI
 	* Codecs
 		* [ ] Binary
-		* [x] Base 16 
+		* [x] Base 16
 		* [x] Base 32
 		* [x] Base 64
 		* [x] URL
@@ -56,7 +56,7 @@ compare      | ✗                                           | Draft            
 plug         | ✗                                           | Not implemented yet         | N/A
 
 # Detailed TODOs
-## Initial stage 
+## Initial stage
 This stage will be the first stage for wapty, before this is finished wapty will likely have unstable APIs and won't be really usable.
 
 * [x] Implement Proxy
@@ -104,7 +104,7 @@ The following is just some general polishing before calling this a proper projec
 
 ## Moving to Release
 This is meant to be mostly an improvement, adding features that are less used in burpsuite but are still there and should end up in wapty before it is called a proper replacement for burp
-* [ ] Allow for creating multiple proxies, change ports. 
+* [ ] Allow for creating multiple proxies, change ports.
 * [ ] Keep track of which proxy intercepted the request in metadata.
 * [ ] Serve the certificates on a specific fake host/path
 * [ ] Add internal router
@@ -133,8 +133,8 @@ These features will probably be implemented along with the ones in the other sta
 * [ ] Add Mocksy
 * [ ] Add websocket support, with buffers to "stop" data and the chance to add data in both outgoing and incoming sockets
 * [ ] UI add preview of blocked requests queue with a chance to perform some actions on them
-* [ ] Add pre-engagement 
-	* [ ] analysis/recon, 
+* [ ] Add pre-engagement
+	* [ ] analysis/recon
 	* [ ] detect technologies used/versions
 * [ ] Deserializer of java/flash/php serialized objects (maybe editor?)
 * [ ] Add SAML, JWT decoder/editor
@@ -148,7 +148,7 @@ These features will probably be implemented along with the ones in the other sta
 ## Misc:
 These are the feature we are still discussing
 
-(PRs are welcome :D )
+(PRs are welcome :grin: )
 
 * [ ] Add Content-Length override
 * [ ] Add Beautifier
