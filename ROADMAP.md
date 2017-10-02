@@ -117,6 +117,7 @@ This is meant to be mostly an improvement, adding features that are less used in
 * [ ] Add Sequencer
 * [ ] Add recursive intruder with flows
 * [ ] Add syntax highlight for relevant buffers
+* [ ] Move away from http.DumpRequest, use the original buffer instead
 * [ ] Test transparent proxying
 * [ ] Allow to transparently remap a local port to another one with custom certificate. see [tlsmitm](https://github.com/empijei/tlsmitm) as a reference
 
