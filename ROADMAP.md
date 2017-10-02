@@ -79,6 +79,7 @@ This stage will be the first stage for wapty, before this is finished wapty will
 * [ ] Send the whole status on ui connect
 * [ ] Add configurations
 * [ ] Use proper Logging
+* [ ] Make a wapty proxy a struct and provide methods to close/rebind it
 * UI
 	* [ ] Add req ID to editor and warn when receive unexpected requests
 	* [ ] Sanitize metadata
@@ -145,7 +146,7 @@ These features will probably be implemented along with the ones in the other sta
 * [ ] Add scripting engine (JS/Lua)
 
 ## Misc:
-These are the feature I still don't know if are worth adding
+These are the feature we are still discussing
 
 (PRs are welcome :D )
 
