@@ -4,13 +4,14 @@ import (
 	"crypto/tls"
 	"errors"
 	"io"
-	"log"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/empijei/wapty/cli/lg"
 )
 
 // ServerParam struct
@@ -155,7 +156,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	//empijei: This type assertion is awful and endangers stability
 	cn, _, err := w.(http.Hijacker).Hijack()
 	if err != nil {
-		log.Println("Hijack:", err)
+		lg.Errorf("Hijack: %s\n", err.Error())
 		http.Error(w, "No Upstream", 503)
 		return
 	}
@@ -163,7 +164,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	_, err = io.WriteString(cn, okHeader)
 	if err != nil {
-		log.Println("Write:", err)
+		lg.Errorf("Write: %s\n", err.Error())
 		return
 	}
 
@@ -171,7 +172,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if !ok {
 		name := dnsName(req.Host)
 		if name == "" {
-			log.Println("cannot determine cert name for " + req.Host)
+			lg.Infof("cannot determine cert name for %s\n", req.Host)
 			_, _ = io.WriteString(cn, noDownstreamHeader)
 			return
 		}
@@ -180,14 +181,14 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			TLSConfig: p.TLSServerConfig,
 		})
 		if err := sc.Handshake(); err != nil {
-			log.Println("Server Handshake:", err)
+			lg.Errorf("Server Handshake: %v\n", err)
 			return
 		}
 	}
 
 	cc, err := p.tlsDial(req.Host, sc.ServerName)
 	if err != nil {
-		log.Println("tlsDial:", err)
+		lg.Errorf("tlsDial: %v\n", err)
 		_, _ = io.WriteString(cn, noUpstreamHeader)
 		return
 	}
@@ -244,7 +245,7 @@ func (p *Proxy) forwardRequest(w http.ResponseWriter, req *http.Request) {
 		d, err = net.Dial("tcp", address)
 	}
 	if err != nil {
-		log.Printf("forwardRequest: error dialing websocket backend %s: %v", address, err)
+		lg.Infof("forwardRequest: error dialing websocket backend %s: %v", address, err)
 		http.Error(w, "No Upstream", 503)
 		return
 	}
@@ -252,7 +253,7 @@ func (p *Proxy) forwardRequest(w http.ResponseWriter, req *http.Request) {
 
 	nc, _, err := w.(http.Hijacker).Hijack()
 	if err != nil {
-		log.Printf("forwardRequest: hijack error: %v", err)
+		lg.Infof("forwardRequest: hijack error: %v", err)
 		http.Error(w, "No Upstream", 503)
 		return
 	}
@@ -260,7 +261,7 @@ func (p *Proxy) forwardRequest(w http.ResponseWriter, req *http.Request) {
 
 	err = req.Write(d)
 	if err != nil {
-		log.Printf("forwardRequest: error copying request to target: %v", err)
+		lg.Infof("forwardRequest: error copying request to target: %v", err)
 		return
 	}
 

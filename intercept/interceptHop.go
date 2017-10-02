@@ -1,8 +1,9 @@
 package intercept
 
 import (
-	"log"
 	"net/http"
+
+	"github.com/empijei/wapty/cli/lg"
 )
 
 //Remove trailers?
@@ -49,14 +50,14 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 	if err != nil {
 		//TODO handle possible autodrop
 		//TODO other errors
-		log.Println(err)
+		lg.Errorf("%s\n", err.Error())
 	}
 	if intercepted {
 		var editedReq *http.Request
 		editedReq, res, err = editRequest(req, ID)
 		if err != nil {
 			//TODO
-			log.Println(err)
+			lg.Errorf("%s\n", err.Error())
 		}
 		if editedReq != nil {
 			req = editedReq
@@ -80,7 +81,7 @@ func (ri *Interceptor) RoundTrip(req *http.Request) (res *http.Response, err err
 	req.Header.Del("Accept-Encoding")
 	res, err = ri.wrappedRT.RoundTrip(req)
 	if err != nil {
-		log.Println("Something went wrong trying to contact the server")
+		lg.Errorf("Something went wrong trying to contact the server\n")
 		//TODO return a fake response containing the error message
 		res = GenerateResponse("Error", "Error in performing the request: "+err.Error(), 500)
 		return

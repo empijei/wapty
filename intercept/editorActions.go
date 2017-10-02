@@ -1,8 +1,7 @@
 package intercept
 
 import (
-	"log"
-
+	"github.com/empijei/wapty/cli/lg"
 	"github.com/empijei/wapty/ui"
 	"github.com/empijei/wapty/ui/apis"
 )
@@ -20,13 +19,13 @@ func editBuffer(p string, b []byte, endpoint string) ([]byte, apis.Action) {
 	if !intercept.value() {
 		return nil, apis.EDT_FORWARD
 	}
-	log.Println("Editing " + p)
+	lg.Infof("Editing: %s\n", p)
 	args := map[apis.ArgName]string{
 		apis.ARG_PAYLOADTYPE: p,
 		apis.ARG_ENDPOINT:    endpoint}
 	uiEditor.Send(&apis.Command{Action: apis.EDT_EDIT, Args: args, Payload: b})
-	log.Println("Waiting for user interaction")
+	lg.Infof("Waiting for user interaction\n")
 	result := uiEditor.Receive()
-	log.Println("User interacted")
+	lg.Infof("User interacted\n")
 	return result.Payload, result.Action
 }

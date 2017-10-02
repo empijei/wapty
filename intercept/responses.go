@@ -4,11 +4,11 @@ import (
 	"bufio"
 	"bytes"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httputil"
 	"strconv"
 
+	"github.com/empijei/wapty/cli/lg"
 	"github.com/empijei/wapty/ui/apis"
 )
 
@@ -27,7 +27,7 @@ func handleResponse(presp *pendingResponse) {
 	res.Header.Del("Content-Length")
 	rawRes, err := httputil.DumpResponse(res, true)
 	if err != nil {
-		log.Println("intercept: dumping response " + err.Error())
+		lg.Errorf("intercept: dumping response %v\n", err)
 		presp.modifiedResponse <- &mayBeResponse{err: err}
 		return
 	}
@@ -43,7 +43,7 @@ func handleResponse(presp *pendingResponse) {
 		editedResponse, err = http.ReadResponse(editedResponseBuffer, presp.originalRequest)
 		if err != nil {
 			//TODO check this error and hijack connection to send raw bytes
-			log.Println("Error during edited response parsing, forwarding original response.")
+			lg.Errorf("Error during edited response parsing, forwarding original response.\n")
 			res.ContentLength = ContentLength
 			editedResponse = res
 		}
@@ -52,7 +52,7 @@ func handleResponse(presp *pendingResponse) {
 		editedResponse = caseDrop()
 	default:
 		//TODO implement this
-		log.Println("Not implemented yet")
+		lg.Infof("Not implemented yet\n")
 	}
 	presp.modifiedResponse <- &mayBeResponse{res: editedResponse, err: err}
 }
@@ -80,7 +80,7 @@ func decodeResponse(res *http.Response) *http.Response {
 	defer func() { _ = res.Body.Close() }()
 	buf, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Println(err)
+		lg.Errorf("%s\n", err.Error())
 		return res
 	}
 	res.Body = ioutil.NopCloser(bytes.NewBuffer(buf))
