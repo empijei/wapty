@@ -3,8 +3,6 @@
 package main
 
 import (
-	"log"
-
 	. "github.com/empijei/wapty/ui/apis"
 	"github.com/gopherjs/gopherjs/js"
 	"github.com/empijei/wapty/cli/lg"

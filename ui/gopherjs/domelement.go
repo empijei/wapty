@@ -4,7 +4,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/gopherjs/gopherjs/js"

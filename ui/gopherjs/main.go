@@ -6,7 +6,6 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 
 	. "github.com/empijei/wapty/ui/apis"
 	js "github.com/gopherjs/gopherjs/js"
