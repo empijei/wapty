@@ -1,12 +1,13 @@
 # Wapty (Web Application Penetration Testing Suite)y
 
-[![License](https://img.shields.io/github/license/empijei/wapty.svg?maxAge=360000)](https://raw.githubusercontent.com/empijei/wapty/master/LICENSE)
+[![License](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://raw.githubusercontent.com/empijei/wapty/master/LICENSE)
 [![Build Status](https://travis-ci.org/empijei/wapty.svg?branch=master)](https://travis-ci.org/empijei/wapty) 
 [![Go Report Card](https://goreportcard.com/badge/github.com/empijei/wapty)](https://goreportcard.com/report/github.com/empijei/wapty)
 [![codebeat](https://codebeat.co/badges/9a62559f-ebf7-4097-8023-c8745e73ace8)](https://codebeat.co/projects/github-com-empijei-wapty-master)
-[![Changelog](https://img.shields.io/github/release/empijei/wapty.svg?maxAge=2592000)](https://github.com/empijei/wapty/releases)
 [![Telegram Chat](https://img.shields.io/badge/discuss-telegram-179cde.svg?maxAge=3600)](https://telegram.me/waptysuite)
-[![Funding](https://img.shields.io/badge/funding-just%20a%20hobby-lightgrey.svg)](https://github.com/empijei/wapty) 
+[![Stability](https://img.shields.io/badge/stability-unstable-yellow.svg)](https://github.com/empijei/wapty/blob/master/ROADMAP.md)
+[![Changelog](https://img.shields.io/github/release/empijei/wapty.svg?maxAge=2592000)](https://github.com/empijei/wapty/releases)
+[![Funding](https://img.shields.io/badge/funding-hobby-lightgrey.svg)](https://github.com/empijei/wapty)
 
 An Open Source alternative to Burp Suite.
 
