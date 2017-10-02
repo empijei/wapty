@@ -1,9 +1,10 @@
 package decode
 
 import (
-	"log"
 	"strings"
 	"unicode"
+
+	"github.com/empijei/wapty/cli/lg"
 )
 
 type codecConstructor func(string) CodecC
@@ -69,7 +70,7 @@ func SmartDecode(input string) (c CodecC) {
 			c = tmp
 		}
 	}
-	log.Printf("Smart Decoding, selected: %s with likelihood==%d%%", c.Name(), int(curvalue*100))
+	lg.Infof("Smart Decoding, selected: %s with likelihood==%d%%", c.Name(), int(curvalue*100))
 	return
 }
 

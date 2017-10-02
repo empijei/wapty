@@ -5,7 +5,8 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
-	"log"
+
+	"github.com/empijei/wapty/cli/lg"
 )
 
 // Response is struct used to deserialize burp XML. It contains text data and an attribute telling
@@ -45,7 +46,7 @@ func (r b64Able) Bytes() []byte {
 		value, err := base64.StdEncoding.DecodeString(string(r.Value))
 		if err != nil {
 			//TODO handle more gently
-			log.Fatal(err)
+			lg.Error(err)
 		}
 		return value
 	}

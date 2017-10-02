@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/empijei/wapty/cli/lg"
 )
 
 var timeout time.Duration = 3 * time.Second
@@ -167,6 +169,6 @@ func doReq(buf []byte, _tls bool, host string) (resp *http.Response, err error) 
 		return
 	}
 
-	fmt.Println(string(resbuf.Bytes()))
+	lg.Debug(string(resbuf.Bytes()))
 	return http.ReadResponse(bufio.NewReader(resbuf), nil)
 }

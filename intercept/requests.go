@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"bytes"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httputil"
 
+	"github.com/empijei/wapty/cli/lg"
 	"github.com/empijei/wapty/ui/apis"
 )
 
@@ -31,7 +31,7 @@ func handleRequest(preq *pendingRequest) {
 	r.Header.Del("Content-Length")
 	req, err := httputil.DumpRequest(r, true)
 	if err != nil {
-		log.Println("intercept: dumping request " + err.Error())
+		lg.Error("intercept: dumping request %s", err.Error())
 		preq.modifiedRequest <- &mayBeRequest{err: err}
 		return
 	}
@@ -52,12 +52,12 @@ func handleRequest(preq *pendingRequest) {
 		providedResp, err = http.ReadResponse(providedResponseBuffer, preq.originalRequest)
 		if err != nil {
 			//TODO check this error and hijack connection to send raw bytes
-			log.Println("Error during provided response parsingh")
+			lg.Error("Error during provided response parsing")
 		}
 		status.addRawEditedResponse(preq.id, editedRequestDump)
 	default:
 		//TODO implement this
-		log.Println("Not implemented yet")
+		lg.Error("Not implemented yet")
 		editedRequest = preq.originalRequest
 	}
 
@@ -80,7 +80,7 @@ func editRequest(req *http.Request, ID int) (*http.Request, *http.Response, erro
 	//Send request to the dispatchLoop
 	ModifiedRequest := make(chan *mayBeRequest)
 	RequestQueue <- &pendingRequest{id: ID, originalRequest: req, modifiedRequest: ModifiedRequest}
-	log.Println("Request intercepted")
+	lg.Debug("Request intercepted")
 	//Wait for edited request
 	mayBeReq := <-ModifiedRequest
 	if mayBeReq.res != nil {
@@ -88,7 +88,7 @@ func editRequest(req *http.Request, ID int) (*http.Request, *http.Response, erro
 	}
 	if mayBeReq.err != nil {
 		//If edit goes wrong, try to keep going with the original request
-		log.Println(mayBeReq.err.Error())
+		lg.Error(mayBeReq.err)
 		//FIXME Document this weir behavior or use error properly
 		return req, nil, nil
 	}
@@ -99,13 +99,13 @@ func editCase(editedRequestDump []byte) (editedRequest *http.Request, err error)
 	rc := bufio.NewReader(bytes.NewReader(editedRequestDump))
 	editedRequest, err = http.ReadRequest(rc)
 	if err != nil {
-		log.Println("Error during edited request parsing, dunno what to do yet!!!")
+		lg.Error("Error during edited request parsing, dunno what to do yet!!!")
 		//TODO Default to bare sockets
 	}
 	//Parsing leftovers, if any, must be the request body
 	body, err := ioutil.ReadAll(rc)
 	if err != nil {
-		log.Println("Error during edited body reading")
+		lg.Error("Error during edited body reading")
 		//TODO
 	}
 	if length := len(body); length != 0 {

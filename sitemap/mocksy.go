@@ -3,10 +3,11 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/empijei/wapty/cli/lg"
 )
 
 type Tree struct {
@@ -96,5 +97,6 @@ func main() {
 	}
 	close(c)
 	<-done
-	fmt.Println(start)
+	lg.Info(start)
+	lg.Info()
 }

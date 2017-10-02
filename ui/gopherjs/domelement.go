@@ -4,9 +4,9 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
+	"github.com/empijei/wapty/cli/lg"
 	"github.com/gopherjs/gopherjs/js"
 )
 
@@ -40,7 +40,7 @@ func (de *DomElement) GetTextContent() string {
 
 func (de *DomElement) ToggleClass(old, new string) {
 	oldclasses := strings.Split(toString(de.Get("classList")), " ")
-	log.Printf("Oldclasses: %v", oldclasses)
+	lg.Debugf("Oldclasses: %v", oldclasses)
 	newclasses := make([]string, 0, len(oldclasses)+1)
 	var replaced bool
 	for _, class := range oldclasses {
@@ -57,7 +57,7 @@ func (de *DomElement) ToggleClass(old, new string) {
 		newclasses = append(newclasses, new)
 	}
 
-	log.Printf("New classes: %v", newclasses)
+	lg.Debugf("New classes: %v", newclasses)
 	de.Set("classList", strings.Join(newclasses, " "))
 }
 

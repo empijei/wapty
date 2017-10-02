@@ -2,12 +2,12 @@ package intercept
 
 import (
 	"encoding/json"
-	"log"
 	"net"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/empijei/wapty/cli/lg"
 	"github.com/empijei/wapty/ui/apis"
 )
 
@@ -42,11 +42,11 @@ func (rr *ReqResp) parseRequest(req *http.Request) {
 			case "http":
 				this.Port = "80"
 			default:
-				log.Println("Port not specified: " + this.Host)
+				lg.Infof("Port not specified: %s\n", this.Host)
 			}
 		}
 	} else {
-		log.Println("Unable to resolve Host: " + this.Host)
+		lg.Error("Unable to resolve Host: %s\n", this.Host)
 	}
 	this.Time = time.Now().String()
 	sendMetaData(this)
@@ -75,7 +75,7 @@ func (rr *ReqResp) parseResponse(res *http.Response) {
 func sendMetaData(metaData *apis.ReqRespMetaData) {
 	metaJSON, err := json.Marshal(metaData)
 	if err != nil {
-		log.Println(err)
+		lg.Error(err)
 	}
 	uiHistory.Send(&apis.Command{Action: apis.HST_METADATA, Args: map[apis.ArgName]string{apis.HST_METADATA: string(metaJSON)}})
 }
