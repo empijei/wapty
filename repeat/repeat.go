@@ -63,15 +63,15 @@ func (r *Repeater) repeat(buf io.Reader, host string, _tls bool) (res io.Reader,
 	errWrite := make(chan error)
 
 	go func() {
-		lg.Info("Transmitting the request")
+		lg.Debug("Transmitting the request")
 		_, errw := io.Copy(conn, teebuf)
 		errWrite <- errw
-		lg.Info("Request transmitted")
+		lg.Debug("Request transmitted")
 	}()
 
-	lg.Info("Reading the response")
+	lg.Debug("Reading the response")
 	_, err = io.Copy(resbuf, conn)
-	lg.Info("Response read")
+	lg.Debug("Response read")
 	if tmperr := <-errWrite; tmperr != nil {
 		err = tmperr
 		return

@@ -7,10 +7,10 @@ package main
 import (
 	"encoding/json"
 
+	"github.com/empijei/wapty/cli/lg"
 	. "github.com/empijei/wapty/ui/apis"
 	js "github.com/gopherjs/gopherjs/js"
 	"github.com/gopherjs/websocket"
-	"github.com/empijei/wapty/cli/lg"
 )
 
 var (
@@ -36,7 +36,7 @@ func main() {
 		panic(err)
 	}
 
-	lg.Info("WebSocket connetcted")
+	lg.Debug("WebSocket connetcted")
 	dec = json.NewDecoder(waptyServer)
 	enc = json.NewEncoder(waptyServer)
 

@@ -169,6 +169,6 @@ func doReq(buf []byte, _tls bool, host string) (resp *http.Response, err error) 
 		return
 	}
 
-	lg.Info(string(resbuf.Bytes()))
+	lg.Debug(string(resbuf.Bytes()))
 	return http.ReadResponse(bufio.NewReader(resbuf), nil)
 }

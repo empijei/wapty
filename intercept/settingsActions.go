@@ -9,13 +9,13 @@ func settingsLoop() {
 	for {
 		select {
 		case cmd := <-uiSettings.RecChannel():
-			lg.Info("Settings accessed")
+			lg.Debug("Settings accessed")
 			switch cmd.Action {
 			case apis.STN_INTERCEPT:
 				uiSettings.Send(handleIntercept(cmd))
 			default:
 				//TODO send error?
-				lg.Info("Unknown action: %v", cmd.Action)
+				lg.Error("Unknown action: %v", cmd.Action)
 			}
 		case <-done:
 			return
@@ -26,13 +26,13 @@ func settingsLoop() {
 func handleIntercept(cmd apis.Command) *apis.Command {
 	value := apis.ARG_FALSE
 	if len(cmd.Args) >= 1 {
-		lg.Info("Requested change intercept status")
+		lg.Debug("Requested change intercept status")
 		intercept.setValue(cmd.Args[apis.ARG_ON] == apis.ARG_TRUE)
 		if intercept.value() {
 			value = apis.ARG_TRUE
 		}
 	}
-	lg.Info("Requested intercept status")
+	lg.Debug("Requested intercept status")
 	if intercept.value() {
 		value = apis.ARG_TRUE
 	}

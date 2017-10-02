@@ -52,7 +52,7 @@ func handleRequest(preq *pendingRequest) {
 		providedResp, err = http.ReadResponse(providedResponseBuffer, preq.originalRequest)
 		if err != nil {
 			//TODO check this error and hijack connection to send raw bytes
-			lg.Error("Error during provided response parsingh")
+			lg.Error("Error during provided response parsing")
 		}
 		status.addRawEditedResponse(preq.id, editedRequestDump)
 	default:
@@ -80,7 +80,7 @@ func editRequest(req *http.Request, ID int) (*http.Request, *http.Response, erro
 	//Send request to the dispatchLoop
 	ModifiedRequest := make(chan *mayBeRequest)
 	RequestQueue <- &pendingRequest{id: ID, originalRequest: req, modifiedRequest: ModifiedRequest}
-	lg.Info("Request intercepted")
+	lg.Debug("Request intercepted")
 	//Wait for edited request
 	mayBeReq := <-ModifiedRequest
 	if mayBeReq.res != nil {

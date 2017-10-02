@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gopherjs/gopherjs/js"
 	"github.com/empijei/wapty/cli/lg"
+	"github.com/gopherjs/gopherjs/js"
 )
 
 var document *js.Object
@@ -40,7 +40,7 @@ func (de *DomElement) GetTextContent() string {
 
 func (de *DomElement) ToggleClass(old, new string) {
 	oldclasses := strings.Split(toString(de.Get("classList")), " ")
-	lg.Infof("Oldclasses: %v", oldclasses)
+	lg.Debugf("Oldclasses: %v", oldclasses)
 	newclasses := make([]string, 0, len(oldclasses)+1)
 	var replaced bool
 	for _, class := range oldclasses {
@@ -57,7 +57,7 @@ func (de *DomElement) ToggleClass(old, new string) {
 		newclasses = append(newclasses, new)
 	}
 
-	lg.Infof("New classes: %v", newclasses)
+	lg.Debugf("New classes: %v", newclasses)
 	de.Set("classList", strings.Join(newclasses, " "))
 }
 

@@ -46,7 +46,7 @@ func (rr *ReqResp) parseRequest(req *http.Request) {
 			}
 		}
 	} else {
-		lg.Infof("Unable to resolve Host: %s\n", this.Host)
+		lg.Error("Unable to resolve Host: %s\n", this.Host)
 	}
 	this.Time = time.Now().String()
 	sendMetaData(this)

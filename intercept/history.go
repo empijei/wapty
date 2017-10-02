@@ -49,7 +49,7 @@ func (h *History) addResponse(ID int, res *http.Response) {
 	tmp, err := httputil.DumpResponse(res, true)
 	if err != nil {
 		//TODO
-		lg.Failure(err.Error())
+		lg.Error(err)
 	}
 	h.addRawResponse(ID, tmp)
 }
@@ -69,7 +69,7 @@ func StatusDump(status *History) {
 	status.RLock()
 	foo, err := json.MarshalIndent(status, " ", " ")
 	if err != nil {
-		lg.Failure(err.Error())
+		lg.Error(err)
 	}
 	lg.Info(foo)
 	status.RUnlock()
@@ -99,7 +99,7 @@ func historyLoop() {
 					StatusDump(&status)
 					panic(err)
 				}
-				lg.Infof("Dump: %s", dump)
+				lg.Debugf("Dump: %s", dump)
 				uiHistory.Send(&apis.Command{Action: "Dump", Payload: dump})
 			case apis.HST_FETCH:
 				uiHistory.Send(handleFetch(cmd))
@@ -117,7 +117,7 @@ func handleFetch(cmd apis.Command) *apis.Command {
 		lg.Error(err)
 		return apis.Err(err)
 	}
-	lg.Info("Requested history entry")
+	lg.Debug("Requested history entry")
 	rr := status.getItem(ID)
 	buf, err := json.Marshal(rr)
 	return &apis.Command{Action: apis.HST_FETCH, Payload: buf}

@@ -72,7 +72,7 @@ func handleClient(uiconn io.ReadWriteCloser) {
 				//cmd was not sent successfully, let's save it
 				outg <- cmd
 			}
-			lg.Info("Copyer terminated")
+			lg.Debug("Copyer terminated")
 		}()
 		for cmd = range outg {
 			dedicatedchan <- cmd
@@ -91,7 +91,7 @@ func handleClient(uiconn io.ReadWriteCloser) {
 		}
 		err := uiconn.Close()
 		lg.Error(err)
-		lg.Info("Sender terminated")
+		lg.Debug("Sender terminated")
 	}()
 
 	//Takes commands from the ui and sends them to the backend.

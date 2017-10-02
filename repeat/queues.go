@@ -27,7 +27,7 @@ func RepeaterLoop() {
 			case apis.RPT_GET:
 				uiRepeater.Send(handleGet(&cmd))
 			default:
-				lg.Infof("Unknown repeater action: %s", cmd.Action)
+				lg.Error("Unknown repeater action: %s", cmd.Action)
 			}
 		case <-done:
 			return
@@ -68,7 +68,7 @@ func handleGo(cmd *apis.Command) *apis.Command {
 	var res io.Reader
 	var id int
 	if res, id, err = r.repeat(body, host, tls); err != nil {
-		lg.Error("%s\n", err.Error())
+		lg.Error(err)
 		return apis.Err(err)
 	}
 	resbuf, err := ioutil.ReadAll(res)
@@ -89,7 +89,7 @@ func handleGet(cmd *apis.Command) *apis.Command {
 	status.RLock()
 	defer status.RUnlock()
 	if len(status.Repeats) <= ri {
-		lg.Infof("Repeater out of range")
+		lg.Error("Repeater out of range")
 		return apis.Err(err)
 	}
 	r := status.Repeats[ri]

@@ -27,7 +27,7 @@ func handleResponse(presp *pendingResponse) {
 	res.Header.Del("Content-Length")
 	rawRes, err := httputil.DumpResponse(res, true)
 	if err != nil {
-		lg.Error("intercept: dumping response %v", err)
+		lg.Errorf("intercept: dumping response %v", err)
 		presp.modifiedResponse <- &mayBeResponse{err: err}
 		return
 	}
@@ -52,7 +52,7 @@ func handleResponse(presp *pendingResponse) {
 		editedResponse = caseDrop()
 	default:
 		//TODO implement this
-		lg.Info("Not implemented yet")
+		lg.Error("Not implemented yet")
 	}
 	presp.modifiedResponse <- &mayBeResponse{res: editedResponse, err: err}
 }

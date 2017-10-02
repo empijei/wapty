@@ -46,7 +46,7 @@ func (r b64Able) Bytes() []byte {
 		value, err := base64.StdEncoding.DecodeString(string(r.Value))
 		if err != nil {
 			//TODO handle more gently
-			lg.Failure(err)
+			lg.Error(err)
 		}
 		return value
 	}
