@@ -327,7 +327,7 @@ func TestNewListener(t *testing.T) {
 
 	rootCAs := x509.NewCertPool()
 	//FIXME empijei: this cert has expired. Using an hardcoded cert is not a good
-	// idea, find an alternative
+	// idea, use the certs provided by the config package instead
 	if !rootCAs.AppendCertsFromPEM(caCert) {
 		t.Fatal("can't add cert")
 	}
