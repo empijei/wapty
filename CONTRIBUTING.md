@@ -15,6 +15,8 @@ Please note we have a code of conduct, please follow it in all your interactions
 1. Make the Pull Request
 1. Be thanked by the devs :blush:
 
+If you happen to make several PRs that follow those guidelines and you like the project there is a good chance you will be welcomed as a developer.
+
 ## For Contributors that have write access
 We would like to keep the history as linear as possible, so please when you have to pull from remote use
 ```

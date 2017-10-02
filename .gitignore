@@ -1,6 +1,7 @@
 *.pem
 *.swp
 *.log
+*.out
 *.cf
 /*.test
 rice-box.go
