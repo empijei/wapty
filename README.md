@@ -40,3 +40,21 @@ A screenshot:
 Please read [our roadmap](https://github.com/empijei/wapty/blob/master/ROADMAP.md), the [issues](https://github.com/empijei/wapty/issues) on this repo and [contributing guidelines](https://github.com/empijei/wapty/blob/master/CONTRIBUTING.md).
 
 Pull Requests are welcome, or if you'd like to actively contribute or become part of the team feel free to shoot me a short email of presentation at [empijei@gmail.com](mailto:empijei@gmail.com) or join our [telegram channel](https://telegram.me/waptysuite)
+
+
+# Packages and Coverage
+Package Name | Currently Actively Developing                                                      | Development Phase                                      | Test Coverage
+:-----------:|:----------------------------------------------------------------------------------:|:------------------------------------------------------:|:--:
+main         | [Empijei](https://github.com/empijei)                                              | Usable                                                 | [![main](https://gocover.io/_badge/github.com/empijei/wapty?nocache=wapty)](http://gocover.io/github.com/empijei/wapty)
+mitm         | [Empijei](https://github.com/empijei)                                              | Done                                                   | [![mitm](https://gocover.io/_badge/github.com/empijei/wapty/mitm?nocache=wapty)](http://gocover.io/github.com/empijei/wapty/mitm)
+decode       | [AnnaOpss](https://github.com/annaopss)                                            | Usable, missing some codecs                            | [![decode](https://gocover.io/_badge/github.com/empijei/wapty/decode?nocache=wapty)](http://gocover.io/github.com/empijei/wapty/decode)
+config       | [Empijei](https://github.com/empijei)                                              | Usable                                                 | [![config](https://gocover.io/_badge/github.com/empijei/wapty/config?nocache=wapty)](http://gocover.io/github.com/empijei/wapty/config)
+intercept    | [Empijei](https://github.com/empijei)                                              | Usable                                                 | [![intercept](https://gocover.io/_badge/github.com/empijei/wapty/intercept?nocache=wapty)](http://gocover.io/github.com/empijei/wapty/intercept)
+repeat       | [Empijei](https://github.com/empijei)                                              | Only backend implemented                               | [![repeat](https://gocover.io/_badge/github.com/empijei/wapty/repeat?nocache=wapty)](http://gocover.io/github.com/empijei/wapty/repeat)
+cli          | [Silverweed](https://github.com/silverweed), [Empijei](https://github.com/empijei) | Commands Work                                          | [![cli](https://gocover.io/_badge/github.com/empijei/wapty/cli?nocache=wapty)](http://gocover.io/github.com/empijei/wapty/cli)
+ui           | [Empijei](https://github.com/empijei)                                              | Usable                                                 | [![ui](https://gocover.io/_badge/github.com/empijei/wapty/ui?nocache=wapty)](http://gocover.io/github.com/empijei/wapty/ui)
+cli/lg       | [Empijei](https://github.com/empijei)                                              | Usable                                                 | N/A
+mocksy       | [Silverweed](https://github.com/silverweed)                                        | Burp importer written, server and matcher stub written | [![mocksy](https://gocover.io/_badge/github.com/empijei/wapty/mocksy?nocache=wapty)](http://gocover.io/github.com/empijei/wapty/mocksy)
+sequence     | ✗                                                                                  | Draft                                                  | N/A
+compare      | ✗                                                                                  | Draft                                                  | N/A
+plug         | ✗                                                                                  | Not implemented yet                                    | N/A
