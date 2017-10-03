@@ -37,4 +37,6 @@ A screenshot:
 ![intercept](https://github.com/empijei/wapty/raw/master/documentation/screenshot.png)
 
 # Contribute
+Please read [our roadmap](https://github.com/empijei/wapty/blob/master/ROADMAP.md), the [issues](https://github.com/empijei/wapty/issues) on this repo and [contributing guidelines](https://github.com/empijei/wapty/blob/master/CONTRIBUTING.md).
+
 Pull Requests are welcome, or if you'd like to actively contribute or become part of the team feel free to shoot me a short email of presentation at [empijei@gmail.com](mailto:empijei@gmail.com) or join our [telegram channel](https://telegram.me/waptysuite)
