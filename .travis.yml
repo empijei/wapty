@@ -4,6 +4,7 @@ go:
 install:
 - make installdeps
 - go get github.com/AlekSi/gocoverutil
+- go get github.com/mattn/goveralls
 script:
 - make testv
 - gocoverutil test ./...

@@ -6,6 +6,7 @@
 [![codebeat](https://codebeat.co/badges/9a62559f-ebf7-4097-8023-c8745e73ace8)](https://codebeat.co/projects/github-com-empijei-wapty-master)
 [![Telegram Chat](https://img.shields.io/badge/discuss-telegram-179cde.svg?maxAge=3600)](https://telegram.me/waptysuite)
 [![Stability](https://img.shields.io/badge/stability-unstable-yellow.svg)](https://github.com/empijei/wapty/blob/master/ROADMAP.md)
+[![Coverage Status](https://coveralls.io/repos/github/empijei/wapty/badge.svg?branch=master)](https://coveralls.io/github/empijei/wapty?branch=master)
 [![Changelog](https://img.shields.io/github/release/empijei/wapty.svg?maxAge=2592000)](https://github.com/empijei/wapty/releases)
 [![Funding](https://img.shields.io/badge/funding-hobby-lightgrey.svg)](https://github.com/empijei/wapty)
 
@@ -43,6 +44,7 @@ Pull Requests are welcome, or if you'd like to actively contribute or become par
 
 
 # Packages and Coverage
+
 Package Name | Currently Actively Developing                                                      | Development Phase                                      | Test Coverage
 :-----------:|:----------------------------------------------------------------------------------:|:------------------------------------------------------:|:--:
 main         | [Empijei](https://github.com/empijei)                                              | Usable                                                 | [![main](https://gocover.io/_badge/github.com/empijei/wapty?nocache=wapty)](http://gocover.io/github.com/empijei/wapty)
@@ -58,3 +60,4 @@ mocksy       | [Silverweed](https://github.com/silverweed)                      
 sequence     | ✗                                                                                  | Draft                                                  | N/A
 compare      | ✗                                                                                  | Draft                                                  | N/A
 plug         | ✗                                                                                  | Not implemented yet                                    | N/A
+TOTAL        | [Empijei](https://github.com/empijei)                                              | Unstable                                               | [![Coverage Status](https://coveralls.io/repos/github/empijei/wapty/badge.svg?branch=master)](https://coveralls.io/github/empijei/wapty?branch=master)
