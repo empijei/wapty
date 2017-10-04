@@ -1,9 +1,13 @@
 language: go
-go: 
- - 1.9
- 
-install: 
- - make installdeps
-
+go:
+- 1.9
+install:
+- make installdeps
+- go get github.com/AlekSi/gocoverutil
 script:
- - make testv
+- make testv
+- gocoverutil test ./...
+- goveralls -coverprofile=cover.out -repotoken $COVERALLS_TOKEN
+env:
+  global:
+    secure: eDwuzolXdZFOFSRVbuQ4V/4YKSSXINfnpSfpbScmeBDh+LtlLznil14+rZTpjAY5UtBnboyZKYn+Cp+wDoVZhCFPPn4FVwLzI8nVMxVUkmnZRynHzjdCR3Wyz5+vCMiOlkNjFv4MC48gDlOIR3JqiijLcrMQzwTuLuondLEcHbewtM5jEaWlDQUZ5R1vtxPb7zdvM/ilXcYsip+Q+mnkA2VbW7Sm2Ks4S+/+I9uqvDyl8Wg5jR0EGmg7FZTZKIR0ArVV410QcluGNnq3PaBdJ9YNnjQQJ+2bDM25/f/dMiiAUf1LdGFL4fFHC38QzzGgMIlmlUMZOiha6BqGlzcIgMJiPoLIkBFsa0x/bDjUutQHMb2Mi/4BMOuZIGG5H+KVsjYyxPHdpUNMmlMvF6OvW/2zZiyqbBmrJouQlO058ni6W7PTKZLnA2dmAXexSKXWo5wxBtPuzgGAo8ol0qqyzyMhE7hMudYi7hHBrUu9Ju91rxx8sRkYE62L7NEATKc7rJfq9bFWnAvqHt8EI4pSTiBZuMMqRNp9GAJj5meQBAKvtTM9Y1Aultucon8abUeeJtFykGKbndibmY5fF5lmobqJfQBl174GzQ1I/nMCNCHm4eJmsdiM9FFJ7Mw4O6GqP0XlsfyQhLqACBWu4/Qkuy8yRAog2wHHjxVnxl4ml5M=
