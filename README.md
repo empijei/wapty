@@ -1,10 +1,10 @@
 # Wapty (Web Application Penetration Testing Suite)y
 
 [![License](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://raw.githubusercontent.com/empijei/wapty/master/LICENSE)
-[![Build Status](https://travis-ci.org/empijei/wapty.svg?branch=master)](https://travis-ci.org/empijei/wapty) 
-[![Go Report Card](https://goreportcard.com/badge/github.com/empijei/wapty)](https://goreportcard.com/report/github.com/empijei/wapty)
-[![codebeat](https://codebeat.co/badges/9a62559f-ebf7-4097-8023-c8745e73ace8)](https://codebeat.co/projects/github-com-empijei-wapty-master)
 [![Telegram Chat](https://img.shields.io/badge/discuss-telegram-179cde.svg?maxAge=3600)](https://telegram.me/waptysuite)
+[![codebeat](https://codebeat.co/badges/9a62559f-ebf7-4097-8023-c8745e73ace8)](https://codebeat.co/projects/github-com-empijei-wapty-master)
+[![Go Report Card](https://goreportcard.com/badge/github.com/empijei/wapty)](https://goreportcard.com/report/github.com/empijei/wapty)
+[![Build Status](https://travis-ci.org/empijei/wapty.svg?branch=master)](https://travis-ci.org/empijei/wapty)
 [![Stability](https://img.shields.io/badge/stability-unstable-yellow.svg)](https://github.com/empijei/wapty/blob/master/ROADMAP.md)
 [![Coverage Status](https://coveralls.io/repos/github/empijei/wapty/badge.svg?branch=master)](https://coveralls.io/github/empijei/wapty?branch=master)
 [![Changelog](https://img.shields.io/github/release/empijei/wapty.svg?maxAge=2592000)](https://github.com/empijei/wapty/releases)

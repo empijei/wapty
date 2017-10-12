@@ -55,6 +55,9 @@ This stage will be the first stage for wapty, before this is finished wapty will
 * [x] Add intercept checker in the right spots
 * [x] Add functionality: releasing the intercept should forward all pending requests
 * [x] Add saving functionality
+* [x] Use proper Logging
+* [x] Add configurations
+* [ ] Load configurations on load
 * [ ] finish Repeat tests
 * [ ] Add scoping
 * [ ] Add history filtering/sorting
@@ -62,8 +65,6 @@ This stage will be the first stage for wapty, before this is finished wapty will
 * [ ] Allow the user to change the destination endpoint
 * [ ] Add Intruder
 * [ ] Send the whole status on ui connect
-* [ ] Add configurations
-* [ ] Use proper Logging
 * [ ] Make a wapty proxy a struct and provide methods to close/rebind it
 * UI
 	* [ ] Add req ID to editor and warn when receive unexpected requests
