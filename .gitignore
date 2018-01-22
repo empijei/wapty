@@ -17,3 +17,4 @@ gopherjs.js
 *.sh
 ignored/*
 vendor/
+bin/
