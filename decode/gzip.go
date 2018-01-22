@@ -3,7 +3,9 @@ package decode
 import (
 	"bytes"
 	"compress/gzip"
+	"encoding/binary"
 	"fmt"
+	"hash/crc32"
 	"io"
 	"log"
 	"strings"
@@ -52,7 +54,6 @@ func (b *gzipDec) Decode() (output string) {
 	}
 
 	if err := zr.Close(); err != nil {
-		fmt.Println("Secondo errore")
 		log.Fatal(err)
 	}
 
@@ -66,6 +67,33 @@ func (b *gzipDec) Encode() (output string) {
 
 // Check returns the probability a string is gzip compressed
 func (b *gzipDec) Check() (acceptability float64) {
-	// TODO
-	return
+	var c int
+	tot := 3
+	// 10-byte header: magic number 1f 8b
+	gzipID1 := 0x1f
+	gzipID2 := 0x8b
+	buf := []byte(b.input)
+
+	if len(buf) < 4 {
+		return 0
+	}
+
+	fmt.Println(gzipID1, " ", buf[0])
+	if buf[0] == byte(gzipID1) {
+		c++
+	}
+
+	if buf[1] == byte(gzipID2) {
+		c++
+	}
+
+	// 8-byte footer: CRC-32 checksum
+	var digest uint32
+	digest = crc32.ChecksumIEEE(buf[2 : len(buf)-1])
+
+	var le = binary.LittleEndian
+	if uint16(digest) == le.Uint16(buf[:2]) {
+		c++
+	}
+	return float64(c) / float64(tot)
 }
