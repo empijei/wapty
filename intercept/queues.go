@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/empijei/wapty/cli/lg"
+	"github.com/empijei/cli/lg"
 	"github.com/empijei/wapty/mitm"
 	"github.com/empijei/wapty/ui"
 	"github.com/empijei/wapty/ui/apis"

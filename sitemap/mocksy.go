@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/empijei/wapty/cli/lg"
+	"github.com/empijei/cli/lg"
 )
 
 type Tree struct {

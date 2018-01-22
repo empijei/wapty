@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"strconv"
 
-	"github.com/empijei/wapty/cli/lg"
+	"github.com/empijei/cli/lg"
 )
 
 // Command represents a packet of information sent or received by or from the server.

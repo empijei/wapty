@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/empijei/wapty/cli/lg"
+	"github.com/empijei/cli/lg"
 )
 
 // DefaultTimeout is the default value for the timeout when creating a new Repeater

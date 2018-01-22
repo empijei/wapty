@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"strconv"
 
-	"github.com/empijei/wapty/cli/lg"
+	"github.com/empijei/cli/lg"
 	"github.com/empijei/wapty/ui/apis"
 )
 

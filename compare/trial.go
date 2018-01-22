@@ -3,7 +3,7 @@ package main
 import (
 	"unicode"
 
-	"github.com/empijei/wapty/cli/lg"
+	"github.com/empijei/cli/lg"
 	"github.com/fatih/color"
 	"github.com/pmezard/go-difflib/difflib"
 )

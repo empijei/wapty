@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/empijei/wapty/cli/lg"
+	"github.com/empijei/cli/lg"
 )
 
 // Response is struct used to deserialize burp XML. It contains text data and an attribute telling

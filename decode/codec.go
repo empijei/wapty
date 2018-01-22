@@ -4,7 +4,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/empijei/wapty/cli/lg"
+	"github.com/empijei/cli/lg"
 )
 
 type codecConstructor func(string) CodecC

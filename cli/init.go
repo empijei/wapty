@@ -6,7 +6,7 @@ import (
 	"os"
 	"text/template"
 
-	"github.com/empijei/wapty/cli/lg"
+	"github.com/empijei/cli/lg"
 )
 
 func init() {

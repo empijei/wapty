@@ -3,7 +3,7 @@ package intercept
 import (
 	"net/http"
 
-	"github.com/empijei/wapty/cli/lg"
+	"github.com/empijei/cli/lg"
 )
 
 //Remove trailers?

@@ -12,7 +12,7 @@ import (
 	rice "github.com/GeertJohan/go.rice"
 	"github.com/empijei/wapty/ui/apis"
 
-	"github.com/empijei/wapty/cli/lg"
+	"github.com/empijei/cli/lg"
 	"golang.org/x/net/websocket"
 )
 

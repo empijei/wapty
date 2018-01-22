@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/empijei/wapty/cli/lg"
+	"github.com/empijei/cli/lg"
 )
 
 // histDir is the directory to load XML from

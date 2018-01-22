@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/empijei/wapty/cli/lg"
+	"github.com/empijei/cli/lg"
 )
 
 // ServerParam struct

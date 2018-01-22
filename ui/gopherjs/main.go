@@ -7,7 +7,7 @@ package main
 import (
 	"encoding/json"
 
-	"github.com/empijei/wapty/cli/lg"
+	"github.com/empijei/cli/lg"
 	. "github.com/empijei/wapty/ui/apis"
 	js "github.com/gopherjs/gopherjs/js"
 	"github.com/gopherjs/websocket"

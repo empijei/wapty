@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/empijei/wapty/cli/lg"
+	"github.com/empijei/cli/lg"
 )
 
 // MainStandalone parses its own flag and it is the funcion to be run when using

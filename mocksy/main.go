@@ -1,6 +1,6 @@
 package mocksy
 
-import "github.com/empijei/wapty/cli/lg"
+import "github.com/empijei/cli/lg"
 
 func Main(_ ...string) {
 	const port = ":8082"
