@@ -91,7 +91,7 @@ func Init() {
 		} else {
 			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 			fmt.Fprintln(os.Stderr, "Available commands are:")
-			fmt.Fprintln()
+			fmt.Fprintln(os.Stderr)
 			for _, cmd := range WaptyCommands {
 				fmt.Fprintln(os.Stderr, "\t"+cmd.Name+"\t\t"+cmd.Short)
 			}
