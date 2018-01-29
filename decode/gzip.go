@@ -3,9 +3,7 @@ package decode
 import (
 	"bytes"
 	"compress/gzip"
-	"encoding/binary"
 	"fmt"
-	"hash/crc32"
 	"io"
 	"log"
 	"strings"
@@ -68,31 +66,37 @@ func (b *gzipDec) Encode() (output string) {
 // Check returns the probability a string is gzip compressed
 func (b *gzipDec) Check() (acceptability float64) {
 	var c int
-	tot := 3
-	// 10-byte header: magic number 1f 8b
+	tot := 8
 	gzipID1 := 0x1f
 	gzipID2 := 0x8b
 	buf := []byte(b.input)
 
-	if len(buf) < 4 {
-		return 0
+	if len(buf) < 10 {
+		return 0.
 	}
 
-	fmt.Println(gzipID1, " ", buf[0])
+	// this is the first ID byte
 	if buf[0] == byte(gzipID1) {
-		c++
+		c = c + 2
 	}
 
+	// this is the secondo ID byte
 	if buf[1] == byte(gzipID2) {
+		c = c + 2
+	}
+
+	// this is the compression method
+	if buf[2] <= 8 {
+		c = c + 2
+	}
+
+	// this is the flags
+	if buf[3] < 32 {
 		c++
 	}
 
-	// 8-byte footer: CRC-32 checksum
-	var digest uint32
-	digest = crc32.ChecksumIEEE(buf[2 : len(buf)-1])
-
-	var le = binary.LittleEndian
-	if uint16(digest) == le.Uint16(buf[:2]) {
+	// this is the operating system
+	if buf[9] <= 13 || buf[9] == 255 {
 		c++
 	}
 	return float64(c) / float64(tot)
