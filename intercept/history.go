@@ -119,7 +119,7 @@ func handleFetch(cmd apis.Command) *apis.Command {
 	}
 	lg.Debug("Requested history entry")
 	rr := status.getItem(ID)
-	buf, err := json.Marshal(rr)
+	buf, _ := json.Marshal(rr)
 	return &apis.Command{Action: apis.HST_FETCH, Payload: buf}
 }
 

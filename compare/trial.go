@@ -44,7 +44,7 @@ func main() {
 		prev = sec.end
 	}
 	if prev != len(sa) {
-		lg.Info(sa[prev:len(sa)])
+		lg.Info(sa[prev:])
 	}
 	lg.Info()
 
@@ -71,7 +71,7 @@ func main() {
 		prev = sec.end
 	}
 	if prev != len(sb) {
-		lg.Info(sb[prev:len(sb)])
+		lg.Info(sb[prev:])
 	}
 }
 

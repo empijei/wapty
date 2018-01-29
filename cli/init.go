@@ -52,6 +52,7 @@ var cmdVersion = &Cmd{
 	Long:      "print version and exit",
 }
 
+// PrintBanner prints the initial banner
 func Printbanner() {
 	tmpl := template.New("banner")
 	template.Must(tmpl.Parse(banner))
@@ -89,7 +90,7 @@ func Init() {
 			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 			fmt.Fprintln(os.Stderr, "Available commands are:\n")
 			for _, cmd := range WaptyCommands {
-				fmt.Fprintln(os.Stderr, "\t"+cmd.Name+"\n\t\t"+cmd.Short)
+				fmt.Fprintln(os.Stderr, "\t"+cmd.Name+"\t\t"+cmd.Short)
 			}
 			fmt.Fprintln(os.Stderr, "\nDefault command is: ", DefaultCommand.Name)
 		}

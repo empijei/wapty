@@ -51,7 +51,7 @@ func LoadResponseHistory(dir string) error {
 	return nil
 }
 
-// LoadResponseFrom decodes an XML source and loads all req-resp pairs in the matcher's responseHistory.
+// LoadResponsesFrom decodes an XML source and loads all req-resp pairs in the matcher's responseHistory.
 func LoadResponsesFrom(source io.ReadSeeker) error {
 	// Go refuses to parse any XML whose version is != "1.0". Burp sometimes
 	// declares XML 1.1, albeit it uses no 1.1-only features, so we trick

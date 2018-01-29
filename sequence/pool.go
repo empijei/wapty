@@ -61,7 +61,7 @@ func newPool(nw int, req []byte, _tls bool, host string, reqps int, cookieName s
 			defer func() {
 				_ = recover()
 			}()
-			for _ = range p.ticker.C {
+			for range p.ticker.C {
 				p.throttledone <- struct{}{}
 			}
 		}()
