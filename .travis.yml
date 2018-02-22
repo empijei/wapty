@@ -5,6 +5,7 @@ install:
 - make installdeps
 - go get github.com/AlekSi/gocoverutil
 - go get github.com/mattn/goveralls
+- go get github.com/empijei/cli
 script:
 - make testv
 - gocoverutil test ./...
