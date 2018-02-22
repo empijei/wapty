@@ -11,6 +11,7 @@ import (
 // Each command `cmd` is invoked via `wapty cmd`
 var WaptyCommands []*Cmd
 
+// DefaultCommand is the prefixed command set at the beginning of execution
 var DefaultCommand *Cmd
 
 // Cmd is used by any package exposing a runnable command to gather information
@@ -43,6 +44,7 @@ func AddCommand(c *Cmd) {
 	WaptyCommands = append(WaptyCommands, c)
 }
 
+// Usage prints out the usage helper
 func (c *Cmd) Usage() {
 	fmt.Fprintf(os.Stderr, "usage: %s\n\n", c.UsageLine)
 	c.Flag.PrintDefaults()

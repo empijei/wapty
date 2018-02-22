@@ -52,12 +52,15 @@ var cmdVersion = &Cmd{
 	Long:      "print version and exit",
 }
 
+// Printbanner prints the initial banner
 func Printbanner() {
 	tmpl := template.New("banner")
 	template.Must(tmpl.Parse(banner))
 	_ = tmpl.Execute(os.Stderr, struct{ Version, Commit, Build string }{Version, Commit, Build})
 }
 
+// Init is the first function executed. It prints the banner and
+// sets the default command.
 func Init() {
 	if Build == "Release" {
 		lg.CurLevel = lg.Level_Info
@@ -87,9 +90,10 @@ func Init() {
 			callCommand(command)
 		} else {
 			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
-			fmt.Fprintln(os.Stderr, "Available commands are:\n")
+			fmt.Fprintln(os.Stderr, "Available commands are:")
+			fmt.Fprintln(os.Stderr)
 			for _, cmd := range WaptyCommands {
-				fmt.Fprintln(os.Stderr, "\t"+cmd.Name+"\n\t\t"+cmd.Short)
+				fmt.Fprintln(os.Stderr, "\t"+cmd.Name+"\t\t"+cmd.Short)
 			}
 			fmt.Fprintln(os.Stderr, "\nDefault command is: ", DefaultCommand.Name)
 		}

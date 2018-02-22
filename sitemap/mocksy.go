@@ -10,11 +10,13 @@ import (
 	"github.com/empijei/cli/lg"
 )
 
+// Tree is a struct with a value and its children used to make the sitemap
 type Tree struct {
 	value    string
 	children []*Tree
 }
 
+// HasChildren checks if there are childern and if so, returns them
 func (t *Tree) HasChildren(name string) *Tree {
 	for _, c := range t.children {
 		if c.value == name {
@@ -57,6 +59,7 @@ func (t *Tree) string(lvl int) string {
 	return string(buf.Bytes())
 }
 
+// Path is a struct that decompose an URL into a method and the directories
 type Path struct {
 	method      string
 	directories []string

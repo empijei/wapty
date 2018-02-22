@@ -39,7 +39,7 @@ Upgrade-Insecure-Requests: 1
 		case val := <-p.out:
 			testchan <- val
 		}
-		for _ = range p.out {
+		for range p.out {
 		}
 	}()
 

@@ -9,7 +9,7 @@ import (
 	"github.com/empijei/cli/lg"
 )
 
-// Response is struct used to deserialize burp XML. It contains text data and an attribute telling
+// Request is a struct used to deserialize burp XML. It contains text data and an attribute telling
 // if the content is base64 or not.
 type Request struct {
 	Base64 string `xml:"base64,attr"`
@@ -21,7 +21,7 @@ func (r Request) Bytes() []byte {
 	return b64Able(r).Bytes()
 }
 
-// Response is struct used to deserialize burp XML. It contains text data and an attribute telling
+// Response is a struct used to deserialize burp XML. It contains text data and an attribute telling
 // if the content is base64 or not.
 type Response struct {
 	Base64 string `xml:"base64,attr"`

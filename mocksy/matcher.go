@@ -25,6 +25,7 @@ func AddToHistory(itm Item) {
 	responseHistory = append(responseHistory, itm)
 }
 
+// ClearHistory sets responseHistory to an empty slice
 func ClearHistory() {
 	responseHistory = responseHistory[:0]
 }
@@ -89,7 +90,7 @@ func findBestMatching(reqs []Item, host Host, req *http.Request) Item {
 		fmt.Fprintf(outw, "mocksy: error reading body of request while sorting: %s\n", err.Error())
 		return Item{}
 	}
-	// TODO: retreive port
+	// TODO: retrieve port
 	port := "80"
 	if req.Proto == "https" {
 		port = "443"
@@ -98,7 +99,7 @@ func findBestMatching(reqs []Item, host Host, req *http.Request) Item {
 		port = req.Host[id+1:]
 	}
 
-	// Retreive protocol
+	// Retrieve protocol
 	proto := req.Proto
 	if id := strings.Index(proto, "/"); id > -1 {
 		proto = proto[:id]
@@ -123,7 +124,7 @@ func findBestMatching(reqs []Item, host Host, req *http.Request) Item {
 	return best
 }
 
-// findHost tries to retreive host information from `req`.
+// findHost tries to retrieve host information from `req`.
 // It fills Host.Value with the verbatim req.Host string, then tries to
 // find the correct Ip as well from header information.
 func findHost(req *http.Request) Host {
@@ -216,12 +217,11 @@ func fuzzyComparer(reqs []Item, args compareArgs) func(Item, Item) bool {
 				// heuristics (like `minReqLenDiff`) to have better control over this choice.
 				println("same method 1")
 				return ra.Method == args.Method
-			} else {
-				// Here, a request matches the actual method _and_ its request body is
-				// closer to the original one. Return that request without further investigation.
-				println("same method 2")
-				return ra.Method == args.Method
 			}
+			// Here, a request matches the actual method _and_ its request body is
+			// closer to the original one. Return that request without further investigation.
+			println("same method 2")
+			return ra.Method == args.Method
 		}
 
 		// Here, either both methods match or neither does.

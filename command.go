@@ -35,6 +35,7 @@ type Command struct {
 	Flag flag.FlagSet
 }
 
+// Usage prints out the usage helper
 func (c *Command) Usage() {
 	fmt.Fprintf(os.Stderr, "usage: %s\n\n", c.UsageLine)
 	c.Flag.PrintDefaults()

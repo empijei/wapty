@@ -80,7 +80,7 @@ Connection: close
 
 	tmp = <-mocksub.SentStuff
 	assert(bytes.Contains(tmp.Payload, []byte(`Test response`)), "Unexpected response: "+string(tmp.Payload))
-	assert(req.Header.Get("X-Wapty-Test") == "TestHeader", "Test header was not sucessfully set. Expected <TestHeader> but got <%s>", req.Header.Get("X-Wapty-Test"))
+	assert(req.Header.Get("X-Wapty-Test") == "TestHeader", "Test header was not successfully set. Expected <TestHeader> but got <%s>", req.Header.Get("X-Wapty-Test"))
 	subid := tmp.Args[apis.ARG_SUBID]
 	assert(subid == "0", "Expected repeat payload id 0 but got "+subid)
 

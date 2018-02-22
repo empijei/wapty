@@ -33,7 +33,7 @@ func genDummyStatus() *History {
 		Time:        "time",
 	}
 
-	rr := []*ReqResp{&ReqResp{
+	rr := []*ReqResp{{
 		ID:           0,
 		MetaData:     metadata,
 		RawReq:       []byte("raw request"),

@@ -159,7 +159,7 @@ func testProxyTransparent(t *testing.T, setupReq func(req *http.Request), wrap f
 	if err != nil {
 		t.Fatal("Request write error:", err)
 	}
-	resp, err := http.ReadResponse(bufio.NewReader(d), req)
+	resp, _ := http.ReadResponse(bufio.NewReader(d), req)
 	checkResp(resp)
 }
 
