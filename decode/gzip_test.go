@@ -1,7 +1,6 @@
 package decode
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -16,6 +15,21 @@ var GzipDecodeTest = []struct {
 	{
 		"",
 		"",
+	},
+}
+
+var GzipEncodeTest = []struct {
+	in   string
+	eOut string
+}{
+	{
+		"FooBar",
+		"H4sIGAAAAAAA/2d6aXAAQ29tcHJlc3NlZCB3aXRoIFdhcHR5AHLLz3dKLAIEAAD//0NcF6EGAAAA",
+	},
+	{
+		// this does not return an emptu string since the title and the comment are set
+		"",
+		"H4sIGAAAAAAA/2d6aXAAQ29tcHJlc3NlZCB3aXRoIFdhcHR5AAEAAP//AAAAAAAAAAA=",
 	},
 }
 
@@ -41,7 +55,16 @@ func TestGzipDecode(t *testing.T) {
 		d := NewGzipCodecC(input)
 		out := d.Decode()
 		if out != tt.eOut {
-			fmt.Println(out)
+			t.Errorf("Expected decoded value: '%s' but got '%s'", tt.eOut, out)
+		}
+	}
+}
+
+func TestGzipEncode(t *testing.T) {
+	for _, tt := range GzipEncodeTest {
+		d := NewGzipCodecC(tt.in)
+		out := d.Encode()
+		if out != tt.eOut {
 			t.Errorf("Expected decoded value: '%s' but got '%s'", tt.eOut, out)
 		}
 	}

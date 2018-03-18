@@ -3,6 +3,7 @@ package decode
 import (
 	"bytes"
 	"compress/gzip"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"log"
@@ -61,7 +62,23 @@ func (b *gzipDec) Decode() (output string) {
 
 // Encode compresses a string with gzip
 func (b *gzipDec) Encode() (output string) {
-	return //TODO
+	var buf bytes.Buffer
+	zw := gzip.NewWriter(&buf)
+
+	zw.Name = "gzip"
+	zw.Comment = "Compressed with Wapty"
+
+	_, err := zw.Write([]byte(b.input))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = zw.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return base64.StdEncoding.EncodeToString(buf.Bytes())
 }
 
 // Check returns the probability a string is gzip compressed

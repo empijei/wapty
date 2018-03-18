@@ -29,6 +29,10 @@ var codecs = []struct {
 		urlname,
 		codecConstructor(NewURLCodecC),
 	},
+	{
+		gzipname,
+		codecConstructor(NewGzipCodecC),
+	},
 }
 
 //Decoder decodes the string and returns a decoded value that tries to skip
