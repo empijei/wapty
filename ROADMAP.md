@@ -15,14 +15,14 @@
 	* [x] CLI
 	* [ ] UI
 	* Codecs
-		* [ ] Binary
 		* [x] Base 16
 		* [x] Base 32
 		* [x] Base 64
 		* [x] URL
+		* [x] Gzip
+		* [ ] Binary
 		* [ ] HTML Entities
 		* [ ] Javascript-Escape
-		* [ ] Gzip
 * [ ] Save/Load
 * [ ] Intrude
 * [ ] Sequence
