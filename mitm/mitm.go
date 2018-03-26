@@ -281,6 +281,7 @@ func (p *Proxy) tlsDial(addr, serverName string) (net.Conn, error) {
 		//empijei (19/06/2017): used Clone instead of copying the config value
 		conf = p.TLSClientConfig.Clone()
 	}
+	conf.InsecureSkipVerify = true
 	conf.ServerName = serverName
 	return tls.Dial("tcp", addr, conf)
 }

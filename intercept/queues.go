@@ -75,6 +75,9 @@ func MainLoop() {
 	wrappedTransport := &http.Transport{
 		TLSNextProto:        make(map[string]func(authority string, c *tls.Conn) http.RoundTripper),
 		TLSHandshakeTimeout: 5 * time.Second, //TODO make this a variable
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
 		Dial: (&net.Dialer{
 			Timeout: 5 * time.Second, //TODO make this a variable
 		}).Dial,
