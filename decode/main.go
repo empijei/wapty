@@ -21,10 +21,11 @@ func MainStandalone(args ...string) {
 		//fmt.Fprintln(os.Stderr, buf)
 		//}
 		if out, codecUsed, err := DecodeEncode(buf, flagEncode, codec); err == nil {
-			lg.Infof("Codec: %s\n%s\n", codecUsed, out)
+			lg.Debugf("Codec %s\n", codecUsed)
+			lg.Infof("%s\n", out)
 			buf = out
 		} else {
-			fmt.Fprintln(os.Stderr, err.Error())
+			lg.Error(err.Error())
 			os.Exit(2)
 		}
 	}
