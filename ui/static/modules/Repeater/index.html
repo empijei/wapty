@@ -1,22 +1,18 @@
-	<section class="container" width="100%">
-	  <div class="tabs">
-	  	 <ul id="tabsTitle">
-	  				<li class="tablinks is-active"><a onclick="openTab(event, '1')">1</a></li>
-	  				<li class="tablinks"><a onclick="openTab(event, '2')">2</a></li>
-	  		</ul>
-     <p class="control">
-       <a class="button is-info" onclick="createTab(event, 'Name')">
-         Add tab
-       </a>
-     </p>
-	  </div>
+<section class="container" width="100%">
+  <div class="tabs">
+  	 <ul>
+  		<li class="tablinks is-active" id="1title"><a onclick="openTab(event, '1')">1</a></li>
+  	</ul>
+   <p class="control">
+     <a class="button is-info" onclick="createTab(event, 'Name')">
+       Add tab
+     </a>
+   </p>
+  </div>
 
- 		<section class="container" id="tabs">
- 				<div class="tabcontent" id="1">
-	      <textarea class="textarea" placeholder="HTTP traffic" rows="30"></textarea>
- 				</div>
- 				<div class="tabcontent" id="2">
-	      <textarea class="textarea" placeholder="HTTP traffic" rows="30"></textarea>
- 				</div>
-			</section>
+	<section class="container">
+		<div class="tabcontent" id="1">
+      <textarea class="textarea" placeholder="HTTP traffic" rows="30"></textarea>
+		</div>
 	</section>
+</section>
