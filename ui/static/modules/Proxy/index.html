@@ -1,0 +1,47 @@
+<div class="tile is-parent is-vertical">
+		<!--START Buttons-->
+		<div class="level">
+				<div class="level-left">
+	  	  <div class="level-item">
+	  	  		<div class="buttons">
+          <a class="button" id="forwardOriginal">Forward Original</a>
+          <a class="button" id="forwardModified">Forward Modified</a>
+          <a class="button" id="drop">Drop</a>
+          <a class="button" id="provideResponse">Provide Response</a>
+          <a class="button is-danger is-outlined" id="interceptToggle">Intercept is off</a>
+	  	  		</div>
+	  	  </div>
+				</div>
+
+				<!--START Action menu-->
+				<div class="level-right">
+				  <div class="level-item">
+				  		<div class="dropdown is-right is-hoverable">
+				  				<div class="dropdown-trigger">
+            <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+              <span>
+				  										Actions
+				  								</span>
+				  								<span class="icon is-small">
+				  										<i class="fas fa-angle-down" aria-hidden="true">
+				  										</i>
+				  								</span>
+            </button>
+				  				<!--dropdown-trigger-->
+				  				</div>
+          <div class="dropdown-menu" id="dropdown-menu" role="menu">
+				  						<div class="dropdown-content">
+				  								<a href="#" class="dropdown-item">
+				  										Send to repeater
+				  								</a>
+				  						</div>
+				  				</div>
+				  		</div>
+				  <!--END Action menu-->
+				  </div>
+				</div>
+  <!--END Buttons-->
+		</div>
+
+  <textarea class="textarea" placeholder="HTTP traffic" rows="30"></textarea>
+</div>

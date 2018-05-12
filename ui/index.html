@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+		<head>
+				<meta charset="utf-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1">
+		 	<title>Wapty</title>
+		  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
+				<link rel="stylesheet" href="/index.css">
+	 </head>
+	 <body>
+			 <section class="features">
+				  <div class="tabs">
+				  	 <ul>
+				  				<li class="is-active"><a onclick="openTab(event, 'Target')">Target</a></li>
+				  				<li><a onclick="openTab(event, 'Proxy')">Proxy</a></li>
+				  				<li><a onclick="openTab(event, 'HTTP History')">HTTP History</a></li>
+				  				<li><a onclick="openTab(event, 'Repeater')">Repeater</a></li>
+				  		</ul>
+				  </div>
+
+  				<div class="container">
+  						<div class="tabcontent" id="target">
+  								<p class="heading">Scope</p>
+  						</div>
+  						<div class="tabcontent" id="proxy">
+  								<p class="title">Intercept</p>
+  						</div>
+  						<div class="tabcontent" id="httphistory">
+  						</div>
+  						<div class="tabcontent" id="repeater">
+  						</div>
+  				<!-- div container-->
+      </div>
+    </section>
+
+				<script src="/openTabs.js"></script>
+				<!--<script src="/gopherjs.js"></script>-->
+		</body>
+</html>
+									<div class="tab-content">
+												<div id="target" class="tab-pane fade">
+															<h3>Map/scope</h3>
+															<p>Some content.</p>
+												</div>
+												<!--Proxy stuff-->
+												<div id="proxy" class="tab-pane fade in active">
+															<br>
+															<!--Intercept stuff-->
+															<button type="button" id="forwardOriginal" onclick="proxy.onForwardOriginalClick()" class="btn btn-default">Forward Original</button>
+															<button type="button" id="forwardModified" onclick="proxy.onForwardModifiedClick()" class="btn btn-default">Forward Modified</button>
+															<button type="button" id="drop" onclick="proxy.onDropClick()" class="btn btn-default">Drop</button>
+															<button type="button" id="provideResponse" onclick="proxy.onProvideResponseClick()" class="btn btn-default">Provide Response</button>
+															<button type="button" id="interceptToggle" onclick="proxy.onToggleInterceptClick()" class="btn btn-danger">Intercept is off</button>
+															<div class="dropdown div-inline">
+																		<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Action
+																					<span class="caret"></span></button>
+																		<ul class="dropdown-menu">
+																					<li><a href="#">Send to Repeater</a></li>
+																		</ul>
+															</div>
+															<div class="form-group">
+																		<br>
+																		<label id="endpointIndicator" for="proxybuffer">From: http://foo.bar</label>
+																		<textarea id="proxybuffer" class="form-control" height="100%" id="proxybuf"></textarea>
+															</div>
+															<!--/Intercept stuff-->
+												</div>
+												<!--/Proxy stuff-->
+												<!--HTTP History Stuff-->
+												<div id="httphistory" class="tab-pane fade">
+															<div class="container-fluid">
+																		<div class="row">
+																					<div class="col-sm-12">
+																								<!--History Table-->
+																								<div style="display: block; height: 50%; overflow: auto;">
+																											<table class="table table-hover table-striped" >
+																														<thead>
+																																	<tr id="historyHeader">
+																																				
+																																				<th> Id     </th>
+																																				<th> Host   </th>
+																																				<th> Method </th>
+																																				<th> Path   </th>
+																																				<th> Params </th>
+																																				<th> Edited </th>
+																																				<th> Status </th>
+																																				<th> Length </th>
+																																				<th> Time   </th>
+																																				
+																																	</tr>
+																														</thead>
+																														<tbody id="historyTbody" onclick=proxy.onHistoryCellClick()>
+																														</tbody>
+																											</table>
+																											<!--/History Table-->
+																								</div>
+																					</div>
+																		</div>
+
+																		<div style="display: block; height: 50%; overflow: auto;">
+																					<div class="row">
+																								<div class="col-sm-6">
+																											<!--Left split-->
+																											<textarea id="historyReqBuffer" class="form-control">Request here</textarea>
+																											<!--/Left split-->
+																								</div>
+																								<div class="col-sm-6">
+																											<!--Right split-->
+																											<textarea id="historyResBuffer" class="form-control">Response here</textarea>
+																											<!--/Right split-->
+																								</div>
+																					</div>
+																		</div>
+															</div>
+												</div>
+												<!--/HTTP History Stuff-->
+												<div id="repeater" class="tab-pane fade">
+															<h3>Tabs/list</h3>
+															<p>Some content in menu 2.</p>
+
+												</div>
+									</div>
+						</div>
+						
+						<SCRIPT src="/index.js"></SCRIPT>
+
+			</body>
+</html>
+-->

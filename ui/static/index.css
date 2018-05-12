@@ -1,12 +1,3 @@
-.tabcontent {
-  display: none;
-  height: 100%;
-}
-
-html, body {
-  height: 100%;
-}
-
-section, iframe {
-  height: 95%;
+.box {
+  box-shadow: none;
 }
