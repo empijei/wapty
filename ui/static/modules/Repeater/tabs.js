@@ -7,24 +7,33 @@ function openTab(evt, tabTitle) {
 	tablinks = document.getElementsByClassName("tablinks");
 	for (i = 0; i < tablinks.length; i++) {
 		tablinks[i].className = tablinks[i].className.replace(" is-active", "");
-	}
+	};
 	//console.log(document.getElementById(tabTitle));
 	document.getElementById(tabTitle).style.display = "block";
-	evt.path[1].className += " is-active";
+	document.getElementById("li"+tabTitle).className += " is-active";
 }
+
+var tabNum = 1;
 
 function createTab(evt, tabTitle) {
 	//Adding a tab in the navbar
+	tabNum = tabNum + 1;
+	var tabName = 'Tab' + tabNum;
+	var li = '<li class="tablinks" id="li'+tabName+'">';
+	var a = '<a onclick="openTab(event, \'' + tabName + '\')">';
+	var button = '<button class="delete is-small" onclick="closeTab(\''+tabName+'\')"></button>';
 	var newtabTitle = document.getElementById('titles');
-	newtabTitle.insertAdjacentHTML('beforeend', '<li class="tablinks"><a onclick="openTab(event, \'Name\')">Name <button class="delete is-small" onclick="closeTab(event)"></button></a></li>');
+	newtabTitle.insertAdjacentHTML('beforeend', li + a + tabName + button + '</a></li>');
 
 	//Adding the content of the tab
-	//FIXME: all contents are shown at the same time
+	var div = '<div class="tabcontent" id="'+tabName+'">';
+	var textarea = '<textarea class="textarea" placeholder="New Tab" rows="30"></textarea>';
 	var newtabContent = document.getElementById('contents');
-	newtabContent.insertAdjacentHTML('beforeend', '<div class="tabcontent" id="Name"><textarea class="textarea" placeholder="New Tab" rows="30"></textarea></div>');
+	newtabContent.insertAdjacentHTML('beforeend', div + textarea + '</div>');
+	openTab(evt, tabName)
 }
 
-function closeTab(evt) {
-	evt.path[2].remove();
+function closeTab(tabName) {
+	document.getElementById('li'+tabName).remove();
+	document.getElementById(tabName).remove();
 }
-

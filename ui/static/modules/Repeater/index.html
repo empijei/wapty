@@ -1,9 +1,10 @@
 <section class="container" width="100%">
   <div class="tabs">
   	 <ul id="titles">
-  		<li class="tablinks is-active">
-				<a onclick="openTab(event, '1')">1	
-				  <button class="delete is-small" onclick="closeTab(event)"></button>
+  		<li class="tablinks is-active" id="liTab1">
+				<a onclick="openTab(event, 'Tab1')">Tab1	
+					<!-- FIXME(anna): clicking on this button triggers also openTab func-->
+				  <button class="delete is-small" onclick="closeTab('Tab1')"></button>
 				</a>
 			</li>
   	</ul>
@@ -15,7 +16,7 @@
   </div>
 
 	<section class="container" id="contents">
-		<div class="tabcontent">
+		<div class="tabcontent" id="Tab1">
       <textarea class="textarea" placeholder="HTTP traffic" rows="30"></textarea>
 		</div>
 	</section>
