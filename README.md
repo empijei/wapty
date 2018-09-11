@@ -1,3 +1,6 @@
+# DISCLAIMER:
+This project is currently undergoing some structural changes. It has not been maintained actively for a while but it will likely restart as a more polished and tested codebase in the future, stay tuned! 😊
+
 # Wapty (Web Application Penetration Testing Suite)y
 
 [![License](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://raw.githubusercontent.com/empijei/wapty/master/LICENSE)
