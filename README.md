@@ -1,5 +1,5 @@
 # DISCLAIMER:
-This project is currently undergoing some structural changes. It has not been maintained actively for a while but it will likely restart as a more polished and tested codebase in the future, stay tuned! 😊
+This is an old version of wapty. We are planning a core refactor, in order not to lose all this code we decided to move it here.
 
 # Wapty (Web Application Penetration Testing Suite)y
 
