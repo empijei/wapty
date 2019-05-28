@@ -1,5 +1,5 @@
 # DISCLAIMER:
-This project is currently undergoing some structural changes. It has not been maintained actively for a while but it will likely restart as a more polished and tested codebase in the future, stay tuned! 😊
+This project is discontinued and the codebase is not in a good shape. It has not been maintained actively for a while and I will likely not restart working on it anytime soon.
 
 # Wapty (Web Application Penetration Testing Suite)y
 
